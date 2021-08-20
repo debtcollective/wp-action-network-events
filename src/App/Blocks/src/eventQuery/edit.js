@@ -5,6 +5,7 @@
 	Panel, 
 	PanelBody, 
 	PanelRow,
+	RangeControl,
 	QueryControls,
 	SelectControl,
 	Spinner
@@ -30,21 +31,27 @@ import {
 import { more } from '@wordpress/icons';
 import { __, sprintf } from '@wordpress/i18n';
 
-import metadata from './block.json';
-const { attributes } = metadata;
+const MAX_ITEMS = 24;
 
-const Edit = ( { 
-	attributes: { 
-		queryId,
-		query,
-		layout
-	}, 
-	setAttributes
- } ) => {
+const Edit = ( props ) => {
 
-	const QUERY_DEFAULTS = attributes.query.default;
-	const { taxonomy, postType } = attributes.query;
-	
+	const { 
+		attributes, 
+		className, 
+		setAttributes, 
+		isSelected 
+	} = props;
+
+	const{ 
+		taxonomy, 
+		eventTagId, 
+		postType, 
+		perPage,
+		orderBy,
+		metaKey,
+		query
+	} = attributes;
+
 	const TermSelector = () => {
 		const terms = useSelect( ( select ) => {
 			return select( 'core' ).getEntityRecords( 'taxonomy', taxonomy );
@@ -52,10 +59,10 @@ const Edit = ( {
 
 		const setTerm = ( term ) => {
 			setAttributes( {
-				query: {
-					"event-tags": term
-				}
-			} )
+				eventTagId: term
+			} );
+
+			setQuery( 'eventTagId', term );
 		}
 
 		if( !terms || !terms.length ) {
@@ -70,28 +77,29 @@ const Edit = ( {
 					label={ __( 'Tag', 'wp-action-network-events' ) }
 					options={ [ { value: "", label: __( 'Select a Tag', 'wp-action-network-events' ) }, ...options ] || [ { value: "", label: __( 'Loading...', 'wp-action-network-events' ) } ] }
 					onChange={ setTerm }
-					value={ query['event-tags'] }
+					value={ eventTagId }
 				/>
 			</>
 		);
 	};
 
-	const EventQueryControl = () => {
-		const [ query, setQuery ] = useState( QUERY_DEFAULTS );
-		const { orderby, order, perPage } = query;
-	
-		const updateQuery = ( newQuery ) => {
-			setQuery( { ...query, ...newQuery } );
-		};
-	
+	const PerPostSelector = () => {
+
+		const setValue = ( value ) => {
+			setAttributes( {
+				perPage: value
+			} );
+			setQuery( 'perPage', value );
+		}
+
 		return (
-			<QueryControls
-				{ ...{ orderby, order, perPage } }
-				onOrderByChange={ ( newOrderBy ) => updateQuery( { orderby: newOrderBy } ) }
-				onOrderChange={ ( newOrder ) => updateQuery( { order: newOrder } ) }
-				onNumberOfItemsChange={ ( newNumberOfItems ) =>
-					updateQuery( { perPage: newNumberOfItems } )
-				}
+			<RangeControl
+				key="query-controls-range-control"
+				label={ __( 'Number of Posts', 'wp-action-network-events' ) }
+				value={ perPage }
+				onChange={ setValue }
+				min={ 1 }
+				max={ MAX_ITEMS }
 			/>
 		);
 	};
@@ -100,38 +108,42 @@ const Edit = ( {
 
 		const options = [
 			{
-				value: "",
-				label: __( 'Order By', 'wp-action-network-events' )
+				value: "meta_value/desc",
+				label: __( 'Soonest to Latest', 'wp-action-network-events' )
 			},
 			{
-				value: "meta_key",
-				label: __( 'Event Date', 'wp-action-network-events' )
+				value: "meta_value/asc",
+				label: __( 'Latest to Soonest', 'wp-action-network-events' )
+			},
+			{
+				value: "title/asc",
+				label: __( 'A → Z', 'wp-action-network-events' )
 			},
 			{
 				value: "title",
-				label: __( 'Title', 'wp-action-network-events' )
+				label: __( 'Z → A', 'wp-action-network-events' )
 			}
 		];
 
-		const setOrderBy = ( orderBy ) => {
+		const setOrderBy = ( value ) => {
 			setAttributes( {
-				query: {
-					"orderby": orderBy
-				}
-			} )
+				orderBy: value
+			} );
+
+			setQuery( 'orderBy', value );
 		}
 
-		if( !orderByOptions || !orderByOptions.length ) {
+		if( !options || !options.length ) {
 			return <Spinner />;
 		}
 
 		return (
 			<>
 				<SelectControl
-					label={ __( 'Order', 'wp-action-network-events' ) }
+					label={ __( 'Order By', 'wp-action-network-events' ) }
 					options={ options }
 					onChange={ setOrderBy }
-					value={ query.orderby }
+					value={ orderBy }
 				/>
 			</>
 		);
@@ -143,20 +155,60 @@ const Edit = ( {
 			<PanelRow>
 				<TermSelector />
 			</PanelRow>
+			<PanelRow>
+				<OrderSelector />
+			</PanelRow>
+			<PanelRow>
+				<PerPostSelector />
+			</PanelRow>
 		</PanelBody>
 	);
 
+	const setQuery = ( prop, value ) => {
+		let _query = query;
+
+		switch( prop ) {
+			case 'perPage' :
+
+				_query = { ...query, per_page: parseInt( value ) }
+
+				break;
+			case 'orderBy' :
+				const _ordering = value.split( '/' );
+				_query = { ..._query, orderby: _ordering[0], order: _ordering[1] }
+
+				if( 'meta_value' === _query.orderby ) {
+					_query = { ..._query, meta_key: metaKey }
+				} else {
+					_query = { ..._query, meta_key: null }
+				}
+
+				break;
+			case 'eventTagId' :
+				console.log( 'eventTagId', value );
+
+				_query = { ..._query, "event-tags": [parseInt( value )] }
+
+				break;
+		}
+
+		setAttributes( {
+			query: _query
+		} );
+	}
+
 	const Posts = () => {
 		const posts = useSelect( ( select ) => {
-			// console.log( 'Query', query );
-			return select( 'core' ).getEntityRecords( 'postType', postType, query );
+			const eventsQuery = {};
+
+			console.log( query );
+
+			return select( 'core' ).getEntityRecords( 'postType', postType, eventsQuery );
 		} );
 
 		if( !posts || !posts.length ) {
 			return <Spinner />
 		}
-
-		console.log( posts );
 
 		return (
 			<>
@@ -193,6 +245,7 @@ const Edit = ( {
 		</InspectorControls>
 
 		<div { ...blockProps }>
+			Posts
 			<Posts />
 		</div>
 		</>

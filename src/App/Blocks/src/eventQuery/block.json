@@ -11,27 +11,39 @@
 		},
 		"query": {
 			"type": "object",
-			"perPage": 3,
-			"pages": 0,
-			"offset": 0,
-			"postType": "an_event",
-			"order": "desc",
-			"orderby": "meta_value",
-			"meta_key": "_start_date",
-			"taxonomy": "event_tag",
-			"event-tags": "",
-
 			"default": {
-				"perPage": 3,
-				"pages": 0,
-				"offset": 0,
-				"postType": "an_event",
+				"per_page": 3,
+				"offset":0,
+				"page": 0,
+				"event-tags": [],
 				"order": "desc",
-				"orderby": "meta_value",
-				"meta_key": "_start_date",
-				"taxonomy": "event_tag",
-				"event-tags": ""
+				"orderby": "meta_value/desc",
+				"meta_key": "_start_date"
 			}
+		},
+		"taxonomy": {
+			"type": "string",
+			"default": "event_tag"
+		},
+		"postType": {
+			"type": "string",
+			"default": "an_event"
+		},
+		"metaKey": {
+			"type": "string",
+			"default": "_start_date"
+		},
+		"perPage": {
+			"type": "number",
+			"default": 3
+		},
+		"orderBy": {
+			"type": "string",
+			"default": "meta_value/desc"
+		},
+		"eventTagId": {
+			"type": "string",
+			"default": ""
 		},
 		"layout": {
 			"type": "object",
