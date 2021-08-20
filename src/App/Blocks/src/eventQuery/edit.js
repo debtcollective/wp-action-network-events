@@ -52,6 +52,36 @@ const Edit = ( props ) => {
 		query
 	} = attributes;
 
+	const [ siteDateFormat ] = useEntityProp( 'root', 'site', 'date_format' );
+	const [ siteTimeFormat ] = useEntityProp( 'root', 'site', 'time_format' );
+	const settings = __experimentalGetSettings();
+
+	console.log( siteDateFormat, siteTimeFormat, settings );
+
+	// const getStartDate = ( postID ) => {
+	// 	const [ meta ] = useEntityProp( 'postType', postType, 'meta', postId, true );
+	// 	const date = meta[ '_start_date' ];
+	// 	return date;
+	// }
+
+	// // To know if the current time format is a 12 hour time, look for "a".
+	// // Also make sure this "a" is not escaped by a "/".
+	// const is12Hour = /a(?!\\)/i.test(
+	// 	settings.formats.time
+	// 		.toLowerCase() // Test only for the lower case "a".
+	// 		.replace( /\\\\/g, '' ) // Replace "//" with empty strings.
+	// 		.split( '' )
+	// 		.reverse()
+	// 		.join( '' ) // Reverse the string and test for "a" not followed by a slash.
+	// );
+	// const formatOptions = Object.values( settings.formats ).map(
+	// 	( formatOption ) => ( {
+	// 		key: formatOption,
+	// 		name: dateI18n( formatOption, date ),
+	// 	} )
+	// );
+	// const resolvedFormat = format || siteDateFormat || settings.formats.date;
+
 	const TermSelector = () => {
 		const terms = useSelect( ( select ) => {
 			return select( 'core' ).getEntityRecords( 'taxonomy', taxonomy );
@@ -149,7 +179,6 @@ const Edit = ( props ) => {
 		);
 	};
 
-
 	const SettingsPanel = () => (
 		<PanelBody title={ __( 'Query Options', 'wp-action-network-events' ) } initialOpen={ true }>
 			<PanelRow>
@@ -214,19 +243,25 @@ const Edit = ( props ) => {
 			<>
 				{ posts.map( post => {
 					return (
-						<article className={`${post.type}`} key={post.id}>
-							<h2 className="event__title"><a link={ post.link } rel="bookmark" dangerouslySetInnerHTML={{ __html: post.title.rendered }} /></h2>
-							<div className="event__date">
-								<time datetime={ post.meta?.["_start_date"] }>{ post.meta?.["_start_date"] }</time>
-							</div>
-							<div className="event__time">
-								<time datetime={ post.meta?.["_start_date"] }>{ post.meta?.["_start_date"] }</time>
-							</div>
-							<div className="event__location" dangerouslySetInnerHTML={{ __html: post.meta?.["_location_venue"] }}></div>
-						</article>
+						<Post { ...post } key={post.id} />
 					);
 				}) }
 			</>
+		)
+	}
+
+	const Post = ( post ) => {
+		return (
+			<article className={`${post.type}`}>
+				<h2 className="event__title"><a link={ post.link } rel="bookmark" dangerouslySetInnerHTML={{ __html: post?.title?.rendered }} /></h2>
+				<div className="event__date">
+					<time dateTime={ post.meta?.["_start_date"] }>{ post.meta?.["_start_date"] }</time>
+				</div>
+				<div className="event__time">
+					<time dateTime={ post.meta?.["_start_date"] }>{ post.meta?.["_start_date"] }</time>
+				</div>
+				<div className="event__location" dangerouslySetInnerHTML={{ __html: post.meta?.["_location_venue"] }}></div>
+			</article>
 		)
 	}
 
@@ -241,7 +276,6 @@ const Edit = ( props ) => {
 		<>
 		<InspectorControls>
 			<SettingsPanel />
-			<EventQueryControl />
 		</InspectorControls>
 
 		<div { ...blockProps }>
