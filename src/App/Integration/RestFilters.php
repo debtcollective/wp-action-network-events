@@ -43,9 +43,8 @@ class RestFilters extends Base {
 		 *
 		 * Add plugin code here
 		 */
-
 		\add_filter( 'rest_query_vars', 											[ $this, 'rest_query_vars' ] );
-		\add_filter( 'rest_' . PostTypes::POST_TYPE['id'] . '_query', 				[ $this, 'rest_query' ], 10, 2 );
+		\add_filter( 'rest_' . PostTypes::POST_TYPE['id'] . '_query', 				[ $this, 'rest_query_start_date' ], 10, 2 );
 		\add_filter( 'rest_' . PostTypes::POST_TYPE['id'] . '_collection_params', 	[ $this, 'rest_collection_params' ], 10, 2 );
 
 	}
@@ -57,12 +56,13 @@ class RestFilters extends Base {
 	 * @return array
 	 */
 	function rest_query_vars( $current_vars ) {
-		$current_vars = array_merge( $current_vars, array( 'meta_key', 'meta_value' ) );
+		$current_vars = array_merge( $current_vars, array( 'meta_key' ) );
 		return $current_vars;
 	}
 
 	/**
 	 * Modify query
+	 * Orderby `meta_value` if `orderby=start` is passed
 	 * 
 	 * @see https://developer.wordpress.org/reference/hooks/rest_this-post_type_query/
 	 *
@@ -70,25 +70,27 @@ class RestFilters extends Base {
 	 * @param obj $request
 	 * @return array $params
 	 */
-	function rest_query( $params, $request ) {
-		if ( isset( $request['meta_key'] ) && !empty( $request['meta_key'] ) ) {
-			$params['meta_key'] = $request['meta_key'];
+	function rest_query_start_date( $params, $request ) {
+		if ( isset( $request['orderby'] ) && 'start' === $request['orderby'] ) {
+			$params['orderby'] = 'meta_value';
+			$params['meta_key'] = '_start_date';
 		}
 		return $params;
 	}
 
 	/**
 	 * Register collection parameters
+	 * Add `start` as valid value for `orderby`
 	 * 
 	 * 
 	 * @see https://developer.wordpress.org/reference/hooks/rest_this-post_type_collection_params/
 	 *
-	 * @param array $params
+	 * @param array $args
 	 * @param string $post_type
 	 * @return void
 	 */
-	function rest_collection_params( $params, $post_type ) {
-		array_push( $params['orderby']['enum'], 'meta_value' );
-		return $params;
+	function rest_collection_params( $args, $post_type ) {
+		array_push( $args['orderby']['enum'], 'start' );
+		return $args;
 	}
 }
