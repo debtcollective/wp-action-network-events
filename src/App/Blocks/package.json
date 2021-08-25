@@ -13,12 +13,11 @@
 		"start": "wp-scripts start",
 		"packages-update": "wp-scripts packages-update"
 	},
-	"dependencies": {
-
-	},
+	"dependencies": {},
 	"devDependencies": {
 		"@wordpress/block-editor": "^7.0.0",
 		"@wordpress/blocks": "^11.0.0",
+		"@wordpress/compose": "^5.0.1",
 		"@wordpress/i18n": "^4.2.1",
 		"@wordpress/scripts": "^17.1.0",
 		"moment": "^2.29.1",
