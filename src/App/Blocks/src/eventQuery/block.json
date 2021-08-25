@@ -3,7 +3,7 @@
 	"name": "wp-action-network-events/event-query",
 	"title": "Events Query (custom)",
 	"category": "theme",
-	"description": "Display an event query.",
+	"description": "Display a List of Events.",
 	"textdomain": "wp-action-network-events",
 	"attributes": {
 		"queryId": {
@@ -13,12 +13,9 @@
 			"type": "object",
 			"default": {
 				"per_page": 3,
-				"offset":0,
-				"page": 0,
 				"event-tags": [],
 				"order": "desc",
-				"orderby": "meta_value/desc",
-				"meta_key": "_start_date"
+				"orderby": "start"
 			}
 		},
 		"taxonomy": {
@@ -37,11 +34,11 @@
 			"type": "number",
 			"default": 3
 		},
-		"orderBy": {
+		"orderby": {
 			"type": "string",
-			"default": "meta_value/desc"
+			"default": "start/desc"
 		},
-		"eventTagId": {
+		"eventTags": {
 			"type": "string",
 			"default": ""
 		},
@@ -49,6 +46,25 @@
 			"type": "object",
 			"default": {
 				"type": "grid"
+			}
+		},
+		"dateFormat": {
+			"type": "string"
+		},
+		"timeFormat": {
+			"type": "string",
+			"default": "g:i a"
+		},
+		"display": {
+			"type": "object",
+			"default": {
+				"tagName": "article",
+				"showTags": false,
+				"showFeaturedImage": false,
+				"showTitle": true,
+				"showDate": true,
+				"showTime": true,
+				"showLocation": true
 			}
 		}
 	},
