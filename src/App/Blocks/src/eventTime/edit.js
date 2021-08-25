@@ -28,7 +28,6 @@ const Edit = ( {
 	},
 	setAttributes
  } ) => {
-	const isDescendentOfQueryLoop = !! queryId;
 	const [ siteFormat ] = useEntityProp( 'root', 'site', 'date_format' );
 	const [ meta ] = useEntityProp( 'postType', postType, 'meta', postId, true );
 	const date = meta[ '_start_date' ];
@@ -67,7 +66,7 @@ const Edit = ( {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Format Settings', 'wp-action-network-events' ) }>
+				<PanelBody title={ __( 'Time Format Settings', 'wp-action-network-events' ) }>
 					<CustomSelectControl
 						hideLabelFromVision
 						label={ __( 'Time Format', 'wp-action-network-events' ) }

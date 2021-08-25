@@ -67,7 +67,7 @@ const Edit = ( {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Format Settings', 'wp-action-network-events' ) }>
+				<PanelBody title={ __( 'Date Format Settings', 'wp-action-network-events' ) }>
 					<CustomSelectControl
 						hideLabelFromVision
 						label={ __( 'Date Format', 'wp-action-network-events' ) }
