@@ -32,6 +32,9 @@ class CustomFields extends Base {
 	 */
 	public const CONTAINER_ID = 'wp_action_network_fields';
 
+	/**
+	 * 
+	 */
 	public const FIELDS = [
 		[
 			'name'		=> '',
@@ -87,6 +90,8 @@ class CustomFields extends Base {
 
 		$is_read_only = false;
 
+		$default_timezone = get_option( 'timezone_string' );
+
 		$fields = [
 			Field::make( 'text', 'name', __( 'Name', 'wp-action-network-events' ) )
 				->set_visible_in_rest_api( $visible = true )
@@ -101,6 +106,10 @@ class CustomFields extends Base {
 			Field::make( 'text', 'start_date', __( 'Start', 'wp-action-network-events' ) )
 				->set_visible_in_rest_api( $visible = true )
 				->set_attribute( 'readOnly', $is_read_only ),
+			Field::make( 'select', 'time_zone', __( 'Time Zone', 'wp-action-network-events' ) )
+				->add_options( [ $this, 'getTimezones' ] )
+				->set_default_value( $default_timezone )
+				->set_visible_in_rest_api( $visible = true ),
 			Field::make( 'text', 'accepted', __( 'RSVPd', 'wp-action-network-events' ) )
 				->set_visible_in_rest_api( $visible = true )
 				->set_attribute( 'type', 'number' )
@@ -196,30 +205,13 @@ class CustomFields extends Base {
 			->add_fields( $fields );
 	}
 
-	public function makeFields() {
-		$fields = [];
-		foreach( self::FIELDS as $field ) {
-			switch( $field) {
-				case $field['text_type'] :
-					$fields[] = Field::make( $field['type'], $field['name'], __( $field['label'], 'wp-action-network-events' ) )
-						->set_visible_in_rest_api( $visible = true )
-						->set_attribute( 'readOnly', $is_read_only )
-						->set_attribute( 'type', $field['text_type'] );
-					break;
-				case 'separator' === $field['type'] :
-					$fields[] = Field::make( $field['type'], $field['name'], __( $field['label'], 'wp-action-network-events' ) );
-					break;
-				default :
-					$fields[] = Field::make( $field['type'], $field['name'], __( $field['label'], 'wp-action-network-events' ) )
-						->set_visible_in_rest_api( $visible = true )
-						->set_attribute( 'readOnly', $is_read_only );
-					break;
-			}
-		}
-		return $fields;
-
-	}
-
+	/**
+	 * Register post meta with Rest API
+	 * 
+	 * @see https://developer.wordpress.org/reference/functions/register_post_meta/
+	 *
+	 * @return void
+	 */
 	public function registerPostMeta() {
 		\register_post_meta(
 			'an_event', 
@@ -241,4 +233,26 @@ class CustomFields extends Base {
 	}
 
 	public static function getFields() {}
+
+	/**
+	 * Build list of timezones
+	 *
+	 * @return $array
+	 */
+	public function getTimezones() {
+		$timezones = \DateTimeZone::listIdentifiers();
+		$array = [];
+
+		$count = count( $timezones );
+		for( $i = 0; $i <= $count; $i++ ) {
+			$array[$timezones[$i]] = str_replace( '_', ' ', $timezones[$i] );
+		}
+		
+		// $array = array_map( function( $timezone ) {
+		// 	return $array[ $timezone ] = str_replace( '_', ' ', $timezone );
+		// 	// return [ $timezone => str_replace( '_', ' ', $timezone ) ];
+		// }, $timezones );
+
+		return $array;
+	}
 }
