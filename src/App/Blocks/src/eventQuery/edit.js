@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import startCase from 'lodash.startcase';
+
+/**
  * WordPress dependencies
  */
  import { 
@@ -9,14 +14,14 @@
 } from '@wordpress/block-editor';
  import { 
 	CustomSelectControl,
-	FormToggle,
 	Panel, 
 	PanelBody, 
 	PanelRow,
 	RangeControl,
 	QueryControls,
 	SelectControl,
-	Spinner
+	Spinner,
+	ToggleControl
 } from '@wordpress/components';
 import { 
 	useEffect,
@@ -27,7 +32,10 @@ import {
 	useDispatch,
 	useSelect
 } from '@wordpress/data';
-import { useInstanceId } from '@wordpress/compose';
+import { 
+	useInstanceId,
+	withState
+} from '@wordpress/compose';
 import { 
 	useEntityProp,
 	store as coreStore
@@ -37,14 +45,6 @@ import {
 	 dateI18n 
 } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-
-const BLOCK_TEMPLATE = [
-	[ 'core/post-featured-image', {}, [] ],
-	[ 'core/post-title', {}, [] ],
-	[ 'wp-action-network-events/event-date', {}, [] ],
-	[ 'wp-action-network-events/event-time', {}, [] ],
-	[ 'wp-action-network-events/event-location', {}, [] ],
-];
 
 const MAX_ITEMS = 24;
 
@@ -67,26 +67,18 @@ const Edit = ( props ) => {
 		query,
 		dateFormat,
 		timeFormat,
-		display: {
-			tagName,
-			showTags,
-			showFeaturedImage,
-			showTitle,
-			showDate,
-			showTime,
-			showLocation
-		}
+		display
 	} = attributes;
 
-	// const {
-	// 	tagName,
-	// 	showTags,
-	// 	showFeaturedImage,
-	// 	showTitle,
-	// 	showDate,
-	// 	showTime,
-	// 	showLocation
-	// } = display;
+	const {
+		tagName,
+		showTags,
+		showFeaturedImage,
+		showTitle,
+		showDate,
+		showTime,
+		showLocation
+	} = display;
 
 	const instanceId = useInstanceId( Edit );
 
@@ -102,8 +94,6 @@ const Edit = ( props ) => {
 
 	const posts = useSelect(
 		( select ) => {
-			console.log( query );
-
 			return select( 'core' ).getEntityRecords( 'postType', postType, query )
 		},
 		[ query ]
@@ -124,6 +114,12 @@ const Edit = ( props ) => {
 	const setOrderBy = ( value ) => {
 		setAttributes( {
 			orderby: value
+		} );
+	}
+
+	const setShow = ( field, value ) => {
+		setAttributes( {
+			[field]: value
 		} );
 	}
 
@@ -254,6 +250,43 @@ const Edit = ( props ) => {
 		);
 	};
 
+	const ShowSelectors = () => {
+		const displayAttributes = Object.entries( display );
+		const filtered = displayAttributes.filter( ( [ key, value ] ) => typeof value === 'boolean' );
+		const object = Object.fromEntries( filtered );
+		const fields = Object.keys( object );		
+
+		if( !fields || !fields.length ) {
+			return null;
+		}
+
+		return (
+			<>
+				{ fields.map( ( field, index ) => {
+					const label = startCase( field.replace( 'show', '' ) );
+					let checked = attributes.display[field];
+
+					return (
+						<PanelRow key={index}>
+							<ToggleControl
+								label={ label }
+								help={ checked ? __( 'Show', 'wp-action-network-events' ) : __( 'Hide', 'wp-action-network-events' ) }
+								checked={ checked }
+								onChange={ ( isChecked ) => {
+									setAttributes( { 
+										display: { 
+										...display, 
+										[field]: isChecked
+									}  } )
+								} }
+							/>
+						</PanelRow>
+					)
+				} ) }
+			</>
+		)
+	}
+
 	const SettingsPanel = () => (
 		<>
 		<PanelBody title={ __( 'Query Options', 'wp-action-network-events' ) } initialOpen={ true }>
@@ -275,6 +308,9 @@ const Edit = ( props ) => {
 				<TimeFormatSelector />
 			</PanelRow>
 		</PanelBody>
+		<PanelBody title={ __( 'Content Options', 'wp-action-network-events' ) } initialOpen={ true }>
+			<ShowSelectors />
+		</PanelBody>
 		</>
 	);
 
@@ -285,7 +321,9 @@ const Edit = ( props ) => {
 		}
 
 		if( !posts.length ) {
-			return ':{'
+			return (
+				<NoPosts />
+			)
 		}
 
 		return (
@@ -301,16 +339,69 @@ const Edit = ( props ) => {
 	}
 
 	const Post = ( post ) => {
+
+		const [ featuredImage, setFeaturedImage ] = useEntityProp(
+			'postType',
+			postType,
+			'featured_media',
+			post.id
+		);
+
+		const media = useSelect(
+			( select ) => {
+				if( !showFeaturedImage || !featuredImage ) {
+					return false;
+				}
+				return select( 'core' ).getMedia( featuredImage, { context: 'view' } )
+			},
+			[ featuredImage ]
+		);
+
+		const tags = useSelect(
+			( select ) => {
+				if( !showTags ) {
+					return false;
+				}
+				return select( 'core' ).getEntityRecords( 'taxonomy', taxonomy, {
+					include: post["event-tags"],
+					context: 'view',
+				} )
+			},
+			[]
+		);
+
 		return (
-			<article className={`${post.type}`}>
-				<h2 className="event__title"><a link={ post.link } rel="bookmark" dangerouslySetInnerHTML={{ __html: post?.title?.rendered }} /></h2>
-				<div className="event__date">
-					<time dateTime={ post.meta?.["_start_date"] }>{ dateI18n( dateFormat, post.meta?.["_start_date"] ) }</time>
-				</div>
-				<div className="event__time">
-					<time dateTime={ post.meta?.["_start_date"] }>{ dateI18n( timeFormat, post.meta?.["_start_date"] ) }</time>
-				</div>
-				<div className="event__location" dangerouslySetInnerHTML={{ __html: post.meta?.["_location_venue"] }}></div>
+			<article className="event">
+				{ ( showTags && tags ) && (
+					<div className="event__tag">
+						<a href={ tags[0]?.link } rel="tag" dangerouslySetInnerHTML={{ __html: tags[0]?.name }}></a>
+						{ console.log( tags ) }
+					</div>
+				) }
+				{ ( showFeaturedImage && media ) && (
+					<picture className="event__media">
+						<img
+							src={ media.source_url }
+							alt={ media.alt_text || __( 'Featured Image', 'wp-action-network-events' ) }
+						/>
+					</picture>
+				) }
+				{ showTitle && (
+					<h2 className="event__title"><a link={ post.link } rel="bookmark" dangerouslySetInnerHTML={{ __html: post?.title?.rendered }} /></h2>
+				) }
+				{ showDate && (
+					<div className="event__date">
+						<time dateTime={ post.meta?.["_start_date"] }>{ dateI18n( dateFormat, post.meta?.["_start_date"] ) }</time>
+					</div>
+				) }
+				{ showTime && (
+					<div className="event__time">
+						<time dateTime={ post.meta?.["_start_date"] }>{ dateI18n( timeFormat, post.meta?.["_start_date"] ) }</time>
+					</div>
+					) }
+				{ showLocation && (
+					<div className="event__location" dangerouslySetInnerHTML={{ __html: post.meta?.["_location_venue"] }}></div>
+				) }
 			</article>
 		)
 	}
@@ -368,7 +459,9 @@ const Edit = ( props ) => {
 				timeFormat: resolvedTimeFormat
 			} );
 		}
-	}, [ queryId, instanceId, dateFormat, timeFormat ] );
+
+		console.log( 'useEffect', attributes.display );
+	}, [ queryId, instanceId, dateFormat, siteTimeFormat ] );
 
 	return (
 		<>
