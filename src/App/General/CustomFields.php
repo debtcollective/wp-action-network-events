@@ -245,7 +245,9 @@ class CustomFields extends Base {
 
 		$count = count( $timezones );
 		for( $i = 0; $i <= $count; $i++ ) {
-			$array[$timezones[$i]] = str_replace( '_', ' ', $timezones[$i] );
+			if( !empty( $timezones[$i] ) ) {
+				$array[$timezones[$i]] = str_replace( '_', ' ', $timezones[$i] );
+			}
 		}
 		
 		// $array = array_map( function( $timezone ) {
