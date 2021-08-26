@@ -55,10 +55,17 @@
 			"type": "string",
 			"default": "g:i a"
 		},
+		"wrapperTagName": {
+			"type": "string",
+			"default": "div"
+		},
+		"tagName": {
+			"type": "string",
+			"default": "article"
+		},
 		"display": {
 			"type": "object",
 			"default": {
-				"tagName": "article",
 				"showTags": false,
 				"showFeaturedImage": false,
 				"showTitle": true,
