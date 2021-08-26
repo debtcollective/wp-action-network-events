@@ -15,8 +15,6 @@ namespace WpActionNetworkEvents\App\Blocks\Event_Query;
  * @return string Returns the filtered post date for the current post wrapped inside "time" tags.
  */
 function render( $attributes, $content, $block ) {
-	$default_timezone = \get_option( 'timezone_string' );
-	$timezone = ( $tz = \get_post_meta( $post_id, '_timezone', true ) ) ? $tz : $default_timezone;
 
 	$block_type_attributes = $block->block_type->attributes;
 	$default_query = $block_type_attributes['query']['default'];
@@ -73,6 +71,7 @@ function render( $attributes, $content, $block ) {
 
 	if( $query->have_posts() ) : 
 
+		$default_timezone = \get_option( 'timezone_string' );
 		$wrapper_attributes = \get_block_wrapper_attributes( [ 'class' => 'events__list' ] );
 		
 		ob_start();
@@ -81,6 +80,8 @@ function render( $attributes, $content, $block ) {
 		<?php
 		while( $query->have_posts() ) : $query->the_post(); 
 			$post_id = \get_the_ID();
+
+			$timezone = ( $tz = \get_post_meta( $post_id, '_timezone', true ) ) ? $tz : $default_timezone;
 			$raw_date = \get_post_meta( $post_id, '_start_date', true );
 			$datetime = new \DateTime( $raw_date );
 			$formatted_date = $datetime->format( $date_format );
@@ -94,7 +95,7 @@ function render( $attributes, $content, $block ) {
 
 			<<?php echo ( $args['tagName'] ); ?> class="event">
 
-				<?php if( $args['showTags'] && \has_term( '', $taxonomy, get_the_ID() ) ) : 
+				<?php if( $args['showTags'] && \has_term( '', $taxonomy, $post_id ) ) : 
 					$tags = \wp_get_post_terms( $post_id, $taxonomy, [ 'fields' => 'names' ] );
 					?>
 
@@ -104,7 +105,7 @@ function render( $attributes, $content, $block ) {
 
 				<?php endif; ?>
 
-				<?php if( $args['showFeaturedImage'] && \has_post_thumbnail( $post ) ) : ?>
+				<?php if( $args['showFeaturedImage'] && \has_post_thumbnail( $post_id ) ) : ?>
 
 					<picture className="event__media">
 						<?php \the_post_thumbnail( $post_id, 'medium', [] ); ?>
@@ -149,6 +150,7 @@ function render( $attributes, $content, $block ) {
 
 	<?php
 	$output = ob_get_clean();
+	wp_reset_postdata();
 
 	endif;
 
