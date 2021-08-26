@@ -26,7 +26,7 @@ function render( $attributes, $content, $block ) {
 	$calculated_timezone = \Site_Functionality\get_nearest_timezone( '37.778008', '-122.431272', 'CA' );
 
 	$post_ID            = $block->context['postId'];
-	$wrapper_attributes = \get_block_wrapper_attributes( array( 'class' => 'event-time' ) );
+	$wrapper_attributes = \get_block_wrapper_attributes( array( 'class' => 'event__time' ) );
 	$raw_date			= \get_post_meta( $post_ID, '_start_date', true );
 
 	$datetime = new \DateTime( $raw_date );

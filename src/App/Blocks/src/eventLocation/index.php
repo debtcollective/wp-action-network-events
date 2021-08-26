@@ -21,7 +21,7 @@ function render( $attributes, $content, $block ) {
 	}
 
 	$post_ID            = $block->context['postId'];
-	$wrapper_attributes = \get_block_wrapper_attributes( [ 'class' => 'event-location' ] );
+	$wrapper_attributes = \get_block_wrapper_attributes( [ 'class' => 'event__location' ] );
 	$location     		= \get_post_meta( $post_ID, '_location_venue', true ) ?? '' ;
 
 	return sprintf( '<div %1$s>%2$s</div>', $wrapper_attributes, esc_attr( $location ) );

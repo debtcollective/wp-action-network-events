@@ -47,8 +47,6 @@ function render( $attributes, $content, $block ) {
 		]
 	);
 
-	var_dump( $attributes );
-
 	$args = wp_parse_args( $args, $defaults );
 
 	$taxonomy = $args['taxonomy'];
