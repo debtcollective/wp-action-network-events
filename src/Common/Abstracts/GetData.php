@@ -14,7 +14,7 @@ use WpActionNetworkEvents\App\Admin\Options;
  * @package WpActionNetworkEvents\Common\Abstracts
  * @since 1.0.0
  */
-abstract class Data {
+abstract class GetData {
 
 	/**
 	 * Base URL
