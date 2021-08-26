@@ -26,12 +26,9 @@
  */
 namespace WpActionNetworkEvents;
 
-// If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
-	die;
-}
-
 require_once( 'vendor/autoload.php' );
+
+use WpActionNetworkEvents\Common\Plugin as Plugin;
 
 /**
  * Currently plugin version.
@@ -73,7 +70,7 @@ register_deactivation_hook( __FILE__, 'deactivate_wp_action_network_events' );
  * @since    1.0.0
  */
 function init() {
-	$plugin = new Common\Plugin( PLUGIN_VERSION, PLUGIN_NAME, plugin_basename( __FILE__ ) );
+	$plugin = new Plugin( PLUGIN_VERSION, PLUGIN_NAME, plugin_basename( __FILE__ ) );
 	return $plugin;
 }
 init();
