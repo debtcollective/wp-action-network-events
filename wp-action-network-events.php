@@ -38,8 +38,8 @@ require_once( 'vendor/autoload.php' );
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-const WPANE_PLUGIN_NAME = 'wp-action-network-events';
-const WPANE_PLUGIN_VERSION = '1.0.0';
+const PLUGIN_NAME = 'wp-action-network-events';
+const PLUGIN_VERSION = '1.0.0';
 define( 'WPANE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 /**
@@ -64,12 +64,6 @@ register_activation_hook( __FILE__, 'activate_wp_action_network_events' );
 register_deactivation_hook( __FILE__, 'deactivate_wp_action_network_events' );
 
 /**
- * The core plugin class that is used to define internationalization,
- * admin-specific hooks, and public-facing site hooks.
- */
-// require plugin_dir_path( __FILE__ ) . 'src/Plugin.php';
-
-/**
  * Begins execution of the plugin.
  *
  * Since everything within the plugin is registered via hooks,
@@ -79,7 +73,11 @@ register_deactivation_hook( __FILE__, 'deactivate_wp_action_network_events' );
  * @since    1.0.0
  */
 function init() {
-	$plugin = new \WpActionNetworkEvents\Common\Plugin( WPANE_PLUGIN_VERSION, WPANE_PLUGIN_NAME );
+	$plugin = new Common\Plugin( PLUGIN_VERSION, PLUGIN_NAME, plugin_basename( __FILE__ ) );
 	return $plugin;
 }
 init();
+
+
+
+
