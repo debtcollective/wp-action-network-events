@@ -68,6 +68,16 @@ class Plugin {
 	protected $version;
 
 	/**
+	 * The basename location this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      string    $basename 
+	 */
+	protected $basename;
+
+
+	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
 	 * the plugin.
 	 *
