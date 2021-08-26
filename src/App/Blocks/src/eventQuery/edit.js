@@ -67,11 +67,12 @@ const Edit = ( props ) => {
 		query,
 		dateFormat,
 		timeFormat,
+		wrapperTagName,
+		tagName,
 		display
 	} = attributes;
 
 	const {
-		tagName,
 		showTags,
 		showFeaturedImage,
 		showTitle,
@@ -86,7 +87,46 @@ const Edit = ( props ) => {
 	const [ siteTimeFormat ] = useEntityProp( 'root', 'site', 'time_format' );
 	const settings = __experimentalGetSettings();
 	const resolvedDateFormat = dateFormat || siteDateFormat || settings.formats.date;
-	const resolvedTimeFormat = timeFormat || siteTimeFormat  || settings.formats.date;
+	const resolvedTimeFormat = timeFormat || siteTimeFormat  || settings.formats.time;
+
+	const dateOptions = () => {
+		const date = new Date();
+		let formats = [	
+			'l, F j, Y',
+			'D, M j, Y',
+			'F j, Y',
+			'M j, Y',
+			'm/j/Y'
+		];
+		const options = formats
+			.filter( format => format !== settings.formats.date )
+			.concat( [ settings.formats.date ] )
+			.map( ( format ) => ( {
+				key: format,
+				name: dateI18n( format, date ),
+			} ) )
+
+		return options
+	}
+
+	const timeOptions = () => {
+		const date = new Date();
+		let formats = [	
+			'g:i a',
+			'g:i A',
+			'g:ia',
+			'H:i',
+		];
+		const options = formats
+			.filter( format => format !== settings.formats.time )
+			.concat( [ settings.formats.time ] )
+			.map( ( format ) => ( {
+				key: format,
+				name: dateI18n( format, date ),
+			} ) )
+
+		return options
+	}
 
 	const { __unstableMarkNextChangeAsNotPersistent } = useDispatch(
 		blockEditorStore
@@ -114,12 +154,6 @@ const Edit = ( props ) => {
 	const setOrderBy = ( value ) => {
 		setAttributes( {
 			orderby: value
-		} );
-	}
-
-	const setShow = ( field, value ) => {
-		setAttributes( {
-			[field]: value
 		} );
 	}
 
@@ -197,13 +231,7 @@ const Edit = ( props ) => {
 	};
 
 	const DateFormatSelector = () => {
-		const date = new Date();
-		const options = Object.values( settings.formats ).map(
-			( formatOption ) => ( {
-				key: formatOption,
-				name: dateI18n( formatOption, date ),
-			} )
-		);
+		const options = dateOptions();
 		
 		return (
 			<>
@@ -224,13 +252,7 @@ const Edit = ( props ) => {
 	};
 
 	const TimeFormatSelector = () => {
-		const date = new Date();
-		const options = Object.values( settings.formats ).map(
-			( formatOption ) => ( {
-				key: formatOption,
-				name: dateI18n( formatOption, date ),
-			} )
-		);
+		const options = timeOptions();
 
 		return (
 			<>
@@ -251,10 +273,10 @@ const Edit = ( props ) => {
 	};
 
 	const ShowSelectors = () => {
-		const displayAttributes = Object.entries( display );
-		const filtered = displayAttributes.filter( ( [ key, value ] ) => typeof value === 'boolean' );
-		const object = Object.fromEntries( filtered );
-		const fields = Object.keys( object );		
+		// const displayAttributes = Object.entries( display );
+		// const filtered = displayAttributes.filter( ( [ key, value ] ) => typeof value === 'boolean' );
+		// const object = Object.fromEntries( filtered );
+		const fields = Object.keys( display );		
 
 		if( !fields || !fields.length ) {
 			return null;
@@ -287,32 +309,74 @@ const Edit = ( props ) => {
 		)
 	}
 
-	const SettingsPanel = () => (
-		<>
-		<PanelBody title={ __( 'Query Options', 'wp-action-network-events' ) } initialOpen={ true }>
-			<PanelRow>
-				<TermSelector />
-			</PanelRow>
-			<PanelRow>
-				<OrderSelector />
-			</PanelRow>
-			<PanelRow>
-				<PerPageSelector />
-			</PanelRow>
-		</PanelBody>
-		<PanelBody title={ __( 'Display Options', 'wp-action-network-events' ) } initialOpen={ true }>
-			<PanelRow>
-				<DateFormatSelector />
-			</PanelRow>
-			<PanelRow>
-				<TimeFormatSelector />
-			</PanelRow>
-		</PanelBody>
-		<PanelBody title={ __( 'Content Options', 'wp-action-network-events' ) } initialOpen={ true }>
-			<ShowSelectors />
-		</PanelBody>
-		</>
-	);
+	const SettingsPanel = () => {
+		return (
+			<InspectorControls>
+				<PanelBody title={ __( 'Query Options', 'wp-action-network-events' ) } initialOpen={ true }>
+					<PanelRow>
+						<TermSelector />
+					</PanelRow>
+					<PanelRow>
+						<OrderSelector />
+					</PanelRow>
+					<PanelRow>
+						<PerPageSelector />
+					</PanelRow>
+				</PanelBody>
+				<PanelBody title={ __( 'Display Options', 'wp-action-network-events' ) } initialOpen={ true }>
+					<PanelRow>
+						<DateFormatSelector />
+					</PanelRow>
+					<PanelRow>
+						<TimeFormatSelector />
+					</PanelRow>
+				</PanelBody>
+				<PanelBody title={ __( 'Content Options', 'wp-action-network-events' ) } initialOpen={ true }>
+					<ShowSelectors />
+				</PanelBody>
+			</InspectorControls>
+		)
+	}
+
+	const AdvancedControls = () => {
+		return (
+			<InspectorControls __experimentalGroup="advanced">
+				<PanelBody title={ __( 'HTML Tag Options', 'wp-action-network-events' ) } initialOpen={ true }>
+					<PanelRow>
+						<SelectControl
+						label={ __( 'Wrapper HTML Element', 'wp-action-network-events' ) }
+						options={ [
+							{ label: __( 'Default (<div>)', 'wp-action-network-events' ), value: 'div' },
+							{ label: '<main>', value: 'main' },
+							{ label: '<section>', value: 'section' },
+							{ label: '<ul> (list)', value: 'ul' },
+						] }
+						value={ wrapperTagName }
+						onChange={ ( value ) =>
+							setAttributes( { wrapperTagName: value } )
+						}
+					/>
+					</PanelRow>
+					<PanelRow>
+						<SelectControl
+							label={ __( 'Item HTML Element', 'wp-action-network-events' ) }
+							options={ [
+								{ label: __( 'Default (<article>)', 'wp-action-network-events' ), value: 'article' },
+								{ label: '<div>', value: 'div' },
+								{ label: '<li>', value: 'li' },
+							] }
+							value={ tagName }
+							onChange={ ( value ) =>
+								setAttributes( { tagName: value } )
+							}
+						/>
+					</PanelRow>
+				</PanelBody>
+			</InspectorControls>
+		)
+	}
+
+	const blockProps = useBlockProps();
 
 	const Posts = () => {
 
@@ -327,14 +391,13 @@ const Edit = ( props ) => {
 		}
 
 		return (
-			<>
-				{ console.log( query ) }
+			<div { ...blockProps } >
 				{ posts.map( post => {
 					return (
 						<Post { ...post } key={post.id} />
 					);
 				}) }
-			</>
+			</div>
 		)
 	}
 
@@ -375,7 +438,6 @@ const Edit = ( props ) => {
 				{ ( showTags && tags ) && (
 					<div className="event__tag">
 						<a href={ tags[0]?.link } rel="tag" dangerouslySetInnerHTML={{ __html: tags[0]?.name }}></a>
-						{ console.log( tags ) }
 					</div>
 				) }
 				{ ( showFeaturedImage && media ) && (
@@ -387,7 +449,7 @@ const Edit = ( props ) => {
 					</picture>
 				) }
 				{ showTitle && (
-					<h2 className="event__title"><a link={ post.link } rel="bookmark" dangerouslySetInnerHTML={{ __html: post?.title?.rendered }} /></h2>
+					<h3 className="event__title"><a link={ post.link } rel="bookmark" dangerouslySetInnerHTML={{ __html: post?.title?.rendered }} /></h3>
 				) }
 				{ showDate && (
 					<div className="event__date">
@@ -413,9 +475,6 @@ const Edit = ( props ) => {
 			</div>
 		)
 	}
-
-	const blockProps = useBlockProps();
-
 	const updateQuery = () => {
 		let _query = query;
 
@@ -460,14 +519,12 @@ const Edit = ( props ) => {
 			} );
 		}
 
-		console.log( 'useEffect', attributes.display );
 	}, [ queryId, instanceId, dateFormat, siteTimeFormat ] );
 
 	return (
 		<>
-		<InspectorControls>
-			<SettingsPanel />
-		</InspectorControls>
+		<SettingsPanel />
+		<AdvancedControls />
 
 		<div { ...blockProps }>
 			<Posts />
