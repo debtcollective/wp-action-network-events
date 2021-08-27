@@ -28,14 +28,51 @@ namespace WpActionNetworkEvents;
 
 require_once( 'vendor/autoload.php' );
 
-spl_autoload_register( __NAMESPACE__ . '\autoloader' );
-function autoloader( $class_name ) {
-  if ( false !== strpos( $class_name, 'WpActionNetworkEvents' ) ) {
-    $classes_dir = realpath( plugin_dir_path( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
-    $class_file = $class_name . '.php';
-    require_once $classes_dir . $class_file;
-  }
-}
+spl_autoload_extensions( 'php' );
+spl_autoload_register();
+
+// spl_autoload_register( __NAMESPACE__ . '\autoloader' );
+// function autoloader( $class_name ) {
+// 	$prefix = 'WpActionNetworkEvents\\';
+// 	if ( false !== strpos( $class_name, 'WpActionNetworkEvents' ) ) {
+// 		$classes_dir = realpath( plugin_dir_path( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
+// 		$class_file = $class_name . '.php';
+// 		var_dump( '$classes_dir . $class_file', $classes_dir . $class_file,  DIRECTORY_SEPARATOR );
+// 	// require_once $classes_dir . $class_file;
+// 	}
+// }
+
+// spl_autoload_register( function ( $class ) {
+
+// 	var_dump( $class );
+
+// 	// project-specific namespace prefix
+// 	$prefix = 'WpActionNetworkEvents\\';
+
+// 	// base directory for the namespace prefix
+// 	$base_dir = __DIR__ . '/';
+
+// 	// does the class use the namespace prefix?
+// 	$len = strlen( $prefix );
+// 	if ( strncmp( $prefix, $class, $len ) !== 0 ) {
+// 		// no, move to the next registered autoloader
+// 		return;
+// 	}
+
+// 	// get the relative class name
+// 	$relative_class = substr( $class, $len );
+
+// 	// replace the namespace prefix with the base directory, replace namespace
+// 	// separators with directory separators in the relative class name, append
+// 	// with .php
+// 	$file = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
+
+// 	// if the file exists, require it
+// 	if ( file_exists( $file ) ) {
+// 		require $file;
+// 	}
+// } );
+
 
 /**
  * Currently plugin version.
@@ -77,6 +114,7 @@ register_deactivation_hook( __FILE__, 'deactivate_wp_action_network_events' );
  * @since    1.0.0
  */
 function init() {
+	require_once plugin_dir_path( __FILE__ ) . 'src/Common/Plugin.php';
 	$plugin = new Common\Plugin( PLUGIN_VERSION, PLUGIN_NAME, plugin_basename( __FILE__ ) );
 	return $plugin;
 }
@@ -84,13 +122,9 @@ if( class_exists(  __NAMESPACE__ . '\Common\Plugin' ) ) {
 	init();
 }
 
-var_dump( 
-	"class_exists( 'Common\Plugin' )", class_exists( 'Common\Plugin' ), 
-	"class_exists( 'WpActionNetworkEvents\Common\Plugin' )", class_exists( 'WpActionNetworkEvents\Common\Plugin' ),  
-	"class_exists( __NAMESPACE__ . '\Common\Plugin' )", class_exists( __NAMESPACE__ . '\Common\Plugin' )  
-);
-
-
-
-
-
+// var_dump( 
+// 	"class_exists( 'Common\Plugin' )", class_exists( 'Common\Plugin' ), 
+// 	"class_exists( 'WpActionNetworkEvents\Common\Plugin' )", class_exists( 'WpActionNetworkEvents\Common\Plugin' ),  
+// 	"class_exists( __NAMESPACE__ . '\Common\Plugin' )", class_exists( __NAMESPACE__ . '\Common\Plugin' ),
+// 	"php version", PHP_VERSION
+// );

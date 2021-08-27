@@ -5,8 +5,6 @@
 $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
-var_dump( '$vendorDir', $vendorDir, '$baseDir', $baseDir );
-
 return array(
     'Carbon_Field_Number\\Number_Field' => $vendorDir . '/htmlburger/carbon-field-number/core/Number_Field.php',
     'Carbon_Fields\\Block' => $vendorDir . '/htmlburger/carbon-fields/core/Block.php',
@@ -133,27 +131,4 @@ return array(
     'Carbon_Fields\\Widget' => $vendorDir . '/htmlburger/carbon-fields/core/Widget.php',
     'Carbon_Fields\\Widget\\Widget' => $vendorDir . '/htmlburger/carbon-fields/core/Widget/Widget.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
-    'WpActionNetworkEvents\\App\\Admin\\Admin' => $baseDir . '/src/App/Admin/Admin.php',
-    'WpActionNetworkEvents\\App\\Admin\\Options' => $baseDir . '/src/App/Admin/Options.php',
-    'WpActionNetworkEvents\\App\\Blocks\\Blocks' => $baseDir . '/src/App/Blocks/Blocks.php',
-    'WpActionNetworkEvents\\App\\Blocks\\Fields\\Fields' => $baseDir . '/src/App/Blocks/Fields/Fields.php',
-    'WpActionNetworkEvents\\App\\Blocks\\Fields\\Meta' => $baseDir . '/src/App/Blocks/Fields/Meta.php',
-    'WpActionNetworkEvents\\App\\Blocks\\Patterns' => $baseDir . '/src/App/Blocks/Patterns.php',
-    'WpActionNetworkEvents\\App\\Frontend\\Frontend' => $baseDir . '/src/App/Frontend/Frontend.php',
-    'WpActionNetworkEvents\\App\\General\\ContentFilters' => $baseDir . '/src/App/General/ContentFilters.php',
-    'WpActionNetworkEvents\\App\\General\\CustomFields' => $baseDir . '/src/App/General/CustomFields.php',
-    'WpActionNetworkEvents\\App\\General\\PostTypes' => $baseDir . '/src/App/General/PostTypes.php',
-    'WpActionNetworkEvents\\App\\General\\Queries' => $baseDir . '/src/App/General/Queries.php',
-    'WpActionNetworkEvents\\App\\General\\Taxonomies\\EventTag' => $baseDir . '/src/App/General/Taxonomies/EventTag.php',
-    'WpActionNetworkEvents\\App\\General\\Taxonomies\\EventType' => $baseDir . '/src/App/General/Taxonomies/EventType.php',
-    'WpActionNetworkEvents\\App\\General\\Taxonomies\\Taxonomies' => $baseDir . '/src/App/General/Taxonomies/Taxonomies.php',
-    'WpActionNetworkEvents\\App\\Integration\\GetEvents' => $baseDir . '/src/App/Integration/GetEvents.php',
-    'WpActionNetworkEvents\\App\\Integration\\RestFilters' => $baseDir . '/src/App/Integration/RestFilters.php',
-    'WpActionNetworkEvents\\Common\\Abstracts\\Base' => $baseDir . '/src/Common/Abstracts/Base.php',
-    'WpActionNetworkEvents\\Common\\Abstracts\\GetData' => $baseDir . '/src/Common/Abstracts/GetData.php',
-    'WpActionNetworkEvents\\Common\\Abstracts\\Taxonomy' => $baseDir . '/src/Common/Abstracts/Taxonomy.php',
-    'WpActionNetworkEvents\\Common\\I18n' => $baseDir . '/src/Common/I18n.php',
-    'WpActionNetworkEvents\\Common\\Loader' => $baseDir . '/src/Common/Loader.php',
-    'WpActionNetworkEvents\\Common\\Plugin' => $baseDir . '/src/Common/Plugin.php',
-    'WpActionNetworkEvents\\Common\\Traits\\Singleton' => $baseDir . '/src/Common/Traits/Singleton.php',
 );
