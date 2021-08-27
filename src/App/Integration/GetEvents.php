@@ -4,8 +4,6 @@
  *
  * @package   WP_Action_Network_Events
  */
-declare( strict_types = 1 );
-
 namespace WpActionNetworkEvents\App\Integration;
 
 use WpActionNetworkEvents\Common\Abstracts\GetData;

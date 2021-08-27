@@ -4,9 +4,6 @@
  *
  * @package   WP_Action_Network_Events
  */
-
-declare( strict_types = 1 );
-
 namespace WpActionNetworkEvents\App\General\Taxonomies;
 
 use WpActionNetworkEvents\Common\Abstracts\Taxonomy;
