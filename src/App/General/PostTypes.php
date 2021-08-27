@@ -25,7 +25,7 @@ class PostTypes extends Base {
 	 */
 	public const POST_TYPE = [
 		'id'       		=> 'an_event',
-		'archive'  		=> 'events',
+		'archive'  		=> 'event-archive',
 		'menu'    		=> 'Action Network',
 		'title'    		=> 'Events',
 		'singular' 		=> 'Event',

@@ -100,10 +100,3 @@ function init() {
 if( class_exists(  __NAMESPACE__ . '\Common\Plugin' ) ) {
 	init();
 }
-
-// var_dump( 
-// 	"class_exists( 'Common\Plugin' )", class_exists( 'Common\Plugin' ), 
-// 	"class_exists( 'WpActionNetworkEvents\Common\Plugin' )", class_exists( 'WpActionNetworkEvents\Common\Plugin' ),  
-// 	"class_exists( __NAMESPACE__ . '\Common\Plugin' )", class_exists( __NAMESPACE__ . '\Common\Plugin' ),
-// 	"php version", PHP_VERSION
-// );
