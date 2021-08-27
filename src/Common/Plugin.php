@@ -165,7 +165,7 @@ class Plugin {
 		//  */
 		// require_once plugin_dir_path( dirname( __FILE__ ) ) . 'src/App/Frontend/Frontend.php';
 
-		$this->loader = new Loader();
+		// $this->loader = new Loader();
 
 		new PostTypes( $this->version, $this->plugin_name );
 
