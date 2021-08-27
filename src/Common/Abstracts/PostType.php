@@ -4,34 +4,22 @@
  *
  * @package   WP_Action_Network_Events
  */
-
-declare( strict_types = 1 );
-
-namespace WpActionNetworkEvents\App\General;
+namespace WpActionNetworkEvents\Common\Abstracts;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
-use WpActionNetworkEvents\App\General\Taxonomies\Taxonomies;
 
 /**
- * Class PostTypes
+ * Class Taxonomies
  *
  * @package WpActionNetworkEvents\App\General
  * @since 0.1.0
  */
-class PostTypes extends Base {
+abstract class PostType extends Base {
 
 	/**
-	 * Taxonomy data
+	 * PostType data
 	 */
-	public const POST_TYPE = [
-		'id'       		=> 'an_event',
-		'archive'  		=> 'event-archive',
-		'menu'    		=> 'Action Network',
-		'title'    		=> 'Events',
-		'singular' 		=> 'Event',
-		'icon'     		=> 'dashicons-calendar-alt',
-		'taxonomies'	=> [ 'event_type' ],
-	];
+	public const POST_TYPE = self::POST_TYPE;
 
 	/**
 	 * Constructor.
@@ -54,9 +42,10 @@ class PostTypes extends Base {
 		 *
 		 * @see Bootstrap::__construct
 		 *
-		 * Add plugin code here
 		 */
+
 		add_action( 'init', [ $this, 'register' ] );
+
 	}
 
 	/**
@@ -120,7 +109,7 @@ class PostTypes extends Base {
 		);
 		\register_post_type( 
 			$this::POST_TYPE['id'], 
-			\apply_filters( 'WpActionNetworkEvents\App\General\PostTypes\Args', $args )
+			\apply_filters( \get_class( $this ) . '\Args', $args )
 		);
 	
 	}

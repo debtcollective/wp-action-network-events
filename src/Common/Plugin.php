@@ -18,7 +18,7 @@ use WpActionNetworkEvents\App\Admin\Admin;
 use WpActionNetworkEvents\App\Frontend\Frontend;
 use WpActionNetworkEvents\Common\Loader;
 use WpActionNetworkEvents\Common\I18n;
-use WpActionNetworkEvents\App\General\PostTypes;
+use WpActionNetworkEvents\App\General\PostTypes\PostTypes;
 use WpActionNetworkEvents\App\General\ContentFilters;
 use WpActionNetworkEvents\App\General\Taxonomies\Taxonomies;
 use WpActionNetworkEvents\App\General\CustomFields;
