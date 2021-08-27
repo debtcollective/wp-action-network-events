@@ -5,6 +5,8 @@
 $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
+var_dump( '$vendorDir', $vendorDir, '$baseDir', $baseDir );
+
 return array(
     'Carbon_Field_Number\\Number_Field' => $vendorDir . '/htmlburger/carbon-field-number/core/Number_Field.php',
     'Carbon_Fields\\Block' => $vendorDir . '/htmlburger/carbon-fields/core/Block.php',

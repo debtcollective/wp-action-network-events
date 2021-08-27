@@ -80,7 +80,7 @@ function init() {
 	$plugin = new Common\Plugin( PLUGIN_VERSION, PLUGIN_NAME, plugin_basename( __FILE__ ) );
 	return $plugin;
 }
-init();
+// init();
 
 
 

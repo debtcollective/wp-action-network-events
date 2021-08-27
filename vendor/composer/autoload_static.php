@@ -4,6 +4,8 @@
 
 namespace Composer\Autoload;
 
+var_dump( __DIR__ . '/../..' . '/src' );
+
 class ComposerStaticInitef2b9c6e8d24c4b2eb0fad50b4f7d0d1
 {
     public static $files = array (
