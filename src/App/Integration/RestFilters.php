@@ -4,13 +4,11 @@
  *
  * @package   WP_Action_Network_Events
  */
-
-declare( strict_types = 1 );
-
 namespace WpActionNetworkEvents\App\Integration;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
-use WpActionNetworkEvents\App\General\PostTypes;
+use WpActionNetworkEvents\App\General\PostTypes\PostTypes;
+use WpActionNetworkEvents\App\General\PostTypes\Event;
 
 /**
  * Class RestFilters
@@ -44,8 +42,8 @@ class RestFilters extends Base {
 		 * Add plugin code here
 		 */
 		\add_filter( 'rest_query_vars', 											[ $this, 'rest_query_vars' ] );
-		\add_filter( 'rest_' . PostTypes::POST_TYPE['id'] . '_query', 				[ $this, 'rest_query_start_date' ], 10, 2 );
-		\add_filter( 'rest_' . PostTypes::POST_TYPE['id'] . '_collection_params', 	[ $this, 'rest_collection_params' ], 10, 2 );
+		\add_filter( 'rest_' . Event::POST_TYPE['id'] . '_query', 				[ $this, 'rest_query_start_date' ], 10, 2 );
+		\add_filter( 'rest_' . Event::POST_TYPE['id'] . '_collection_params', 	[ $this, 'rest_collection_params' ], 10, 2 );
 
 	}
 
