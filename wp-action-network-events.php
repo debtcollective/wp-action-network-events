@@ -80,7 +80,16 @@ function init() {
 	$plugin = new Common\Plugin( PLUGIN_VERSION, PLUGIN_NAME, plugin_basename( __FILE__ ) );
 	return $plugin;
 }
-// init();
+if( class_exists(  __NAMESPACE__ . '\Common\Plugin' ) ) {
+	init();
+}
+
+var_dump( 
+	"class_exists( 'Common\Plugin' )", class_exists( 'Common\Plugin' ), 
+	"class_exists( 'WpActionNetworkEvents\Common\Plugin' )", class_exists( 'WpActionNetworkEvents\Common\Plugin' ),  
+	"class_exists( __NAMESPACE__ . '\Common\Plugin' )", class_exists( __NAMESPACE__ . '\Common\Plugin' )  
+);
+
 
 
 
