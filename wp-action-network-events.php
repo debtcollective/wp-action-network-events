@@ -44,14 +44,14 @@ function autoloader( $class ) {
 		$ext = '.php';
 		$class = \str_replace( '\\', DIRECTORY_SEPARATOR, $class );
 		$path = $src_dir . \str_replace( $base_namespace, '', $class ). $ext;
+		
 		if ( \file_exists( $path ) ) {
 			require_once "$path";
-			\var_dump( $class, '$path', $path );
 
 		}
 	}
 }
-spl_autoload_register( __NAMESPACE__ . '\autoloader' ); 
+// spl_autoload_register( __NAMESPACE__ . '\autoloader' ); 
 
 /**
  * Currently plugin version.

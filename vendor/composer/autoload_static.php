@@ -12,6 +12,10 @@ class ComposerStaticInitef2b9c6e8d24c4b2eb0fad50b4f7d0d1
     );
 
     public static $prefixLengthsPsr4 = array (
+        'W' => 
+        array (
+            'WpActionNetworkEvents\\' => 22,
+        ),
         'C' => 
         array (
             'Carbon_Fields\\' => 14,
@@ -21,6 +25,10 @@ class ComposerStaticInitef2b9c6e8d24c4b2eb0fad50b4f7d0d1
     );
 
     public static $prefixDirsPsr4 = array (
+        'WpActionNetworkEvents\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
+        ),
         'Carbon_Fields\\' => 
         array (
             0 => __DIR__ . '/..' . '/htmlburger/carbon-fields/core',
@@ -161,6 +169,29 @@ class ComposerStaticInitef2b9c6e8d24c4b2eb0fad50b4f7d0d1
         'Carbon_Fields\\Widget' => __DIR__ . '/..' . '/htmlburger/carbon-fields/core/Widget.php',
         'Carbon_Fields\\Widget\\Widget' => __DIR__ . '/..' . '/htmlburger/carbon-fields/core/Widget/Widget.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'WpActionNetworkEvents\\App\\Admin\\Admin' => __DIR__ . '/../..' . '/src/App/Admin/Admin.php',
+        'WpActionNetworkEvents\\App\\Admin\\Options' => __DIR__ . '/../..' . '/src/App/Admin/Options.php',
+        'WpActionNetworkEvents\\App\\Blocks\\Blocks' => __DIR__ . '/../..' . '/src/App/Blocks/Blocks.php',
+        'WpActionNetworkEvents\\App\\Blocks\\Fields\\Fields' => __DIR__ . '/../..' . '/src/App/Blocks/Fields/Fields.php',
+        'WpActionNetworkEvents\\App\\Blocks\\Fields\\Meta' => __DIR__ . '/../..' . '/src/App/Blocks/Fields/Meta.php',
+        'WpActionNetworkEvents\\App\\Blocks\\Patterns' => __DIR__ . '/../..' . '/src/App/Blocks/Patterns.php',
+        'WpActionNetworkEvents\\App\\Frontend\\Frontend' => __DIR__ . '/../..' . '/src/App/Frontend/Frontend.php',
+        'WpActionNetworkEvents\\App\\General\\ContentFilters' => __DIR__ . '/../..' . '/src/App/General/ContentFilters.php',
+        'WpActionNetworkEvents\\App\\General\\CustomFields' => __DIR__ . '/../..' . '/src/App/General/CustomFields.php',
+        'WpActionNetworkEvents\\App\\General\\PostTypes' => __DIR__ . '/../..' . '/src/App/General/PostTypes.php',
+        'WpActionNetworkEvents\\App\\General\\Queries' => __DIR__ . '/../..' . '/src/App/General/Queries.php',
+        'WpActionNetworkEvents\\App\\General\\Taxonomies\\EventTag' => __DIR__ . '/../..' . '/src/App/General/Taxonomies/EventTag.php',
+        'WpActionNetworkEvents\\App\\General\\Taxonomies\\EventType' => __DIR__ . '/../..' . '/src/App/General/Taxonomies/EventType.php',
+        'WpActionNetworkEvents\\App\\General\\Taxonomies\\Taxonomies' => __DIR__ . '/../..' . '/src/App/General/Taxonomies/Taxonomies.php',
+        'WpActionNetworkEvents\\App\\Integration\\GetEvents' => __DIR__ . '/../..' . '/src/App/Integration/GetEvents.php',
+        'WpActionNetworkEvents\\App\\Integration\\RestFilters' => __DIR__ . '/../..' . '/src/App/Integration/RestFilters.php',
+        'WpActionNetworkEvents\\Common\\Abstracts\\Base' => __DIR__ . '/../..' . '/src/Common/Abstracts/Base.php',
+        'WpActionNetworkEvents\\Common\\Abstracts\\GetData' => __DIR__ . '/../..' . '/src/Common/Abstracts/GetData.php',
+        'WpActionNetworkEvents\\Common\\Abstracts\\Taxonomy' => __DIR__ . '/../..' . '/src/Common/Abstracts/Taxonomy.php',
+        'WpActionNetworkEvents\\Common\\I18n' => __DIR__ . '/../..' . '/src/Common/I18n.php',
+        'WpActionNetworkEvents\\Common\\Loader' => __DIR__ . '/../..' . '/src/Common/Loader.php',
+        'WpActionNetworkEvents\\Common\\Plugin' => __DIR__ . '/../..' . '/src/Common/Plugin.php',
+        'WpActionNetworkEvents\\Common\\Traits\\Singleton' => __DIR__ . '/../..' . '/src/Common/Traits/Singleton.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

@@ -11,11 +11,11 @@
     ],
     "autoload": {
         "psr-4": {
+            "WpActionNetworkEvents\\": "src/",
             "Carbon_Field_Rest_Api_Select\\": "core/"
         }
     },
     "config": {
-        "sort-packages": true,
         "optimize-autoloader": true,
         "platform": {
             "php": "7.0"
