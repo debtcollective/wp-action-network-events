@@ -4,14 +4,12 @@
  *
  * @package   WP_Action_Network_Events
  */
-
-declare( strict_types = 1 );
-
 namespace WpActionNetworkEvents\App\General;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
 use WpActionNetworkEvents\App\General\Taxonomies\Taxonomies;
-use WpActionNetworkEvents\App\General\PostTypes;
+use WpActionNetworkEvents\App\General\PostTypes\PostTypes;
+use WpActionNetworkEvents\App\General\PostTypes\Event;
 
 use Carbon_Fields\Container;
 use Carbon_Fields\Field;
@@ -200,7 +198,7 @@ class CustomFields extends Base {
 			self::CONTAINER_ID,
 			__( 'Event Details', 'wp-action-network-events' ) 
 		)
-			->where( 'post_type', '=', PostTypes::POST_TYPE['id'] )
+			->where( 'post_type', '=', Event::POST_TYPE['id'] )
 			->set_context( 'advanced' )
 			->add_fields( $fields );
 	}
