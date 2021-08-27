@@ -28,7 +28,14 @@ namespace WpActionNetworkEvents;
 
 require_once( 'vendor/autoload.php' );
 
-use WpActionNetworkEvents\Common\Plugin as Plugin;
+spl_autoload_register( __NAMESPACE__ . '\autoloader' );
+function autoloader( $class_name ) {
+  if ( false !== strpos( $class_name, 'WpActionNetworkEvents' ) ) {
+    $classes_dir = realpath( plugin_dir_path( __FILE__ ) ) . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR;
+    $class_file = $class_name . '.php';
+    require_once $classes_dir . $class_file;
+  }
+}
 
 /**
  * Currently plugin version.
@@ -70,7 +77,7 @@ register_deactivation_hook( __FILE__, 'deactivate_wp_action_network_events' );
  * @since    1.0.0
  */
 function init() {
-	$plugin = new Plugin( PLUGIN_VERSION, PLUGIN_NAME, plugin_basename( __FILE__ ) );
+	$plugin = new Common\Plugin( PLUGIN_VERSION, PLUGIN_NAME, plugin_basename( __FILE__ ) );
 	return $plugin;
 }
 init();
