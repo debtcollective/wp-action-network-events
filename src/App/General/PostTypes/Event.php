@@ -27,6 +27,7 @@ class Event extends PostType {
 		'singular' 		=> 'Event',
 		'icon'     		=> 'dashicons-calendar-alt',
 		'taxonomies'	=> [ 'event_type' ],
+		'rest_base'		=> 'events',
 	];
 
 }

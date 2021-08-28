@@ -105,7 +105,7 @@ abstract class PostType extends Base {
 			'publicly_queryable'    => true,
 			'capability_type'       => 'post',
 			'show_in_rest'          => true,
-			'rest_base'             => $this::POST_TYPE['archive'],
+			'rest_base'             => $this::POST_TYPE['rest_base'],
 		);
 		\register_post_type( 
 			$this::POST_TYPE['id'], 
