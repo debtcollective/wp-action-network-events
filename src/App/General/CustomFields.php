@@ -104,6 +104,9 @@ class CustomFields extends Base {
 			Field::make( 'text', 'start_date', __( 'Start', 'wp-action-network-events' ) )
 				->set_visible_in_rest_api( $visible = true )
 				->set_attribute( 'readOnly', $is_read_only ),
+			Field::make( 'text', 'end_date', __( 'End', 'wp-action-network-events' ) )
+				->set_visible_in_rest_api( $visible = true )
+				->set_attribute( 'readOnly', $is_read_only ),
 			Field::make( 'select', 'time_zone', __( 'Time Zone', 'wp-action-network-events' ) )
 				->add_options( [ $this, 'getTimezones' ] )
 				->set_default_value( $default_timezone )
