@@ -26,7 +26,7 @@
  */
 namespace WpActionNetworkEvents;
 
-require_once( 'vendor/autoload.php' );
+require plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
 /**
  * Autoload Files
