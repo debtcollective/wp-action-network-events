@@ -186,7 +186,6 @@ abstract class GetData {
 		$localized = [
 			'action'		=> Options::SYNC_ACTION_NAME,
 			'endpoint'		=> $this->endpoint,
-			// '_wpnonce'			=> \wp_create_nonce( Options::SYNC_ACTION_NAME . '_nonce' ),
 			'ajax_url' 		=> \admin_url( 'admin-ajax.php' )
 		];
 
