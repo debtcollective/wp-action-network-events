@@ -49,6 +49,9 @@ class Admin extends Base {
 		 *
 		 */
 		new Options( $this->version, $this->plugin_name );
+
+		\add_action( 'admin_enqueue_scripts', 		[ $this, 'enqueueStyles' ] );
+		// \add_action( 'admin_enqueue_scripts', 		[ $this, 'enqueueScripts' ] );
 	}
 
 	/**
@@ -70,7 +73,7 @@ class Admin extends Base {
 		 * class.
 		 */
 
-		\wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'assets/src/css/admin.css', array(), $this->version, 'all' );
+		\wp_enqueue_style( $this->plugin_name, esc_url( WPANE_PLUGIN_URL . 'assets/public/css/backend.css' ), array(), $this->version, 'all' );
 
 	}
 
@@ -92,8 +95,7 @@ class Admin extends Base {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-
-		\wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'assets/src/js/admin.js', array( 'jquery' ), $this->version, false );
+		\wp_register_script( $this->plugin_name, esc_url( WPANE_PLUGIN_URL . 'assets/public/js/backend.js' ), array( 'jquery' ), $this->version, false );
 
 	}
 
