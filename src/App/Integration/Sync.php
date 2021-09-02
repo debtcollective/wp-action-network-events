@@ -48,17 +48,49 @@ class Sync extends Base {
 		 *
 		 */
 
+		 /*
+		identifiers[0],
+		title,
+		name,
+		browser_url,
+		featured_image_url,
+		instructions,
+		description,
+		start_date,
+		end_date,
+		created_date,
+		modified_date,
+		location.venue,
+		status ["confirmed" "tentative" "cancelled"] 
+		visibility ["public" "private"]
+		action_network:event_campaign_id 
+		*/
+
 	}
 
 	function getData() {}
 
-	function parseData() {}
+	function parseRecords() {}
+
+	function parseRecord() {}
+
+	function compareRecords() {}
+
+	function compareRecord() {}
 
 	function updateRecords() {}
 
 	function updateRecord() {}
 
-	function recordExists() {}
+	function addRecords() {}
+
+	function addRecord() {}
+
+	function deleteRecords() {}
+
+	function deleteRecord() {}
+
+	function exists() {}
 
 	function hasChanged() {}
 }
