@@ -9,11 +9,10 @@
  * @package    Wp_Action_Network_Events
  * @subpackage Wp_Action_Network_Events/admin
  */
-declare(strict_types=1);
-
 namespace WpActionNetworkEvents\App\Admin;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
+use WpActionNetworkEvents\App\Admin\Options;
 
 /**
  * Plugin Options
