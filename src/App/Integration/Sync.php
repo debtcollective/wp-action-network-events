@@ -13,6 +13,7 @@ namespace WpActionNetworkEvents\App\Integration;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
 use WpActionNetworkEvents\App\Integration\GetEvents;
+use WpActionNetworkEvents\App\Admin\Options;
 
 /**
  * Plugin Options
