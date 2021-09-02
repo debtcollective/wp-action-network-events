@@ -42,15 +42,6 @@ abstract class GetData {
 	protected $endpoint;
 
 	/**
-	 * Array of data types.
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      array   $types
-	 */
-	protected $types;
-
-	/**
 	 * Array of args.
 	 *
 	 * @since    1.0.0
@@ -69,17 +60,41 @@ abstract class GetData {
 	protected $data;
 
 	/**
+	 * The unique identifier of this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      string    $plugin_name    The string used to uniquely identify this plugin.
+	 */
+	protected $plugin_name;
+
+	/**
+	 * The current version of the plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      string    $version    The current version of the plugin.
+	 */
+	protected $version;
+
+	/**
 	 * Data constructor.
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct( string $endpoint, array $types, array $args = [] ) {
+	public function __construct( string $endpoint, array $args = [], string $version , string $plugin_name ) {
 		$this->endpoint = $endpoint;
-		$this->types = $types;
 		$this->args = $args;
+		$this->version = $version;
+		$this->plugin_name = $plugin_name;
 		$options = Options::getOptions();
 		$this->api_key = $options['api_key'];
 		$this->base_url = $options['base_url'];
+
+		\add_action( 'admin_enqueue_scripts', 							[ $this, 'enqueueScripts' ] );
+
+		\add_action( 'wp_ajax_' . Options::SYNC_ACTION_NAME, 			[ $this, 'fetchData' ] );
+		\add_action( 'wp_ajax_nopriv_' . Options::SYNC_ACTION_NAME, 	[ $this, 'fetchData' ] );
 	}
 
 	/**
@@ -96,11 +111,9 @@ abstract class GetData {
 	 * 
 	 * @see https://developer.wordpress.org/reference/functions/wp_remote_get/
 	 *
-	 * @param string $endpoint
-	 * @param array $args
 	 * @return mixed (array|WP_Error) The response or WP_Error on failure.
 	 */
-	public function fetchData( array $args = [] ) {
+	public function fetchData() {
 
 		$endpoint = \esc_url( $this->base_url . $this->endpoint );
 
@@ -113,36 +126,13 @@ abstract class GetData {
 			'redirection' => 5,
 		];
 
-		$options = wp_parse_args( $args, $options );
+		$options = \wp_parse_args( $args, $options );
 
-		$response = wp_remote_get( $endpoint, $options );
+		$response = \wp_remote_get( $endpoint, $options );
 
-		// $ch = curl_init();
-		// curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
-		// curl_setopt( $ch, CURLOPT_TIMEOUT, 100 );
-		// if ( $method == "POST" ) {
-		// 	curl_setopt( $ch, CURLOPT_POST, 1 );
-		// 	if ( $object ) {
-		// 		$json = json_encode( $object );
-		// 		curl_setopt( $ch, CURLOPT_POSTFIELDS, $json );
-		// 		curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 
-		// 			'OSDI-API-Token: '.$this->api_key,
-		// 			'Content-Type: application/json',
-		// 			'Content-Length: ' . strlen( $json ) )
-		// 		 );
-		// 	}
-		// } else {
-		// 	curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'OSDI-API-Token:' . $this->api_key ) );
-		// }
-		// curl_setopt( $ch, CURLOPT_URL, $full_endpoint );
 
-		// $response = curl_exec( $ch );
-
-		// curl_close( $ch );
-
-		$results = json_decode( $response );
-
-		var_dump( $results );
+		\wp_send_json( $response );
+		\wp_die();
 	}
 
 	/**
@@ -181,5 +171,27 @@ abstract class GetData {
 		if( !array_key_exists( $this->endpoint, $current_types ) ) {
 			Options::registerEventTypeOptions( $this->types );
 		}
+	}
+
+	/**
+	 * Enqueue Scripts
+	 * 
+	 * @see https://developer.wordpress.org/reference/hooks/admin_enqueue_scripts/
+	 *
+	 * @return void
+	 */
+	public function enqueueScripts() {
+		\wp_register_script( $this->plugin_name, esc_url( WPANE_PLUGIN_URL . 'assets/public/js/backend.js' ), array( 'jquery' ), $this->version, false );
+
+		$localized = [
+			'action'		=> Options::SYNC_ACTION_NAME,
+			'endpoint'		=> $this->endpoint,
+			// '_wpnonce'			=> \wp_create_nonce( Options::SYNC_ACTION_NAME . '_nonce' ),
+			'ajax_url' 		=> \admin_url( 'admin-ajax.php' )
+		];
+
+		\wp_localize_script( $this->plugin_name, 'wpANEData', $localized );
+
+		\wp_enqueue_script( $this->plugin_name );
 	}
 }
