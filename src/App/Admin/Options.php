@@ -32,6 +32,13 @@ class Options extends Base {
 	const OPTIONS_NAME = 'wp_action_network_events_options';
 
 	/**
+	 * Name of sync action
+	 * 
+	 * @var string
+	 */
+	const SYNC_ACTION_NAME = 'wp_action_network_events_sync';
+
+	/**
 	 * ID of Options page
 	 *
 	 * @var string
@@ -136,6 +143,56 @@ class Options extends Base {
 	}
 
 	/**
+	 * Register Settings & Fields
+	 *
+	 * @return void
+	 */
+	public function initSettings() {
+
+		\register_setting(
+			self::OPTIONS_NAME,
+			self::OPTIONS_NAME
+		);
+
+		\add_settings_section(
+			self::OPTIONS_NAME . '_section',
+			'',
+			false,
+			self::OPTIONS_NAME
+		);
+
+		\add_settings_field(
+			'base_url',
+			\__( 'Action Network Base URL', 'wp-action-network-events' ),
+			array( $this, 'renderBaseUrlField' ),
+			self::OPTIONS_NAME,
+			self::OPTIONS_NAME . '_section'
+		);
+		\add_settings_field(
+			'api_key',
+			\__( 'Action Network API Key', 'wp-action-network-events' ),
+			array( $this, 'renderApiKeyField' ),
+			self::OPTIONS_NAME,
+			self::OPTIONS_NAME . '_section'
+		);
+		\add_settings_field(
+			'event_types',
+			\__( 'Event Types', 'wp-action-network-events' ),
+			array( $this, 'renderEventTypesField' ),
+			self::OPTIONS_NAME,
+			self::OPTIONS_NAME . '_section'
+		);
+		\add_settings_field(
+			'sync_frequency',
+			\__( 'Frequency', 'wp-action-network-events' ),
+			array( $this, 'renderFrequencyField' ),
+			self::OPTIONS_NAME,
+			self::OPTIONS_NAME . '_section'
+		);
+
+	}
+
+	/**
 	 * Render Notices on Options page
 	 *
 	 * @return void
@@ -154,55 +211,6 @@ class Options extends Base {
 		<?php
 	}
 
-	/**
-	 * Register Settings & Fields
-	 *
-	 * @return void
-	 */
-	public function initSettings() {
-
-		\register_setting(
-			'wp_action_network_events_options',
-			'wp_action_network_events_options'
-		);
-
-		\add_settings_section(
-			'wp_action_network_events_options_section',
-			'',
-			false,
-			'wp_action_network_events_options'
-		);
-
-		\add_settings_field(
-			'base_url',
-			\__( 'Action Network Base URL', 'wp-action-network-events' ),
-			array( $this, 'renderBaseUrlField' ),
-			'wp_action_network_events_options',
-			'wp_action_network_events_options_section'
-		);
-		\add_settings_field(
-			'api_key',
-			\__( 'Action Network API Key', 'wp-action-network-events' ),
-			array( $this, 'renderApiKeyField' ),
-			'wp_action_network_events_options',
-			'wp_action_network_events_options_section'
-		);
-		\add_settings_field(
-			'event_types',
-			\__( 'Event Types', 'wp-action-network-events' ),
-			array( $this, 'renderEventTypesField' ),
-			'wp_action_network_events_options',
-			'wp_action_network_events_options_section'
-		);
-		\add_settings_field(
-			'sync_frequency',
-			\__( 'Frequency', 'wp-action-network-events' ),
-			array( $this, 'renderFrequencyField' ),
-			'wp_action_network_events_options',
-			'wp_action_network_events_options_section'
-		);
-
-	}
 
 	/**
 	 * Render Settings Page
@@ -218,15 +226,31 @@ class Options extends Base {
 
 		echo '<div class="wrap">' . "\n";
 		echo '	<h1>' . \get_admin_page_title() . '</h1>' . "\n";
+		$this->renderSyncButton();
+
 		echo '	<form action="options.php" method="post">' . "\n";
 
-		\settings_fields( 'wp_action_network_events_options' );
-		\do_settings_sections( 'wp_action_network_events_options' );
+		\settings_fields( self::OPTIONS_NAME );
+		\do_settings_sections( self::OPTIONS_NAME );
 		\submit_button();
 
 		echo '	</form>' . "\n";
 		echo '</div>' . "\n";
 
+	}
+
+	/**
+	 * Render Manual Sync Button
+	 *
+	 * @return void
+	 */
+	public function renderSyncButton() {
+		wp_nonce_field( self::SYNC_ACTION_NAME, self::SYNC_ACTION_NAME . '_nonce' );
+		?>
+
+		<input type="hidden" id="<?php echo esc_attr( $this->plugin_name ); ?>-sync-action" name="action" value="<?php echo esc_attr( self::SYNC_ACTION_NAME ); ?>" />
+		<input type="submit" id="<?php echo esc_attr( $this->plugin_name ); ?>-sync-submit" class="button" value="<?php _e( 'Manual Sync', 'wp-action-network-events' ); ?>"/>
+		<?php
 	}
 
 	/**
@@ -248,9 +272,6 @@ class Options extends Base {
 	 * @return void
 	 */
 	function renderApiKeyField() {
-
-		// $options = \get_option( 'wp_action_network_events_options' );
-
 		$value = isset( $this->options['api_key'] ) ? $this->options['api_key'] : '';
 
 		echo '<input type="text" name="wp_action_network_events_options[api_key]" class="regular-text api_key_field" placeholder="' . esc_attr__( '', 'wp-action-network-events' ) . '" value="' . esc_attr( $value ) . '">';
@@ -263,9 +284,6 @@ class Options extends Base {
 	 * @return void
 	 */
 	function renderEventTypesField() {
-
-		// $options = \get_option( 'wp_action_network_events_options' );
-
 		$event_types = isset( $this->options['event_types'] ) ? $this->options['event_types'] : '';
 
 		echo '<select name="wp_action_network_events_options[event_types][]" class="event_types_field" multiple=multiple>';
@@ -291,9 +309,6 @@ class Options extends Base {
 	 * @return void
 	 */
 	function renderFrequencyField() {
-
-		// $options = \get_option( 'wp_action_network_events_options' );
-
 		$value = isset( $this->options['sync_frequency'] ) ? $this->options['sync_frequency'] : (int) 24;
 
 		printf( 
