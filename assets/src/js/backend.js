@@ -22,7 +22,12 @@ document.addEventListener( "DOMContentLoaded", () => {
             body: query
           } )
         .then( response => response.json() )
-        .then( data => console.log( data ) );
+        .then( data => {
+
+            const obj = JSON.parse( data.body );
+    
+            console.log( data )
+        } )
 
     }
 
