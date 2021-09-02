@@ -28,6 +28,8 @@ namespace WpActionNetworkEvents;
 
 require plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
+use WpActionNetworkEvents\App\Admin\Options;
+
 /**
  * Autoload Files
  * 
@@ -60,14 +62,16 @@ function autoloader( $class ) {
  */
 const PLUGIN_NAME = 'wp-action-network-events';
 const PLUGIN_VERSION = '1.0.0';
-define( 'WPANE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+
+define( 'WPANE_PLUGIN_BASENAME', \plugin_basename( __FILE__ ) );
+define( 'WPANE_PLUGIN_URL', \plugin_dir_url( __FILE__ ) );
 
 /**
  * The code that runs during plugin activation.
  * This action is documented in src/activator.php
  */
 function activate_wp_action_network_events() {
-	require_once plugin_dir_path( __FILE__ ) . 'Activator.php';
+	require_once \plugin_dir_path( __FILE__ ) . 'Activator.php';
 	__NAMESPACE__ . \Activator::activate();
 }
 
@@ -76,12 +80,12 @@ function activate_wp_action_network_events() {
  * This action is documented in src/deactivator.php
  */
 function deactivate_wp_action_network_events() {
-	require_once plugin_dir_path( __FILE__ ) . 'Deactivator.php';
+	require_once \plugin_dir_path( __FILE__ ) . 'Deactivator.php';
 	__NAMESPACE__ . \Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_wp_action_network_events' );
-register_deactivation_hook( __FILE__, 'deactivate_wp_action_network_events' );
+\register_activation_hook( __FILE__, 'activate_wp_action_network_events' );
+\register_deactivation_hook( __FILE__, 'deactivate_wp_action_network_events' );
 
 /**
  * Begins execution of the plugin.
@@ -94,7 +98,7 @@ register_deactivation_hook( __FILE__, 'deactivate_wp_action_network_events' );
  */
 
 function init() {
-	$plugin = new Common\Plugin( PLUGIN_VERSION, PLUGIN_NAME, plugin_basename( __FILE__ ) );
+	$plugin = new Common\Plugin( PLUGIN_VERSION, PLUGIN_NAME, \plugin_basename( __FILE__ ) );
 	return $plugin;
 }
 if( class_exists(  __NAMESPACE__ . '\Common\Plugin' ) ) {
