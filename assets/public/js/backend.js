@@ -4,7 +4,7 @@ var __webpack_exports__ = {};
   !*** ./assets/src/js/backend.js ***!
   \**********************************/
 document.addEventListener("DOMContentLoaded", function () {
-  var buttonEl = document.getElementById('wp-action-network-events-sync-button');
+  var buttonEl = document.getElementById('wp-action-network-events-sync-submit');
   var nonce = document.getElementById('wp_action_network_events_sync_nonce');
   var data = wpANEData;
 

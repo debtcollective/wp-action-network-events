@@ -1,5 +1,5 @@
 document.addEventListener( "DOMContentLoaded", () => {
-    const buttonEl = document.getElementById( 'wp-action-network-events-sync-button' );
+    const buttonEl = document.getElementById( 'wp-action-network-events-sync-submit' );
     const nonce = document.getElementById( 'wp_action_network_events_sync_nonce' );
     const data = wpANEData;
 
