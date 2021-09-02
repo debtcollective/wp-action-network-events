@@ -24,6 +24,7 @@ use WpActionNetworkEvents\App\General\Taxonomies\Taxonomies;
 use WpActionNetworkEvents\App\General\CustomFields;
 use WpActionNetworkEvents\App\Integration\RestFilters;
 use WpActionNetworkEvents\App\Blocks\Blocks;
+use WpActionNetworkEvents\App\Integration\GetEvents;
 
 /**
  * The core plugin class.
@@ -178,6 +179,8 @@ class Plugin {
 		new RestFilters( $this->version, $this->plugin_name );
 
 		new Blocks( $this->version, $this->plugin_name );
+
+		new GetEvents( $this->version, $this->plugin_name );
 
 
 		// $events = new GetEvents();
