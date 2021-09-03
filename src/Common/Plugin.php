@@ -25,6 +25,7 @@ use WpActionNetworkEvents\App\General\CustomFields;
 use WpActionNetworkEvents\App\Integration\RestFilters;
 use WpActionNetworkEvents\App\Blocks\Blocks;
 use WpActionNetworkEvents\App\Integration\GetEvents;
+use WpActionNetworkEvents\App\Integration\Sync;
 
 /**
  * The core plugin class.
@@ -182,6 +183,7 @@ class Plugin {
 
 		new GetEvents( $this->version, $this->plugin_name );
 
+		new Sync( $this->version, $this->plugin_name );
 
 		// $events = new GetEvents();
 		// $events->fetchData();
