@@ -148,6 +148,7 @@ return array(
     'WpActionNetworkEvents\\App\\General\\Taxonomies\\Taxonomies' => $baseDir . '/src/App/General/Taxonomies/Taxonomies.php',
     'WpActionNetworkEvents\\App\\Integration\\GetEvents' => $baseDir . '/src/App/Integration/GetEvents.php',
     'WpActionNetworkEvents\\App\\Integration\\RestFilters' => $baseDir . '/src/App/Integration/RestFilters.php',
+    'WpActionNetworkEvents\\App\\Integration\\Sync' => $baseDir . '/src/App/Integration/Sync.php',
     'WpActionNetworkEvents\\Common\\Abstracts\\Base' => $baseDir . '/src/Common/Abstracts/Base.php',
     'WpActionNetworkEvents\\Common\\Abstracts\\GetData' => $baseDir . '/src/Common/Abstracts/GetData.php',
     'WpActionNetworkEvents\\Common\\Abstracts\\PostType' => $baseDir . '/src/Common/Abstracts/PostType.php',
