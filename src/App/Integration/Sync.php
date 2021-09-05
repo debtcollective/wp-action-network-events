@@ -14,7 +14,7 @@ namespace WpActionNetworkEvents\App\Integration;
 use WpActionNetworkEvents\Common\Abstracts\Base;
 use WpActionNetworkEvents\App\Integration\GetEvents;
 use WpActionNetworkEvents\App\Admin\Options;
-use WpActionNetworkEvents\App\General\Event;
+use WpActionNetworkEvents\App\General\PostTypes\Event;
 
 /**
  * Plugin Options
@@ -58,9 +58,9 @@ class Sync extends Base {
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      array    $process
+	 * @var      array    $processed
 	 */
-	protected $processed;
+	protected $processed = [];
 
 	/**
 	 * Status
@@ -70,6 +70,42 @@ class Sync extends Base {
 	 * @var      string    $status
 	 */
 	protected $status;
+
+	/**
+	 * Errors
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      array    $errors
+	 */
+	protected $errors;
+
+	/**
+	 * Date Format
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      string    $date_format for storing date
+	 */
+	protected $date_format = 'Y-m-d H:i:s';
+
+	/**
+	 * Transient Name
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      string    $transient_name
+	 */
+	protected $transient_name = 'wp_action_network_events_sync_last_';
+
+	/**
+	 * Sync Frequency
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      string    $sync_frequency
+	 */
+	protected $sync_frequency;
 
 	/**
 	 * Constructor.
@@ -95,27 +131,36 @@ class Sync extends Base {
 		 */
 		$this->setData();
 		$this->setParsedRecords();
+		$options = Options::getOptions();
+		$this->sync_frequency = intval( $options['sync_frequency'] ) * HOUR_IN_SECONDS;
 
 		\add_action( 'admin_enqueue_scripts', 							[ $this, 'enqueueScripts' ] );
 
 		\add_action( 'wp_ajax_' . Options::SYNC_ACTION_NAME, 			[ $this, 'ajaxAction' ] );
 		\add_action( 'wp_ajax_nopriv_' . Options::SYNC_ACTION_NAME, 	[ $this, 'ajaxAction' ] );
 
+		// \set_exception_handler( [ $this, 'handleError' ] );
+
 		 /*
-		identifiers[0],
-		title,
-		name,
-		browser_url,
-		featured_image_url,
-		instructions,
-		description,
-		start_date,
-		end_date,
-		created_date,
-		modified_date,
-		location.venue,
-		status ["confirmed" "tentative" "cancelled"] 
-		visibility ["public" "private"]
+		identifiers[0] 									=> import_id, an_id
+		title,											=> post_title
+		description,									=> post_content
+		featured_image_url,								=> featured_image
+		created_date,									=> post_date, created_date
+		name,											=> name
+		browser_url,									=> browser_url
+		instructions,									=> instructions
+		start_date,										=> start_date
+		end_date,										=> end_date
+		modified_date,									=> modified_date
+		location.venue,									=> location_venue
+		location.location.latitude,						=> location_latitude
+		location.location.longitute,					=> location_longitute
+		status ["confirmed" "tentative" "cancelled"] 	=> status
+			confirmed 		=> publish
+			tentative 		=> draft
+			cancelled 		=> trash
+		visibility ["public" "private"]					=> visibility
 		action_network:event_campaign_id 
 		*/
 	}
@@ -127,9 +172,8 @@ class Sync extends Base {
 	 */
 	public function ajaxAction() {
 		// \wp_send_json( $this->data );
-		$this->startSync();
-		// \wp_send_json( $this->processed );
-		\wp_send_json( $this->data );
+		$this->startSync( 'manual' );
+		\wp_send_json( 'tiggered' );
 
 		\wp_die();
 	}
@@ -137,27 +181,33 @@ class Sync extends Base {
 	/**
 	 * Kick off sync
 	 *
+	 * @param string $origin
 	 * @return void
 	 */
-	public function startSync() {
-		$this->processed['started'] = date( 'c' );
-		update_option( 'wp_action_network_events_sync_started' . $this->processed['started'] , $this->processed['started'] );
+	public function startSync( string $origin = 'cron' ) {
+		$start = new \DateTime();
+		$this->setSyncStatus( 'origin', $origin );
+		$this->status = 'processing';
+		$this->setSyncStatus( 'started', $start->format( $this->date_format ) );
+		$this->setSyncStatus( 'sync_frequency', $this->sync_frequency );
+		\set_transient( $this->transient_name . 'started', $this->processed['started'], $this->sync_frequency );
 
 		$this->setParsedRecords();
-		// $this->addPosts();
+		$this->addPosts();
 		$this->completeSync();
 	}
 
 	/**
-	 * Complete synce
+	 * Complete sync
 	 *
 	 * @return void
 	 */
 	public function completeSync() {
-		$this->processed['completed'] = date( 'c' );
-		$this->processed['duration'] = date_diff( $this->processed['completed'], $this->processed['started'] );
-		update_option( 'wp_action_network_events_sync_completed' . $this->processed['completed'], $this->processed );
-		$this->processed = [];
+		$completed = new \DateTime();
+		$this->setSyncStatus( 'completed', $completed->format( $this->date_format ) );
+		\set_transient( $this->transient_name . 'completed', $this->processed['completed'], $this->sync_frequency );
+		$this->setSyncStatus( 'status', 'complete' );
+		\set_transient( 'wp_action_network_events_sync_status_' . $this->processed['completed'], $this->processed, $this->sync_frequency );
 	}
 
 	/**
@@ -167,6 +217,10 @@ class Sync extends Base {
 	 */
 	function getData( $page = 1 ) {
 		$events = new GetEvents( $this->version, $this->plugin_name );
+		if( is_a( $events, '\WP_Error' ) ) {
+			$this->handleError( 'Failed at ' . __FUNCTION__ );
+			// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
+		}
 		return $events->getResponseBody();
 	}
 
@@ -201,7 +255,11 @@ class Sync extends Base {
 			array_push( $records, $this->parseRecord( $record ) );
 			$count++;
 		}
-		$this->processed['parsed'] = $count;
+		$this->setSyncStatus( 'parsed', $count );
+		if( is_a( $records, '\WP_Error' ) ) {
+			$this->handleError( 'Failed at ' . __FUNCTION__ );
+			// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
+		}
 		return $records;
 	}
 
@@ -212,21 +270,25 @@ class Sync extends Base {
 	 * @return 
 	 */
 	function parseRecord( $record ) {
+		$status = Event::STATUSES[$record->status];
 		return [
 			'post_title'			=> $record->title,
 			'post_content'			=> $record->description,
 			'post_date'				=> $record->created_date,
 			'post_modified'			=> $record->modified_date,
-			'post_status'			=> $record->status,
+			'post_status'			=> $status,
 			'browser_url'			=> $record->browser_url,
+			'_links_to'				=> $record->browser_url,
+			'_links_to_target'		=> 'blank',
 			'an_id'					=> $record->identifiers[0],
 			'instructions'			=> $record->instructions,
-			'start_date'			=> $record->start_date,
-			'end_date'				=> $record->end_date,
-			'featured_image'		=> $record->featured_image_url,
+			'start_date'			=> $record->start_date ?? '',
+			'end_date'				=> $record->end_date ?? '',
+			'featured_image'		=> $record->featured_image_url ?? '',
 			'location_venue'		=> $record->location->venue,
 			'location_latitude'		=> $record->location->location->latitude,
 			'location_longitude'	=> $record->location->location->longitude,
+			'status'				=> $record->status,
 			'visibility'			=> $record->visibility,
 			// 'an_campaign_id'		=> $record->action_network:event_campaign_id
 		];
@@ -240,12 +302,31 @@ class Sync extends Base {
 	function addPosts() {
 		$count = 0;
 		foreach( $this->parsed_data as $post ) {
-			$post_id = $this->addPost( $post );
+			$post_id = $this->maybeAddPost( $post );
+			// $post_id = $this->addPost( $post );
 			if( $post_id ) {
 				$count++;
 			}
 		}
-		$this->processed['added'] = $count;
+		$this->setSyncStatus( 'added_posts', $count );
+	}
+
+	/**
+	 * Maybe add post
+	 *
+	 * @param array $post
+	 * @return void
+	 */
+	function maybeAddPost( array $post ) {
+		$post_id = false;
+		if( !$this->doesExist( $post['an_id'] ) ) {
+			$post_id = $this->addPost( $post );
+		} elseif( $this->hasChanged( $post ) ) {
+			$existing = $this->getExistingPost( $post );
+			$differences =  $this->getDifferences( $existing, $post );
+			$post_id = $this->updatePost( $post, $differences );
+		}
+		return $post_id;
 	}
 
 	/**
@@ -258,30 +339,46 @@ class Sync extends Base {
 	 * @return void
 	 */
 	function addPost( $post ) {
+		$timezone = $this->getTimezone( [
+			'venue'		=> $post['location_venue'],
+			'latitude'	=> $post['location_latitude'],
+			'longitude'	=> $post['location_longitude']
+		] );
+
 		$post_array = [
 			'post_date' 		=> $post['post_date'],
-			'post_title' 		=> $post['post_title'],
-			'post_content'		=> $post['post_content'],
-			'post_status'		=> $post['post_status'],
+			'post_title' 		=> \esc_attr( $post['post_title'] ),
+			'post_content'		=> \wp_kses_post( $post['post_content'] ),
+			'post_status'		=> \esc_attr( $post['post_status'] ),
 			'post_type'			=> Event::POST_TYPE['id'],
-			'import_id'			=> $post['an_id'],
+			'import_id'			=> \esc_attr( $post['an_id'] ),
 			'meta_input'		=> [
-				'browser_url'			=> $post['browser_url'],
-				'an_id'					=> $post['an_id'],
+				'browser_url'			=> \esc_url( $post['browser_url'] ),
+				'_links_to'				=> \esc_url( $post['browser_url'] ),
+				'_links_to_target'		=> \esc_attr( $post['_links_to_target'] ),
+				'an_id'					=> \esc_attr( $post['an_id'] ),
 				'instructions'			=> $post['instructions'],
 				'start_date'			=> $post['start_date'],
 				'end_date'				=> $post['end_date'],
+				'timezone'				=> $timezone,
 				// 'featured_image'		=> $post['featured_image'],
-				'location_venue'		=> $post['location_venue'],
-				'location_latitude'		=> $post['location_latitude'],
-				'location_longitude'	=> $post['location_longitude'],
-				'visibility'			=> $post['visibility'],
+				'location_venue'		=> \esc_attr( $post['location_venue'] ?? 'Virtual' ),
+				'location_latitude'		=> floatval( $post['location_latitude'] ),
+				'location_longitude'	=> floatval( $post['location_longitude'] ),
+				'status'				=> \esc_attr( $post['status'] ),
+				'visibility'			=> \esc_attr( $post['visibility'] ),
 			]
 		];
+
 		$post_id = \wp_insert_post( $post_array );
 
 		if( $post_id && $post['featured_image'] ) {
 			$this->addFeaturedImage( $post, $post_id );
+		}
+
+		if( is_a( $post_id, '\WP_Error' ) ) {
+			$this->handleError( 'Failed at ' . __FUNCTION__ );
+			// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
 		}
 
 		return $post_id;
@@ -301,7 +398,7 @@ class Sync extends Base {
 				$count++;
 			}
 		}
-		$this->processed['updated'] = $count;
+		$this->processed['updated_posts'] = $count;
 	}
 
 	/**
@@ -311,8 +408,13 @@ class Sync extends Base {
 	 *
 	 * @return mixed (int|WP_Error) The post ID on success. The value 0 or WP_Error on failure.
 	 */
-	function updatePost( $post ) {
-		return wp_update_post( $post );
+	function updatePost( $post, array $fields ) {
+		$post_id = \wp_update_post( $post );
+		if( is_a( $post_id, '\WP_Error' ) ) {
+			$this->handleError( 'Failed at ' . __FUNCTION__ );
+			// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
+		}
+		return $post_id;
 	}
 
 	/**
@@ -323,11 +425,18 @@ class Sync extends Base {
 	 * @return void
 	 */
 	function addFeaturedImage( $post, $post_id ) {
-		$url     	= $post->featured_image;
-		$post_id 	= $post_id;
-		$desc    	= \sanitize_title( $post['post_title'] );
+		$desc    	= \sanitize_title_with_dashes( $post['post_title'] );
 		
-		$image = \media_sideload_image( $url, $post_id, $desc );
+		$image = \media_sideload_image( $post['featured_image'], $post_id, $desc );
+		if( is_a( $image, '\WP_Error' ) ) {
+			$this->setSyncStatus( 'failed image', $image );
+			$this->handleError( 'Failed at ' . __FUNCTION__  );
+			// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
+		}
+
+		$this->setSyncStatus( 'image set', $image );
+
+		return $image;
 	}
 
 	/**
@@ -339,11 +448,12 @@ class Sync extends Base {
 	function deletePosts( $posts ) {
 		$count = 0;
 		foreach( $posts as $post ) {
-			$deleted = $this->eletePost( $post_id );
+			$deleted = $this->deletePost( $post_id );
 			if( $deleted ) {
 				$count++;
 			}
 		}
+		$this->processed['deleted_posts'] = $count;
 	}
 
 	/**
@@ -355,58 +465,193 @@ class Sync extends Base {
 	 * @return mixed (WP_Post|false|null) Post data on success, false or null on failure.
 	 */
 	function deletePost( $post_id ) {
-		return wp_delete_post( $post_id );
+		$deleted = wp_delete_post( $post_id );
+		if( is_a( $deleted, '\WP_Error' ) ) {
+			$this->handleError( 'Failed at ' . __FUNCTION__ );
+			// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
+		}
+		return $deleted;
 	}
 
 	function compareRecords() {}
 
-	function compareRecord() {}
-
-	public function getSyncStatus() {}
-
 	/**
-	 * The record has a post
-	 * 
-	 * @see https://developer.wordpress.org/reference/classes/wp_query/
+	 * Handle Errors
 	 *
-	 * @param string $identifier
-	 * @return boolean
+	 * @return void
 	 */
-	function doesExist( $identifier ) : boolean {
-		$args = [
-			'post_type'		=> Event::POST_TYPE['id'],
-			'field'			=> 'ids',
-			'meta_query'	=> [
-				'key' 		=> 'an_id',
-				'value' 	=> $identifier
-			]
-		];
-		$query = new \WP_Query( $args );
-		return $query->have_posts();
+	function handleError( $exception ) {
+		$this->status = 'failed';
+		$this->errors = $exception;
+		$this->setSyncStatus( 'errors', $this->errors );
+		$this->completeSync();
+
+		$this->errors = new \WP_Error( $exception );
+		throw new \Exception( $exception );
+
+
+		// if ( is_a( $results, '\WP_Error' ) ) {
+		// 	$this->errors = new \WP_Error(); 
+		// 	throw new \Exception();
+		// }
 	}
 
 	/**
-	 * Compare existing to new data
+	 * Set processing status
 	 *
-	 * @param array $current
-	 * @param array $new
-	 * @return boolean
+	 * @param string $prop
+	 * @param mixed $value
+	 * @return void
 	 */
-	function hasChanged( $current, $new ) : boolean {
-		$current_post = [
-			'post_title'			=> $current->title,
-			'post_content'			=> $current->description,
-			'post_modified'			=> $current->modified_date,
-			'post_status'			=> $current->status,
-			'browser_url'			=> $current->browser_url,
-			'instructions'			=> $current->instructions,
-			'start_date'			=> $current->start_date,
-			'end_date'				=> $current->end_date,
-			'featured_image'		=> $current->featured_image_url,
-			'location_venue'		=> $current->location->venue,
-			'location_latitude'		=> $current->location->location->latitude,
-			'location_longitude'	=> $current->location->location->longitude,
-			'visibility'			=> $current->visibility,
+	function setSyncStatus( $prop, $value ) {
+		$this->processed[$prop] = $value;
+	}
+
+	/**
+	 * Get duration in seconds
+	 *
+	 * @param string $started
+	 * @param string $completed
+	 * @return integer $seconds
+	 */
+	function getDuration( $started, $completed ) : integer {
+		$start = new \DateTime( $started );
+		$end = new \DateTime( $completed );
+		$diff = $start->diff( $end );
+		$daysInSecs = $diff->format( '%r%a' ) * 24 * 60 * 60;
+		$hoursInSecs = $diff->h * 60 * 60;
+		$minsInSecs = $diff->i * 60;
+
+		$seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
+
+		return $seconds;
+	}
+
+	/**
+	 * Get timezone abbreviation
+	 *
+	 * @param string $timezone
+	 * @return string
+	 */
+	public static function getTimezoneAbbr( string $timezone ) : string {
+		return $this->getTimezoneAbbreviation( $timezone );
+	}
+
+	/**
+	 * Get timezone abbreviation
+	 *
+	 * @param string $timezone
+	 * @return string
+	 */
+	public function getTimezoneAbbreviation( string $timezone ) : string {
+		$dateTime = new \DateTime();
+		$dateTime->setTimeZone( new \DateTimeZone( $timezone ) );
+		return $dateTime->format('T'); 
+	}
+
+	/**
+	 * Get Timezone
+	 *
+	 * @param array $location
+	 * @return string timezone
+	 */
+	function getTimezone( array $location ) : string {
+		if( empty( $location['venue'] ) ) {
+			return \get_option( 'timezone_string' );
+		}
+		return $this->getNearestTimezone( $location['latitude'], $location['longitude'] );
+	}
+
+	/**
+	 * Calculate Timezone based on geolocation
+	 *
+	 * @param floatval $latitude
+	 * @param floatval $longitude
+	 * @param string $country_code
+	 * @return string $timezone
+	 */
+	function getNearestTimezone( $latitude, $longitude ) : string {
+		$diffs = array();
+		$default_timezone = \get_option( 'timezone_string' );
+		foreach( \DateTimeZone::listIdentifiers() as $timezoneId ) {
+			  $timezone = new \DateTimeZone( $timezoneId );
+			  $location = $timezone->getLocation();
+			  $tLat = $location['latitude'];
+			  $tLng = $location['longitude'];
+			  $diffLat = abs( $latitude - $tLat );
+			  $diffLng = abs( $longitude - $tLng );
+			  $diff = $diffLat + $diffLng;
+			  $diffs[$timezoneId] = $diff;
+		}
+	 
+		$timezone = array_keys( $diffs, min( $diffs ) );
+		if( $timezone && is_array( $timezone ) ) {
+			return $timezone[0];
+		}
+		return $default_timezone;
+	}
+
+	/**
+	 * Get existing post matching
+	 * 
+	 * @see https://developer.wordpress.org/reference/classes/wp_query/
+	 *
+	 * @param object $post
+	 * @return array Return an array of post IDs
+	 */
+	function getExistingPost( $post ) {
+		$args = [
+			'post_type'			=> Event::POST_TYPE['id'],
+			'posts_per_page'	=> 1,
+			// 'field'				=> 'ids',
+			'meta_query'		=> [
+				'key' 			=> 'an_id',
+				'value' 		=> $post['an_id']
+			]
+		];
+		return new \WP_Query( $args );
+	}
+
+	/**
+	 * Get differences in posts
+	 *
+	 * @param array $existing
+	 * @param array $new
+	 * @return array
+	 */
+	function getDifferences( $existing, $new ) {
+		$fields_to_check = [
+			'post_title',
+			'post_content',
+			'post_modified',
+			'post_status',
+			'browser_url',
+			'instructions',
+			'start_date',
+			'end_date',
+			'featured_image',
+			'location_venue',
+			'location_latitude',
+			'location_longitude',
+			'visibility',
+			'status',
+		];
+
+		$existing_post = [
+			'post_title'			=> $existing->title,
+			'post_content'			=> $existing->description,
+			'post_modified'			=> $existing->modified_date,
+			'post_status'			=> $existing->status,
+			'browser_url'			=> $existing->browser_url,
+			'instructions'			=> $existing->instructions,
+			'start_date'			=> $existing->start_date,
+			'end_date'				=> $existing->end_date,
+			'featured_image'		=> $existing->featured_image_url,
+			'location_venue'		=> $existing->location->venue,
+			'location_latitude'		=> $existing->location->location->latitude,
+			'location_longitude'	=> $existing->location->location->longitude,
+			'visibility'			=> $existing->visibility,
+			'status'				=> $existing->status,
 		];
 
 		$new_post = [
@@ -423,9 +668,33 @@ class Sync extends Base {
 			'location_latitude'		=> $new['location->location->latitude'],
 			'location_longitude'	=> $new['location->location->longitude'],
 			'visibility'			=> $new['visibility'],
+			'status'				=> $new['status'],
 		];
 		
 		return array_diff_assoc( $current_post, $new_post );
+	}
+
+	/**
+	 * The record has a post
+	 *
+	 * @param obj $post
+	 * @return boolean
+	 */
+	function doesExist( $post ) {
+		$query = $this->getExistingPost( $post );
+		return $query->have_posts();
+	}
+
+	/**
+	 * Compare existing to new data
+	 *
+	 * @param array $current
+	 * @param array $new
+	 * @return boolean
+	 */
+	function hasChanged( $post ) {
+		$current = $this->getExistingPost( $post );
+		return !empty( $this->getDifferences( $current, $post ) );
 	}
 
 	/**
