@@ -8,7 +8,6 @@ namespace WpActionNetworkEvents\App\General;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
 use WpActionNetworkEvents\App\General\Taxonomies\Taxonomies;
-use WpActionNetworkEvents\App\General\PostTypes\PostTypes;
 use WpActionNetworkEvents\App\General\PostTypes\Event;
 
 use Carbon_Fields\Container;
@@ -31,16 +30,21 @@ class CustomFields extends Base {
 	public const CONTAINER_ID = 'wp_action_network_fields';
 
 	/**
-	 * 
+	 * Custom fields
 	 */
 	public const FIELDS = [
-		[
-			'name'		=> '',
-			'label'		=> '',
-			'type'		=> '',
-			'text_type'	=> null,
-			'api_prop'	=> ''
-		],
+		'browser_url',
+		'an_id',
+		'instructions',
+		'start_date',
+		'end_date',
+		'timezone',
+		'featured_image',
+		'location_venue',
+		'location_latitude',
+		'location_longitude',
+		'status',
+		'visibility',
 	];
 
 	/**
@@ -65,9 +69,16 @@ class CustomFields extends Base {
 		 * @see Bootstrap::__construct
 		 *
 		 */
-		\add_action( 'plugins_loaded', 					[ $this, 'load' ] );
 		\add_action( 'init',							[ $this, 'registerPostMeta' ] );
-		\add_action( 'carbon_fields_register_fields', 	[ $this, 'addFields' ] );
+
+		/**
+		 * Don't hide custom fields meta box
+		 * @see https://www.advancedcustomfields.com/resources/acf-settings/
+		 */
+		\add_filter( 'acf/settings/remove_wp_meta_box', '__return_false' );
+
+		// \add_action( 'plugins_loaded', 					[ $this, 'load' ] );
+		// \add_action( 'carbon_fields_register_fields', 	[ $this, 'addFields' ] );
 
 		/**
 		 * API Fields
@@ -200,23 +211,17 @@ class CustomFields extends Base {
 	 * @return void
 	 */
 	public function registerPostMeta() {
-		\register_post_meta(
-			'an_event', 
-			'_start_date', [
-				'show_in_rest' 	=> true,
-				'single' 		=> true,
-				'type' 			=> 'string',
-			]
-		);
 
-		\register_post_meta(
-			'an_event', 
-			'_location_venue', [
-				'show_in_rest' 	=> true,
-				'single' 		=> true,
-				'type' 			=> 'string',
-			]
-		);
+		foreach( self::FIELDS as $field ) {
+			\register_post_meta(
+				Event::POST_TYPE['id'], 
+				$field, [
+					'show_in_rest' 	=> true,
+					'single' 		=> true,
+					'type' 			=> 'string',
+				]
+			);
+		}
 	}
 
 	public static function getFields() {}
@@ -236,12 +241,7 @@ class CustomFields extends Base {
 				$array[$timezones[$i]] = str_replace( '_', ' ', $timezones[$i] );
 			}
 		}
-		
-		// $array = array_map( function( $timezone ) {
-		// 	return $array[ $timezone ] = str_replace( '_', ' ', $timezone );
-		// 	// return [ $timezone => str_replace( '_', ' ', $timezone ) ];
-		// }, $timezones );
-
+	
 		return $array;
 	}
 }
