@@ -425,17 +425,13 @@ class Sync extends Base {
 	 * @return void
 	 */
 	function addFeaturedImage( $post, $post_id ) {
-		$desc    	= \sanitize_title_with_dashes( $post['post_title'] );
-		
+		$desc  = \sanitize_title_with_dashes( $post['post_title'] );
+
 		$image = \media_sideload_image( $post['featured_image'], $post_id, $desc );
 		if( is_a( $image, '\WP_Error' ) ) {
-			$this->setSyncStatus( 'failed image', $image );
 			$this->handleError( 'Failed at ' . __FUNCTION__  );
 			// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
 		}
-
-		$this->setSyncStatus( 'image set', $image );
-
 		return $image;
 	}
 
