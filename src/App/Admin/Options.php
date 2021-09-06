@@ -284,7 +284,7 @@ class Options extends Base {
 	 * @return void
 	 */
 	function renderEventTypesField() {
-		$event_types = isset( $this->options['event_types'] ) ? $this->options['event_types'] : '';
+		$event_types = isset( $this->options['event_types'] ) ? $this->options['event_types'] : [];
 
 		echo '<select name="wp_action_network_events_options[event_types][]" class="event_types_field" multiple=multiple>';
 		echo '	<option value="">' . __( 'Select Event Types', 'wp-action-network-events' ) . '</option>';
