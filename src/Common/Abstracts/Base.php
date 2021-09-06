@@ -69,4 +69,13 @@ abstract class Base {
 	}
 
 	public function init() {}
+
+	/**
+	 * Handle Errors
+	 *
+	 * @return void
+	 */
+	function handleError( $exception ) {
+		throw new \Exception( $exception );
+	}
 }
