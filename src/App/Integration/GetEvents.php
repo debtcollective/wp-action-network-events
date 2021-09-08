@@ -42,4 +42,28 @@ class GetEvents extends GetData {
 
 	// }
 
+	/**
+	 * Get Entire Collection
+	 * If multiple pages, get all
+	 *
+	 * @return void
+	 */
+	public function getCollection() : array {
+		$pages = $this->getResponsePages();
+		$page = 1;
+		$data = [];
+		try {
+			for( $page = 1; $page <= $pages; $page++ ) {
+				$data[] = $this->getResponseBody( $page );
+			}
+		}
+		catch ( Exception $exception ) {
+			$this->handleError( $exception );
+		}
+		if( !empty( $data ) ) {
+			return $data[0]->_embedded->{'osdi:events'};
+		}
+		return $data;
+	}
+
 }
