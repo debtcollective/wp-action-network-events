@@ -206,11 +206,10 @@ class Options extends Base {
 
 		?>
 		<div class="notice notice-info is-dismissible">
-			<p><?php _e( 'Manual Sync Button Coming Soon!', 'wp-action-network-events' ); ?></p>
+			<p><?php _e( 'Automatic sync coming soon!', 'wp-action-network-events' ); ?></p>
 		</div>
 		<?php
 	}
-
 
 	/**
 	 * Render Settings Page
