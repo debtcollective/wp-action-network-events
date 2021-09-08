@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The plugin options.
+ * Sync
  *
  * @link       https://debtcollective.org
  * @since      1.0.0
@@ -12,13 +12,14 @@
 namespace WpActionNetworkEvents\App\Integration;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
-use WpActionNetworkEvents\App\Integration\GetEvents;
-use WpActionNetworkEvents\App\Integration\Parse;
 use WpActionNetworkEvents\App\Admin\Options;
 use WpActionNetworkEvents\App\General\PostTypes\Event;
+use WpActionNetworkEvents\App\Integration\GetEvents;
+use WpActionNetworkEvents\App\Integration\Parse;
+use WpActionNetworkEvents\App\Integration\Process;
 
 /**
- * Plugin Options
+ * Sync
  *
  *
  * @package    Wp_Action_Network_Events
@@ -67,10 +68,10 @@ class Sync extends Base {
 	 * Status
 	 *
 	 * @since    1.0.0
-	 * @access   protected
+	 * @access   public
 	 * @var      string    $status
 	 */
-	protected $status;
+	public $status;
 
 	/**
 	 * Errors
@@ -95,9 +96,9 @@ class Sync extends Base {
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      string    $transient_name
+	 * @var      string 
 	 */
-	protected $transient_name = 'wp_action_network_events_sync_last_';
+	public const TRANSIENT = 'wp_action_network_events_sync_last_';
 
 	/**
 	 * Sync Frequency
@@ -187,14 +188,20 @@ class Sync extends Base {
 	 */
 	public function startSync( string $origin = 'cron' ) {
 		$start = new \DateTime();
-		$this->setSyncStatus( 'origin', $origin );
+		$this->setStatus( 'origin', $origin );
 		$this->status = 'processing';
-		$this->setSyncStatus( 'started', $start->format( $this->date_format ) );
-		$this->setSyncStatus( 'sync_frequency', $this->sync_frequency );
-		\set_transient( $this->transient_name . 'started', $this->processed['started'], $this->sync_frequency );
+		$this->setStatus( 'started', $start->format( $this->date_format ) );
+		$this->setStatus( 'sync_frequency', $this->sync_frequency );
+		\set_transient( self::TRANSIENT . 'started', $this->processed['started'], $this->sync_frequency );
 
-		$this->setParsedRecords();
-		$this->addPosts();
+		$parsed = new Parse( $version, $plugin_name, $this->data );
+		$this->parsed_data = $parsed->getParsed();
+		$this->setStatus( 'parseStatus', $parsed->getStatus() );
+
+		$process = new Process( $version, $plugin_name, $this->parsed_data );
+		$processed = $process->evaluatePosts();
+		$this->setStatus( 'evaluatePosts', $process->getStatus() );
+
 		$this->completeSync();
 	}
 
@@ -205,10 +212,12 @@ class Sync extends Base {
 	 */
 	public function completeSync() {
 		$completed = new \DateTime();
-		$this->setSyncStatus( 'completed', $completed->format( $this->date_format ) );
-		\set_transient( $this->transient_name . 'completed', $this->processed['completed'], $this->sync_frequency );
-		$this->setSyncStatus( 'status', 'complete' );
+		$this->setStatus( 'completed', $completed->format( $this->date_format ) );
+		\set_transient( self::TRANSIENT . 'completed', $this->processed['completed'], $this->sync_frequency );
+		$this->setStatus( 'status', 'complete' );
 		\set_transient( 'wp_action_network_events_sync_status_' . $this->processed['completed'], $this->processed, $this->sync_frequency );
+
+		return $this->processed;
 	}
 
 	/**
@@ -222,7 +231,7 @@ class Sync extends Base {
 			$this->handleError( 'Failed at ' . __FUNCTION__ );
 			// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
 		}
-		return $events->getResponseBody();
+		return $events->getCollection();
 	}
 
 	/**
@@ -249,14 +258,16 @@ class Sync extends Base {
 	 * @return 
 	 */
 	function parseRecords() {
-		$data = $this->data->_embedded->{'osdi:events'};
+		$data = $this->data;
+		$this->processed['data'] = $data;
+		$this->processed['datatype'] = gettype( $data );
 		$records = [];
 		$count = 0;
 		foreach( $data as $record ) {
 			array_push( $records, $this->parseRecord( $record ) );
 			$count++;
 		}
-		$this->setSyncStatus( 'parsed', $count );
+		$this->setStatus( 'parsed', $count );
 		if( is_a( $records, '\WP_Error' ) ) {
 			$this->handleError( 'Failed at ' . __FUNCTION__ );
 			// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
@@ -300,58 +311,57 @@ class Sync extends Base {
 	 *
 	 * @return void
 	 */
-	function addPosts() {
+	function evaluatePosts() {
 		$count = 0;
 		foreach( $this->parsed_data as $post ) {
-			// $post_id = $this->maybeAddPost( $post );
-			$this->evaluatePost( $post );
+			$post_id = $this->evaluatePost( $post );
 			// $post_id = $this->addPost( $post );
 			if( $post_id ) {
 				$count++;
 			}
 		}
-		$this->setSyncStatus( 'added_posts', $count );
+		$this->setStatus( 'evaluated_posts', $count );
 	}
 
 	/**
-	 * Undocumented function
-	 *
-	 * @param [type] $post
-	 * @return void
-	 */
-	function evaluatePost( $post ) {
-		$this->processed[ $post->ID . ' exists'] = $this->doesExist( $post->an_id );
-		$this->processed[ $post->ID . ' has changed'] = $this->hasChanged( $post );
-		// $post_id = false;
-		// if( !$this->doesExist( $post->an_id ) ) {
-		// 	$post_id = $this->addPost( $post );
-		// } elseif( $this->hasChanged( $post ) ) {
-		// 	$existing = $this->getExistingPost( $post );
-		// 	$differences =  $this->getDifferences( $existing, $post );
-		// 	$post_id = $this->updatePost( $post, $differences );
-		// }
-		// $this->processed['updated_posts'] = 0;
-		// return $post_id;
-	}
-
-	/**
-	 * Maybe add post
+	 * Evaluate Post
 	 *
 	 * @param object $post
-	 * @return void
+	 * @return mixed int $post_id || false
 	 */
-	function maybeAddPost( object $post ) {
+	function evaluatePost( $post ) {
 		$post_id = false;
 		if( !$this->doesExist( $post->an_id ) ) {
 			$post_id = $this->addPost( $post );
 		} elseif( $this->hasChanged( $post ) ) {
 			$existing = $this->getExistingPost( $post );
 			$differences =  $this->getDifferences( $existing, $post );
-			$post_id = $this->updatePost( $post, $differences );
+
+			$this->setStatus( 'hasChanged', $existing );
+			$this->setStatus( 'new', $post );
+			$this->setStatus( 'differences', $differences );
+			// $post_id = $this->updatePost( $post, $differences );
 		}
-		$this->processed['updated_posts'] = 0;
 		return $post_id;
 	}
+
+	/**
+	 * Maybe add post
+	 *
+	 * @param object $post
+	 * @return mixed int $post_id || false
+	 */
+	// function maybeAddPost( object $post ) {
+	// 	$post_id = false;
+	// 	if( !$this->doesExist( $post->an_id ) ) {
+	// 		$post_id = $this->addPost( $post );
+	// 	} elseif( $this->hasChanged( $post ) ) {
+	// 		$existing = $this->getExistingPost( $post );
+	// 		$differences =  $this->getDifferences( $existing, $post );
+	// 		$post_id = $this->updatePost( $post, $differences );
+	// 	}
+	// 	return $post_id;
+	// }
 
 	/**
 	 * Add post
@@ -493,8 +503,6 @@ class Sync extends Base {
 		return $deleted;
 	}
 
-	function compareRecords() {}
-
 	/**
 	 * Handle Errors
 	 *
@@ -503,7 +511,7 @@ class Sync extends Base {
 	function handleError( $exception ) {
 		$this->status = 'failed';
 		$this->errors = $exception;
-		$this->setSyncStatus( 'errors', $this->errors );
+		$this->setStatus( 'errors', $this->errors );
 		$this->completeSync();
 
 		$this->errors = new \WP_Error( $exception );
@@ -523,7 +531,7 @@ class Sync extends Base {
 	 * @param mixed $value
 	 * @return void
 	 */
-	function setSyncStatus( $prop, $value ) {
+	function setStatus( $prop, $value ) {
 		$this->processed[$prop] = $value;
 	}
 
@@ -619,14 +627,15 @@ class Sync extends Base {
 	 * @param object $post
 	 * @return array Return an array of post IDs
 	 */
-	function queryPost( $post ) {
+	function queryPost( $identifier ) {
 		$args = [
 			'post_type'			=> Event::POST_TYPE['id'],
 			'posts_per_page'	=> 1,
-			// 'field'				=> 'ids',
 			'meta_query'		=> [
-				'key' 			=> 'an_id',
-				'value' 		=> $post->an_id
+				[
+					'key' 			=> 'an_id',
+					'value' 		=> $identifier
+				]
 			]
 		];
 		return new \WP_Query( $args );
