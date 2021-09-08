@@ -21,11 +21,10 @@ document.addEventListener( "DOMContentLoaded", () => {
             headers: new Headers( { 'Content-Type': 'application/x-www-form-urlencoded' } ),
             body: query
           } )
-        .then( response => response.json() )
-        .then( data => {
-
-            const obj = JSON.parse( data.body );
-    
+        .then( response => 
+            response.json() 
+        )
+        .then( data => {    
             console.log( data )
         } )
 

@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }).then(function (response) {
       return response.json();
     }).then(function (data) {
-      var obj = JSON.parse(data.body);
       console.log(data);
     });
   };
