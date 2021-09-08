@@ -46,6 +46,15 @@ abstract class Base {
 	protected $version;
 
 	/**
+	 * The status.
+	 *
+	 * @since    1.0.0
+	 * @access   public
+	 * @var      array    $status 
+	 */
+	public $status;
+
+	/**
 	 * Base constructor.
 	 *
 	 * @since 1.0.0
@@ -77,5 +86,27 @@ abstract class Base {
 	 */
 	function handleError( $exception ) {
 		throw new \Exception( $exception );
+	}
+
+	/**
+	 * Set processing status
+	 *
+	 * @param string $prop
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function setStatus( $prop, $value ) {
+		$this->status[$prop] = $value;
+	}
+
+	/**
+	 * Get processing status
+	 *
+	 * @param string $prop
+	 * @param mixed $value
+	 * @return array $this->status
+	 */
+	public function getStatus() {
+		return $this->status;
 	}
 }
