@@ -45,7 +45,8 @@ class CustomFields extends Base {
 		'location_longitude',
 		'status',
 		'visibility',
-		'an_campaign_id'
+		'an_campaign_id',
+		'internal_name'
 	];
 
 	/**
