@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The plugin options.
+ * Parser.
  *
  * @link       https://debtcollective.org
  * @since      1.0.0
@@ -13,11 +13,12 @@ namespace WpActionNetworkEvents\App\Integration;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
 use WpActionNetworkEvents\App\Integration\GetEvents;
+use WpActionNetworkEvents\App\Integration\Sync;
 use WpActionNetworkEvents\App\Admin\Options;
 use WpActionNetworkEvents\App\General\PostTypes\Event;
 
 /**
- * Plugin Options
+ * Parser
  *
  *
  * @package    Wp_Action_Network_Events
@@ -48,10 +49,10 @@ class Parse extends Base {
 	 * Status
 	 *
 	 * @since    1.0.0
-	 * @access   protected
+	 * @access   public
 	 * @var      string    $status
 	 */
-	protected $status;
+	public $status;
 
 	/**
 	 * Errors
@@ -77,7 +78,7 @@ class Parse extends Base {
 	 * @var array
 	 */
 	protected $field_map = [
-		'post_title'			=> 'name',
+		'post_title'			=> 'title',
 		'post_content'			=> 'description',
 		'post_date'				=> 'created_date',
 		'post_modified'			=> 'identifiers[0]',
@@ -87,15 +88,16 @@ class Parse extends Base {
 		'_links_to_target'		=> 'blank',
 		'an_id'					=> 'identifiers[0]',
 		'instructions'			=> 'instructions',
-		'start_date'			=> 'start_date' ?? '',
-		'end_date'				=> 'end_date' ?? '',
-		'featured_image'		=> 'featured_image_url' ?? '',
-		'location_venue'		=> 'location.venue' ?? '',
-		'location_latitude'		=> 'location.location.latitude',
-		'location_longitude'	=> 'location.location.longitute',
+		'start_date'			=> 'start_date',
+		'end_date'				=> 'end_date',
+		'featured_image'		=> 'featured_image_url',
+		'location_venue'		=> 'location->venue',
+		'location_latitude'		=> 'location->location->latitude',
+		'location_longitude'	=> 'location->location->longitute',
 		'status'				=> 'status',
 		'visibility'			=> 'visibility',
 		'an_campaign_id'		=> 'action_network:event_campaign_id',
+		'internal_name'			=> 'name'
 	];
 
 	/**
@@ -121,27 +123,26 @@ class Parse extends Base {
 		 * @see Bootstrap::__construct
 		 *
 		 */
-		$this->parsed_data = parseRecords();
+		$this->parsed_data = $this->parseRecords( $this->data );
+		$this->setStatus( 'Parsed Data', $this->parsed_data );
 	}
 
 	/**
-	 * Undocumented function
+	 * Parse Records
 	 *
-	 * @return void
+	 * @return array $parsed_records
 	 */
 	public function parseRecords() {
-		$data = $this->data->_embedded->{'osdi:events'};
-		$records = [];
+		$parsed_records = [];
 		$count = 0;
-		foreach( $data as $record ) {
-			array_push( $records, $this->parseRecord( $record ) );
+		foreach( $this->data as $record ) {
+			array_push( $parsed_records, $this->parseRecord( $record ) );
 			$count++;
 		}
-		if( is_a( $records, '\WP_Error' ) ) {
+		if( is_a( $parsed_records, '\WP_Error' ) ) {
 			$this->handleError( 'Failed at ' . __FUNCTION__ );
 		}
-		$this->status = "$count records parsed";
-		return $records;
+		return $parsed_records;
 	}
 
 	/**
@@ -152,20 +153,58 @@ class Parse extends Base {
 	 */
 	public function parseRecord( object $record ) : object {
 		$status = Event::STATUSES[$record->status];
-		$record = [];
+		$post_data = [];
+
 		foreach( $this->field_map as $key => $value ) {
-			if( 'post_status' === $key ) {
-				$record[$key] = $status;
+			switch( $key ) {
+				case 'post_status' :
+					$post_data[$key] = $status;
+					break;
+				case 'an_id' :
+					$post_data[$key] = $record->identifiers[0];
+					break;
+				case 'location_venue' :
+					$post_data[$key] = $record->location->venue ?? 'Virtual';
+					break;
+				case 'location_latitude';
+					$post_data[$key] = $record->location->location->latitude;
+					break;
+				case 'location_longitude';
+					$post_data[$key] = $record->location->location->longitude;
+					break;
+				case '_links_to_target' :
+					$post_data[$key] = 'blank';
+					break;
+				default :
+					$post_data[$key] = $record->{$value} ?? '';
+				break;
+
 			}
-			elseif( '_links_to_target' === $key ) {
-				$record[$key] = 'blank';
-			}
-			else {
-				$record[$key] = $record->{$value};
-			}
+
+
+			// if( 'post_status' === $key ) {
+			// 	$post_data[$key] = $status;
+			// }
+			// elseif( '_links_to_target' === $key ) {
+			// 	$post_data[$key] = 'blank';
+			// }
+			// elseif( 'an_id' === $key ) {
+			// 	$post_data[$key] = $record->identifiers[0];
+			// }
+			// else {
+			// 	$post_data[$key] = $record->{$value} ?? '';
+			// }
 		}
-		return $record;
+		return (object) $post_data;
 	}
 
+	/**
+	 * Get parsed data
+	 *
+	 * @return array $this->parsed_data
+	 */
+	public function getParsed() {
+		return $this->parsed_data;
+	}
 
 }
