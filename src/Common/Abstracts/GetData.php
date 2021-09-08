@@ -60,6 +60,16 @@ abstract class GetData {
 	protected $data;
 
 	/**
+	 * Array of errors
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      array   $errors
+	 */
+	protected $errors;
+
+
+	/**
 	 * The unique identifier of this plugin.
 	 *
 	 * @since    1.0.0
@@ -90,11 +100,7 @@ abstract class GetData {
 		$options = Options::getOptions();
 		$this->api_key = $options['api_key'];
 		$this->base_url = $options['base_url'];
-
-		// \add_action( 'admin_enqueue_scripts', 							[ $this, 'enqueueScripts' ] );
-
-		// \add_action( 'wp_ajax_' . Options::SYNC_ACTION_NAME, 			[ $this, 'sendData' ] );
-		// \add_action( 'wp_ajax_nopriv_' . Options::SYNC_ACTION_NAME, 	[ $this, 'sendData' ] );
+		$this->data = $this->getCollection();
 	}
 
 	/**
@@ -113,8 +119,7 @@ abstract class GetData {
 	 *
 	 * @return mixed (array|WP_Error) The response or WP_Error on failure.
 	 */
-	public function fetchData( $page = 1 ) {
-
+	public function getRequest( $page = 1 ) {
 		$endpoint = \esc_url( $this->base_url . $this->endpoint );
 
 		$options = [
@@ -135,6 +140,14 @@ abstract class GetData {
 	}
 
 	/**
+	 * Get Entire Collection
+	 * If multiple pages, get all
+	 *
+	 * @return void
+	 */
+	abstract public function getCollection() : array;
+
+	/**
 	 * Get the response body
 	 * 
 	 * @see https://developer.wordpress.org/reference/functions/wp_remote_retrieve_body/
@@ -142,10 +155,9 @@ abstract class GetData {
 	 * @return mixed (array|WP_Error) The response or WP_Error on failure.
 	 */
 	public function getResponseBody( $page = 1 ) {
-		$response = $this->fetchData( $page );
+		$response = $this->getRequest( $page );
 		if( empty( $response ) && !is_wp_error( $response ) ) {
-			$response_code = wp_remote_retrieve_response_code( $response );
-			return new WP_Error( 'response-error', __( "There was an error in the response. (Code $response_code)", "wp-action-network-events" ) );
+			$this->handleError( $response );
 		}
 		$body = wp_remote_retrieve_body( $response );
 		return json_decode( $body );
@@ -158,8 +170,7 @@ abstract class GetData {
 	 *
 	 * @return mixed (array|WP_Error) The response or WP_Error on failure.
 	 */
-	public function getResponseCode( $page = 1 ) {
-		$response = $this->fetchData( $page );
+	public function getResponseCode( $response ) {
 		return wp_remote_retrieve_response_code( $response );
 	}
 
@@ -171,22 +182,10 @@ abstract class GetData {
 	public function getResponsePages() {
 		$response = $this->getResponseBody();
 		if( empty( $response ) && !is_wp_error( $response ) ) {
-			return new WP_Error( 'no-response-body', __( "No response body was returned", "wp-action-network-events" ) );
+			$this->handleError( $response );
 		}
 		return $response->total_pages;
 	}
-
-	/**
-	 * Send Data to Ajax
-	 *
-	 * @return void
-	 */
-	// public function sendData() {
-	// 	$data = $this->fetchData();
-
-	// 	\wp_send_json( $data );
-	// 	\wp_die();
-	// }
 
 	/**
 	 * Get the data at a given endpoint
@@ -195,22 +194,18 @@ abstract class GetData {
 	 * @return mixed (array|WP_Error) The response or WP_Error on failure.
 	 */
 	public static function getData() {
-		var_dump( $this->data );
-		// return $this->data;
+		return $this->data;
 	}
 
 	/**
-	 * Error Message
-	 * @temp
+	 * Handle Errors
 	 *
-	 * @param string $error
 	 * @return void
 	 */
-	public function errorMessage( $error ) {
-		var_dump( $error );
+	function handleError( $exception ) {
+		$this->errors[] = $exception;
+		throw new \Exception( $exception );
 	}
-
-	public function setQuery() {}
 
 	/**
 	 * Register Resource Type
