@@ -22,6 +22,11 @@ abstract class PostType extends Base {
 	public const POST_TYPE = self::POST_TYPE;
 
 	/**
+	 * Post Type fields
+	 */
+	public const FIELDS = self::FIELDS;
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
@@ -113,4 +118,5 @@ abstract class PostType extends Base {
 		);
 	
 	}
+
 }
