@@ -6,6 +6,9 @@
  */
 namespace WpActionNetworkEvents\App\Blocks\Event_Query;
 
+use WpActionNetworkEvents\App\General\PostTypes\Event;
+use WpActionNetworkEvents\App\General\Taxonomies\EventTag;
+
 /**
  * Renders the `wp-action-network-events/event-query` block on the server.
  *
@@ -22,8 +25,8 @@ function render( $attributes, $content, $block ) {
 
 	$defaults = array_merge(
 		[
-			'post_type'			=> $block_type_attributes['postType']['default'],
-			'taxonomy'			=> $block_type_attributes['taxonomy']['default'],
+			'post_type'			=> Event::POST_TYPE['id'],
+			'taxonomy'			=> EventTag::TAXONOMY['id'],
 			'dateFormat'		=> \get_option( 'date_format' ),
 			'timeFormat'		=> \get_option( 'time_format' ),
 			'wrapperTagName'	=> $block_type_attributes['wrapperTagName']['default'],
@@ -66,6 +69,15 @@ function render( $attributes, $content, $block ) {
 		];
 	}
 
+	// 'meta_query' => array( // WordPress has all the results, now, return only the events after today's date
+	// 	array(
+	// 		'key' => 'event-start-date', // Check the start date field
+	// 		'value' => date("Y-m-d"), // Set today's date (note the similar format)
+	// 		'compare' => '>=', // Return the ones greater than today's date
+	// 		'type' => 'DATE' // Let WordPress know we're working with date
+	// 		)
+	// 	),
+
 	$query = new \WP_Query( $args );
 	$output = '';
 
@@ -77,12 +89,14 @@ function render( $attributes, $content, $block ) {
 		ob_start();
 		?>
 
+		<<?php echo ( $args['wrapperTagName'] ); ?> <?php echo $wrapper_attributes; ?>>
+
 		<?php
 		while( $query->have_posts() ) : $query->the_post(); 
 			$post_id = \get_the_ID();
 
-			$timezone = ( $tz = \get_post_meta( $post_id, '_timezone', true ) ) ? $tz : $default_timezone;
-			$raw_date = \get_post_meta( $post_id, '_start_date', true );
+			$timezone = ( $tz = \get_post_meta( $post_id, 'timezone', true ) ) ? $tz : $default_timezone;
+			$raw_date = \get_post_meta( $post_id, 'start_date', true );
 			$datetime = new \DateTime( $raw_date );
 			$formatted_date = $datetime->format( $date_format );
 			$formatted_time = $datetime->format( $time_format );
@@ -99,17 +113,9 @@ function render( $attributes, $content, $block ) {
 					$tags = \wp_get_post_terms( $post_id, $taxonomy, [ 'fields' => 'names' ] );
 					?>
 
-					<div className="event__tag">
+					<div class="event__tag">
 						<?php echo \esc_html( $tags[0] ); ?>
 					</div>
-
-				<?php endif; ?>
-
-				<?php if( $args['showFeaturedImage'] && \has_post_thumbnail( $post_id ) ) : ?>
-
-					<picture className="event__media">
-						<?php \the_post_thumbnail( $post_id, 'medium', [] ); ?>
-					</picture>
 
 				<?php endif; ?>
 
@@ -121,7 +127,7 @@ function render( $attributes, $content, $block ) {
 
 				<?php if( $args['showDate'] ) : ?>
 					
-					<div className="event__date">
+					<div class="event__date">
 						<time dateTime=<?php echo \esc_attr( $raw_date ); ?>><?php echo $formatted_date; ?></time>
 					</div>
 					
@@ -129,19 +135,19 @@ function render( $attributes, $content, $block ) {
 
 				<?php if( $args['showTime'] ) : ?>
 					
-					<div className="event__time">
+					<div class="event__time">
 						<time dateTime=<?php echo esc_attr( $raw_date ); ?>><?php printf( '%s <span class="timezone-abbr">%s</span>', $formatted_time, $timezone_abbr ); ?> </time>
 					</div>
 					
 				<?php endif; ?>
 
-				<?php if( $args['showLocation'] && ( $location = \get_post_meta( $post_id, '_location_venue', true ) ) ) : ?>
+				<?php if( $args['showLocation'] && ( $location = \get_post_meta( $post_id, 'location_venue', true ) ) ) : ?>
 					
-					<div className="event__location"><?php echo \esc_attr( $location ); ?></div>
+					<div class="event__location"><?php echo \esc_attr( $location ); ?></div>
 					
 				<?php endif; ?>
 
-			</<?php echo ( $args['wrapperTagName'] ); ?>>
+			</<?php echo ( $args['tagName'] ); ?>>
 
 		<?php
 		endwhile; ?>
