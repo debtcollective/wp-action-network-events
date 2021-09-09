@@ -69,12 +69,12 @@ function render( $attributes, $content, $block ) {
 		];
 	}
 
-	// 'meta_query' => array( // WordPress has all the results, now, return only the events after today's date
+	// 'meta_query' => array(
 	// 	array(
-	// 		'key' => 'event-start-date', // Check the start date field
-	// 		'value' => date("Y-m-d"), // Set today's date (note the similar format)
-	// 		'compare' => '>=', // Return the ones greater than today's date
-	// 		'type' => 'DATE' // Let WordPress know we're working with date
+	// 		'key' => 'start_date',
+	// 		'value' => date(),
+	// 		'compare' => '>=',
+	// 		'type' => 'DATETIME'
 	// 		)
 	// 	),
 
@@ -107,7 +107,7 @@ function render( $attributes, $content, $block ) {
 			$timezone_abbr = $generic_date->format( 'T' );
 			?>
 
-			<<?php echo ( $args['tagName'] ); ?> class="event">
+			<<?php echo ( $args['tagName'] ); ?> <?php post_class( 'event' ); ?>>
 
 				<?php if( $args['showTags'] && \has_term( '', $taxonomy, $post_id ) ) : 
 					$tags = \wp_get_post_terms( $post_id, $taxonomy, [ 'fields' => 'names' ] );
