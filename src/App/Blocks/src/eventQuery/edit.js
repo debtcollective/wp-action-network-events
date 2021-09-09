@@ -471,7 +471,6 @@ const Edit = ( props ) => {
 	const NoPosts = () => {
 		return (
 			<div className="no-posts">
-				No posts
 				{ __( 'No posts', 'wp-action-network-events' ) }
 			</div>
 		)
