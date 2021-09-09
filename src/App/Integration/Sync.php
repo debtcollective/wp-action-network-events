@@ -74,15 +74,6 @@ class Sync extends Base {
 	public $status;
 
 	/**
-	 * Errors
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      array    $errors
-	 */
-	protected $errors;
-
-	/**
 	 * Date Format
 	 *
 	 * @since    1.0.0
@@ -508,14 +499,14 @@ class Sync extends Base {
 	 *
 	 * @return void
 	 */
-	function handleError( $exception ) {
+	protected function handleError( $exception ) {
 		$this->status = 'failed';
 		$this->errors = $exception;
 		$this->setStatus( 'errors', $this->errors );
 		$this->completeSync();
 
 		$this->errors = new \WP_Error( $exception );
-		throw new \Exception( $exception );
+		// throw new \Exception( $exception );
 
 
 		// if ( is_a( $results, '\WP_Error' ) ) {

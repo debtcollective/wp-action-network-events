@@ -204,7 +204,7 @@ abstract class GetData {
 	 */
 	function handleError( $exception ) {
 		$this->errors[] = $exception;
-		throw new \Exception( $exception );
+		// throw new \Exception( $exception );
 	}
 
 	/**

@@ -55,6 +55,16 @@ abstract class Base {
 	public $status;
 
 	/**
+	 * The errors.
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      array    $errors 
+	 */
+	protected $errors;
+
+
+	/**
 	 * Base constructor.
 	 *
 	 * @since 1.0.0
@@ -84,8 +94,9 @@ abstract class Base {
 	 *
 	 * @return void
 	 */
-	function handleError( $exception ) {
-		throw new \Exception( $exception );
+	protected function handleError( $exception ) {
+		$this->errors[] = $exception;
+		// throw new \Exception( $exception );
 	}
 
 	/**
