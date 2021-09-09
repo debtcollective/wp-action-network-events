@@ -28,7 +28,7 @@
 		},
 		"metaKey": {
 			"type": "string",
-			"default": "_start_date"
+			"default": "start_date"
 		},
 		"perPage": {
 			"type": "number",

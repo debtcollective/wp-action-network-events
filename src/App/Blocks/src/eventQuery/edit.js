@@ -453,16 +453,16 @@ const Edit = ( props ) => {
 				) }
 				{ showDate && (
 					<div className="event__date">
-						<time dateTime={ post.meta?.["_start_date"] }>{ dateI18n( dateFormat, post.meta?.["_start_date"] ) }</time>
+						<time dateTime={ post.meta?.["start_date"] }>{ dateI18n( dateFormat, post.meta?.["start_date"] ) }</time>
 					</div>
 				) }
 				{ showTime && (
 					<div className="event__time">
-						<time dateTime={ post.meta?.["_start_date"] }>{ dateI18n( timeFormat, post.meta?.["_start_date"] ) }</time>
+						<time dateTime={ post.meta?.["start_date"] }>{ dateI18n( timeFormat, post.meta?.["start_date"] ) }</time>
 					</div>
 					) }
 				{ showLocation && (
-					<div className="event__location" dangerouslySetInnerHTML={{ __html: post.meta?.["_location_venue"] }}></div>
+					<div className="event__location" dangerouslySetInnerHTML={{ __html: post.meta?.["location_venue"] }}></div>
 				) }
 			</article>
 		)
@@ -472,6 +472,7 @@ const Edit = ( props ) => {
 		return (
 			<div className="no-posts">
 				No posts
+				{ __( 'No posts', 'wp-action-network-events' ) }
 			</div>
 		)
 	}
