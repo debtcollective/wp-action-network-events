@@ -68,7 +68,6 @@ abstract class GetData {
 	 */
 	protected $errors;
 
-
 	/**
 	 * The unique identifier of this plugin.
 	 *
@@ -98,9 +97,14 @@ abstract class GetData {
 		$this->version = $version;
 		$this->plugin_name = $plugin_name;
 		$options = Options::getOptions();
-		$this->api_key = $options['api_key'];
-		$this->base_url = $options['base_url'];
-		$this->data = $this->getCollection();
+		if( $options && $options['api_key'] && $options['base_url'] ) {
+			$this->api_key = $options['api_key'];
+			$this->base_url = $options['base_url'];
+			$this->data = $this->getCollection();
+		} else {
+			$this->handleError( 'Options not set' );
+		}
+
 	}
 
 	/**
