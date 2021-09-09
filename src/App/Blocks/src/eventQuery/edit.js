@@ -273,9 +273,6 @@ const Edit = ( props ) => {
 	};
 
 	const ShowSelectors = () => {
-		// const displayAttributes = Object.entries( display );
-		// const filtered = displayAttributes.filter( ( [ key, value ] ) => typeof value === 'boolean' );
-		// const object = Object.fromEntries( filtered );
 		const fields = Object.keys( display );		
 
 		if( !fields || !fields.length ) {
