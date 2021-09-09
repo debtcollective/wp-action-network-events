@@ -49,7 +49,8 @@ abstract class PostType extends Base {
 		 *
 		 */
 
-		add_action( 'init', [ $this, 'register' ] );
+		\add_action( 'init', 		[ $this, 'register' ] );
+		\add_filter( 'query_vars', 	[ $this, 'registerQueryVars' ] );
 
 	}
 
@@ -118,5 +119,14 @@ abstract class PostType extends Base {
 		);
 	
 	}
+
+	/**
+	 * Register custom query vars
+	 * 
+	 * @link https://developer.wordpress.org/reference/hooks/query_vars/
+	 *
+	 * @param array $vars The array of available query variables
+	 */
+	abstract public function registerQueryVars( $vars );
 
 }

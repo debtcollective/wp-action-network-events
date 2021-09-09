@@ -54,4 +54,16 @@ class Event extends PostType {
 		'import_id'				=> 'identifiers[0]',
 	];
 
+	/**
+	 * Register custom query vars
+	 * 
+	 * @link https://developer.wordpress.org/reference/hooks/query_vars/
+	 *
+	 * @param array $vars The array of available query variables
+	 */
+	public function registerQueryVars( $vars ) : array {
+		$vars[] = 'scope';
+		return $vars;
+	}
+
 }
