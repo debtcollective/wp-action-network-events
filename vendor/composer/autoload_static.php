@@ -185,6 +185,8 @@ class ComposerStaticInitef2b9c6e8d24c4b2eb0fad50b4f7d0d1
         'WpActionNetworkEvents\\App\\General\\Taxonomies\\EventType' => __DIR__ . '/../..' . '/src/App/General/Taxonomies/EventType.php',
         'WpActionNetworkEvents\\App\\General\\Taxonomies\\Taxonomies' => __DIR__ . '/../..' . '/src/App/General/Taxonomies/Taxonomies.php',
         'WpActionNetworkEvents\\App\\Integration\\GetEvents' => __DIR__ . '/../..' . '/src/App/Integration/GetEvents.php',
+        'WpActionNetworkEvents\\App\\Integration\\Parse' => __DIR__ . '/../..' . '/src/App/Integration/Parse.php',
+        'WpActionNetworkEvents\\App\\Integration\\Process' => __DIR__ . '/../..' . '/src/App/Integration/Process.php',
         'WpActionNetworkEvents\\App\\Integration\\RestFilters' => __DIR__ . '/../..' . '/src/App/Integration/RestFilters.php',
         'WpActionNetworkEvents\\App\\Integration\\Sync' => __DIR__ . '/../..' . '/src/App/Integration/Sync.php',
         'WpActionNetworkEvents\\Common\\Abstracts\\Base' => __DIR__ . '/../..' . '/src/Common/Abstracts/Base.php',
