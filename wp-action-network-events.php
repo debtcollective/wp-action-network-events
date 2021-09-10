@@ -98,7 +98,7 @@ function deactivate_wp_action_network_events() {
  */
 
 function init() {
-	$plugin = new Common\Plugin( PLUGIN_VERSION, PLUGIN_NAME, \plugin_basename( __FILE__ ) );
+	$plugin = new Common\Plugin( PLUGIN_VERSION, PLUGIN_NAME, \plugin_dir_path( __FILE__ ) );
 	return $plugin;
 }
 if( class_exists(  __NAMESPACE__ . '\Common\Plugin' ) ) {

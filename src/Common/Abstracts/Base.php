@@ -37,6 +37,15 @@ abstract class Base {
 	protected $plugin_name;
 
 	/**
+	 * The basename of this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      string    $basename
+	 */
+	protected $basename;
+
+	/**
 	 * The current version of the plugin.
 	 *
 	 * @since    1.0.0
@@ -63,15 +72,15 @@ abstract class Base {
 	 */
 	protected $errors;
 
-
 	/**
 	 * Base constructor.
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct( $version , $plugin_name ) {
+	public function __construct( $version , $plugin_name, $basename = '' ) {
 		$this->version = $version;
 		$this->plugin_name = $plugin_name;
+		$this->basename = $basename;
 		// $this->init();
 		// self::instantiate();
 	}

@@ -78,7 +78,6 @@ class Plugin {
 	 */
 	protected $basename;
 
-
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
 	 * the plugin.
@@ -95,9 +94,11 @@ class Plugin {
 	 * @param string $version
 	 * @param string $plugin_name
 	 */
-	public function __construct( $version, $plugin_name ) {
+	public function __construct( $version, $plugin_name, $basename ) {
 		$this->version = $version;
 		$this->plugin_name = $plugin_name;
+		$this->basename = $basename;
+
 		// $this::instantiate();
 		$this->init();
 	}
@@ -179,7 +180,7 @@ class Plugin {
 
 		new RestFilters( $this->version, $this->plugin_name );
 
-		new Blocks( $this->version, $this->plugin_name );
+		new Blocks( $this->version, $this->plugin_name, $this->basename );
 
 		new GetEvents( $this->version, $this->plugin_name );
 

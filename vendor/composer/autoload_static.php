@@ -197,6 +197,7 @@ class ComposerStaticInitef2b9c6e8d24c4b2eb0fad50b4f7d0d1
         'WpActionNetworkEvents\\Common\\Loader' => __DIR__ . '/../..' . '/src/Common/Loader.php',
         'WpActionNetworkEvents\\Common\\Plugin' => __DIR__ . '/../..' . '/src/Common/Plugin.php',
         'WpActionNetworkEvents\\Common\\Traits\\Singleton' => __DIR__ . '/../..' . '/src/Common/Traits/Singleton.php',
+        'WpActionNetworkEvents\\Common\\Util\\TemplateLoader' => __DIR__ . '/../..' . '/src/Common/Util/TemplateLoader.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

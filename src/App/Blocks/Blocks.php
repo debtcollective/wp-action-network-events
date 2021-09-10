@@ -9,6 +9,7 @@ namespace WpActionNetworkEvents\App\Blocks;
 use WpActionNetworkEvents\Common\Abstracts\Base;
 use WpActionNetworkEvents\App\Blocks\Patterns;
 use WpActionNetworkEvents\App\Blocks\Fields\Meta;
+use WpActionNetworkEvents\Common\Util\TemplateLoader;
 
 /**
  * Class Blocks
@@ -18,13 +19,15 @@ use WpActionNetworkEvents\App\Blocks\Fields\Meta;
  */
 class Blocks extends Base {
 
+	public $loader_params = [];
+
 	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct( $version, $plugin_name ) {
-		parent::__construct( $version, $plugin_name );
+	public function __construct( $version, $plugin_name, $basename ) {
+		parent::__construct( $version, $plugin_name, $basename );
 		$this->init();
 	}
 
@@ -40,6 +43,16 @@ class Blocks extends Base {
 		 * @see Bootstrap::__construct
 		 *
 		 */
+		/**
+		 * add_filter( 'WpActionNetworkEvents\App\Blocks\Blocks\LoaderParams', $params );
+		 */
+		$this->loader_params = \apply_filters( \get_class() . '\LoaderParams', [
+			'filter_prefix'             => 'wp_action_network_events',
+			'plugin_directory'          => $this->basename,
+			'plugin_template_directory' => 'src/App/Blocks/src/templates',
+			'theme_template_directory'  => 'template-parts/components',
+		] );
+
 		new Patterns( $this->version, $this->plugin_name );
 		// new Meta( $this->version, $this->plugin_name );
 
@@ -51,8 +64,6 @@ class Blocks extends Base {
 		if ( function_exists( '\wp_set_script_translations' ) ) {
 			\add_action(  'init',		[ $this, 'setScriptTranslations' ] );
 		}
-
-
 	}
 
 	/**
@@ -75,5 +86,14 @@ class Blocks extends Base {
 	 * @see https://developer.wordpress.org/reference/functions/register_block_pattern_category/
 	 */
 	public function registerBlockPatternCategory() {}
+
+	/**
+	 * Get loader params
+	 *
+	 * @return array
+	 */
+	public static function getLoaderParams() : array {
+		return $this->loader_params;
+	}
  
 }

@@ -136,7 +136,7 @@ class Meta extends Base {
 			->set_inner_blocks_position( 'below' )
 			->set_inner_blocks_template( $template )
 			->set_render_callback( function ( $fields, $attributes, $inner_blocks ) {
-				var_dump( $fields, $attributes, $inner_blocks  );
+				// var_dump( $fields, $attributes, $inner_blocks  );
 				?>
 
 				<div class="block">

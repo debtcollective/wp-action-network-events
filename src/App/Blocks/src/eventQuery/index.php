@@ -8,6 +8,8 @@ namespace WpActionNetworkEvents\App\Blocks\Event_Query;
 
 use WpActionNetworkEvents\App\General\PostTypes\Event;
 use WpActionNetworkEvents\App\General\Taxonomies\EventTag;
+use WpActionNetworkEvents\Common\Util\TemplateLoader;
+use WpActionNetworkEvents\App\Blocks\Blocks;
 
 /**
  * Renders the `wp-action-network-events/event-query` block on the server.
@@ -85,6 +87,8 @@ function render( $attributes, $content, $block ) {
 
 		$default_timezone = \get_option( 'timezone_string' );
 		$wrapper_attributes = \get_block_wrapper_attributes( [ 'class' => 'events__list' ] );
+		$loader_params = Blocks::getLoaderParams();
+		$template_loader = new TemplateLoader( $loader_params );
 		
 		ob_start();
 		?>
