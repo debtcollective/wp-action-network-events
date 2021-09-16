@@ -1,9 +1,9 @@
 {
 	"apiVersion": 2,
 	"name": "wp-action-network-events/event-query",
-	"title": "Events Query (custom)",
-	"category": "theme",
-	"description": "Display a List of Events.",
+	"title": "Event Query",
+	"category": "widget",
+	"description": "Display a List of Events",
 	"textdomain": "wp-action-network-events",
 	"attributes": {
 		"queryId": {
