@@ -160,7 +160,7 @@ abstract class GetData {
 	 */
 	public function getResponseBody( $page = 1 ) {
 		$response = $this->getRequest( $page );
-		if( empty( $response ) && !is_wp_error( $response ) ) {
+		if( empty( $response ) || !is_wp_error( $response ) ) {
 			$this->handleError( $response );
 		}
 		$body = wp_remote_retrieve_body( $response );
