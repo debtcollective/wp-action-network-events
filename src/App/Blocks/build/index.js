@@ -9033,7 +9033,7 @@ const settings = {
 /*! exports provided: apiVersion, name, title, category, description, textdomain, attributes, providesContext, supports, script, style, editorScript, editorStyle, default */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"apiVersion\":2,\"name\":\"wp-action-network-events/event-query\",\"title\":\"Events Query (custom)\",\"category\":\"theme\",\"description\":\"Display a List of Events.\",\"textdomain\":\"wp-action-network-events\",\"attributes\":{\"queryId\":{\"type\":\"number\"},\"query\":{\"type\":\"object\",\"default\":{\"per_page\":3,\"event-tags\":[],\"order\":\"desc\",\"orderby\":\"start\"}},\"taxonomy\":{\"type\":\"string\",\"default\":\"event_tag\"},\"postType\":{\"type\":\"string\",\"default\":\"an_event\"},\"metaKey\":{\"type\":\"string\",\"default\":\"start_date\"},\"perPage\":{\"type\":\"number\",\"default\":3},\"orderby\":{\"type\":\"string\",\"default\":\"start/desc\"},\"eventTags\":{\"type\":\"string\",\"default\":\"\"},\"layout\":{\"type\":\"object\",\"default\":{\"type\":\"grid\"}},\"dateFormat\":{\"type\":\"string\"},\"timeFormat\":{\"type\":\"string\",\"default\":\"g:i a\"},\"wrapperTagName\":{\"type\":\"string\",\"default\":\"div\"},\"tagName\":{\"type\":\"string\",\"default\":\"article\"},\"display\":{\"type\":\"object\",\"default\":{\"showTags\":false,\"showFeaturedImage\":false,\"showTitle\":true,\"showDate\":true,\"showTime\":true,\"showLocation\":true}}},\"providesContext\":{\"queryId\":\"queryId\",\"query\":\"query\",\"layout\":\"layout\"},\"supports\":{\"html\":false,\"color\":{\"gradients\":false,\"link\":false,\"text\":false,\"background\":false},\"typography\":{\"fontSize\":false,\"lineHeight\":false,\"__experimentalFontWeight\":false}},\"script\":\"wp-action-network-events\",\"style\":\"file:../../build/style-index.css\",\"editorScript\":\"file:../../build/index.js\",\"editorStyle\":\"file:../../build/index.css\"}");
+module.exports = JSON.parse("{\"apiVersion\":2,\"name\":\"wp-action-network-events/event-query\",\"title\":\"Event Query\",\"category\":\"widget\",\"description\":\"Display a List of Events\",\"textdomain\":\"wp-action-network-events\",\"attributes\":{\"queryId\":{\"type\":\"number\"},\"query\":{\"type\":\"object\",\"default\":{\"per_page\":3,\"event-tags\":[],\"order\":\"desc\",\"orderby\":\"start\"}},\"taxonomy\":{\"type\":\"string\",\"default\":\"event_tag\"},\"postType\":{\"type\":\"string\",\"default\":\"an_event\"},\"metaKey\":{\"type\":\"string\",\"default\":\"start_date\"},\"perPage\":{\"type\":\"number\",\"default\":3},\"orderby\":{\"type\":\"string\",\"default\":\"start/desc\"},\"eventTags\":{\"type\":\"string\",\"default\":\"\"},\"layout\":{\"type\":\"object\",\"default\":{\"type\":\"grid\"}},\"dateFormat\":{\"type\":\"string\"},\"timeFormat\":{\"type\":\"string\",\"default\":\"g:i a\"},\"wrapperTagName\":{\"type\":\"string\",\"default\":\"div\"},\"tagName\":{\"type\":\"string\",\"default\":\"article\"},\"display\":{\"type\":\"object\",\"default\":{\"showTags\":false,\"showFeaturedImage\":false,\"showTitle\":true,\"showDate\":true,\"showTime\":true,\"showLocation\":true}}},\"providesContext\":{\"queryId\":\"queryId\",\"query\":\"query\",\"layout\":\"layout\"},\"supports\":{\"html\":false,\"color\":{\"gradients\":false,\"link\":false,\"text\":false,\"background\":false},\"typography\":{\"fontSize\":false,\"lineHeight\":false,\"__experimentalFontWeight\":false}},\"script\":\"wp-action-network-events\",\"style\":\"file:../../build/style-index.css\",\"editorScript\":\"file:../../build/index.js\",\"editorStyle\":\"file:../../build/index.css\"}");
 
 /***/ }),
 
@@ -9761,10 +9761,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _eventDate__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./eventDate */ "./src/eventDate/index.js");
-/* harmony import */ var _eventLocation__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./eventLocation */ "./src/eventLocation/index.js");
-/* harmony import */ var _eventTime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./eventTime */ "./src/eventTime/index.js");
-/* harmony import */ var _eventQuery__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./eventQuery */ "./src/eventQuery/index.js");
+/* harmony import */ var _variations__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./variations */ "./src/variations/index.js");
+/* harmony import */ var _eventDate__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./eventDate */ "./src/eventDate/index.js");
+/* harmony import */ var _eventLocation__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./eventLocation */ "./src/eventLocation/index.js");
+/* harmony import */ var _eventTime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./eventTime */ "./src/eventTime/index.js");
+/* harmony import */ var _eventQuery__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./eventQuery */ "./src/eventQuery/index.js");
 
 
 /**
@@ -9775,11 +9776,16 @@ Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__["registerBlockCollection"]
   title: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Action Network Events', 'wp-action-network-events'),
   icon: 'calendar-alt'
 });
+/**
+ * Register Variations
+ */
 
 
 
 
-const blocks = [_eventDate__WEBPACK_IMPORTED_MODULE_2__, _eventLocation__WEBPACK_IMPORTED_MODULE_3__, _eventTime__WEBPACK_IMPORTED_MODULE_4__, _eventQuery__WEBPACK_IMPORTED_MODULE_5__];
+
+
+const blocks = [_eventDate__WEBPACK_IMPORTED_MODULE_3__, _eventLocation__WEBPACK_IMPORTED_MODULE_4__, _eventTime__WEBPACK_IMPORTED_MODULE_5__, _eventQuery__WEBPACK_IMPORTED_MODULE_6__];
 /**
  * Function to register an individual block.
  *
@@ -9808,6 +9814,71 @@ const registerBlocks = () => {
   blocks.forEach(registerBlock);
 };
 registerBlocks();
+
+/***/ }),
+
+/***/ "./src/variations/eventsByTag.js":
+/*!***************************************!*\
+  !*** ./src/variations/eventsByTag.js ***!
+  \***************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/blocks */ "@wordpress/blocks");
+/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
+
+
+Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__["registerBlockVariation"])('core/group', {
+  name: 'events-by-tag-welcome-calls',
+  title: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Welcome Calls', 'wp-action-network-events'),
+  attributes: {
+    tagName: 'div',
+    className: 'events-by-tag welcome-calls'
+  },
+  innerBlocks: [['core/heading', {
+    className: 'taxonomy-label',
+    level: 2,
+    placeholder: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Add Title...', 'wp-action-network-events'),
+    content: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Welcome Calls', 'wp-action-network-events')
+  }], ['core/paragraph', {
+    className: 'taxonomy-description',
+    placeholder: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Add Description...', 'wp-action-network-events'),
+    content: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Are you new to the Debt Collective or the Biden Jubilee 100 campaign and want to learn more about our union and what we’re fighting for? Join us for our welcome calls!', 'wp-action-network-events')
+  }], ['wp-action-network-events/event-query', {
+    query: {
+      per_page: 3,
+      order: 'desc',
+      orderby: 'start'
+    },
+    dateFormat: 'F j, Y',
+    display: {
+      showTags: false,
+      showFeaturedImage: false,
+      showTitle: false,
+      showDate: true,
+      showTime: true,
+      showLocation: true
+    }
+  }]]
+});
+
+/***/ }),
+
+/***/ "./src/variations/index.js":
+/*!*********************************!*\
+  !*** ./src/variations/index.js ***!
+  \*********************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _eventsByTag__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./eventsByTag */ "./src/variations/eventsByTag.js");
+
 
 /***/ }),
 
