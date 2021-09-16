@@ -71,15 +71,6 @@ function render( $attributes, $content, $block ) {
 		];
 	}
 
-	// 'meta_query' => array(
-	// 	array(
-	// 		'key' => 'start_date',
-	// 		'value' => date(),
-	// 		'compare' => '>=',
-	// 		'type' => 'DATETIME'
-	// 		)
-	// 	),
-
 	$query = new \WP_Query( $args );
 	$output = '';
 
