@@ -19,7 +19,7 @@ use WpActionNetworkEvents\Common\Util\TemplateLoader;
  */
 class Blocks extends Base {
 
-	public $loader_params = [];
+	public static $loader_params = [];
 
 	/**
 	 * Constructor.
@@ -46,7 +46,7 @@ class Blocks extends Base {
 		/**
 		 * add_filter( 'WpActionNetworkEvents\App\Blocks\Blocks\LoaderParams', $params );
 		 */
-		$this->loader_params = \apply_filters( \get_class() . '\LoaderParams', [
+		self::$loader_params = \apply_filters( \get_class() . '\LoaderParams', [
 			'filter_prefix'             => 'wp_action_network_events',
 			'plugin_directory'          => $this->basename,
 			'plugin_template_directory' => 'src/App/Blocks/src/templates',
@@ -93,7 +93,7 @@ class Blocks extends Base {
 	 * @return array
 	 */
 	public static function getLoaderParams() : array {
-		return $this->loader_params;
+		return self::$loader_params;
 	}
  
 }
