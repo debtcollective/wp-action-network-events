@@ -161,7 +161,7 @@ abstract class GetData {
 	public function getResponseBody( $page = 1 ) {
 		$response = $this->getRequest( $page );
 		if( empty( $response ) || !is_wp_error( $response ) ) {
-			$this->handleError( $response );
+			return $this->handleError( $response );
 		}
 		$body = wp_remote_retrieve_body( $response );
 		return json_decode( $body );
@@ -185,8 +185,8 @@ abstract class GetData {
 	 */
 	public function getResponsePages() {
 		$response = $this->getResponseBody();
-		if( empty( $response ) && !is_wp_error( $response ) ) {
-			$this->handleError( $response );
+		if( empty( $response ) || !is_wp_error( $response ) ) {
+			return $this->handleError( $response );
 		}
 		return $response->total_pages;
 	}
