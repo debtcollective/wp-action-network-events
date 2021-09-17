@@ -24,7 +24,6 @@ use WpActionNetworkEvents\App\General\Taxonomies\Taxonomies;
 use WpActionNetworkEvents\App\General\CustomFields;
 use WpActionNetworkEvents\App\Integration\RestFilters;
 use WpActionNetworkEvents\App\Blocks\Blocks;
-use WpActionNetworkEvents\App\Integration\GetEvents;
 use WpActionNetworkEvents\App\Integration\Sync;
 
 /**
