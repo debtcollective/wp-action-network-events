@@ -182,12 +182,7 @@ class Plugin {
 
 		new Blocks( $this->version, $this->plugin_name, $this->basename );
 
-		new GetEvents( $this->version, $this->plugin_name );
-
 		new Sync( $this->version, $this->plugin_name );
-
-		// $events = new GetEvents();
-		// $events->fetchData();
 	}
 
 	/**

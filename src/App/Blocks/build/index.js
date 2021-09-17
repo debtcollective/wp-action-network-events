@@ -9835,6 +9835,9 @@ __webpack_require__.r(__webpack_exports__);
 Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__["registerBlockVariation"])('core/group', {
   name: 'events-by-tag-welcome-calls',
   title: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Welcome Calls', 'wp-action-network-events'),
+  icon: 'calendar-alt',
+  category: '',
+  keywords: [Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('event', 'wp-action-network-events'), Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('grid', 'wp-action-network-events'), Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('component', 'wp-action-network-events')],
   attributes: {
     tagName: 'div',
     className: 'events-by-tag welcome-calls'
@@ -9863,7 +9866,95 @@ Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__["registerBlockVariation"])
       showTime: true,
       showLocation: true
     }
-  }]]
+  }]],
+  example: {
+    innerBlocks: [['core/heading', {
+      className: 'taxonomy-label',
+      level: 2,
+      placeholder: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Add Title...', 'wp-action-network-events'),
+      content: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Welcome Calls', 'wp-action-network-events')
+    }], ['core/paragraph', {
+      className: 'taxonomy-description',
+      placeholder: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Add Description...', 'wp-action-network-events'),
+      content: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Are you new to the Debt Collective or the Biden Jubilee 100 campaign and want to learn more about our union and what we’re fighting for? Join us for our welcome calls!', 'wp-action-network-events')
+    }], ['wp-action-network-events/event-query', {
+      query: {
+        per_page: 3,
+        order: 'desc',
+        orderby: 'start'
+      },
+      dateFormat: 'F j, Y',
+      display: {
+        showTags: false,
+        showFeaturedImage: false,
+        showTitle: false,
+        showDate: true,
+        showTime: true,
+        showLocation: true
+      }
+    }]]
+  }
+});
+Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__["registerBlockVariation"])('core/group', {
+  name: 'events-by-tag',
+  title: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Events by Tag', 'wp-action-network-events'),
+  icon: 'calendar-alt',
+  category: '',
+  keywords: [Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('event', 'wp-action-network-events'), Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('grid', 'wp-action-network-events'), Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('component', 'wp-action-network-events')],
+  attributes: {
+    tagName: 'div',
+    className: 'events-by-tag'
+  },
+  innerBlocks: [['core/heading', {
+    className: 'taxonomy-label',
+    level: 2,
+    placeholder: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Add Title...', 'wp-action-network-events')
+  }], ['core/paragraph', {
+    className: 'taxonomy-description',
+    placeholder: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Add Description...', 'wp-action-network-events')
+  }], ['wp-action-network-events/event-query', {
+    query: {
+      per_page: 3,
+      order: 'desc',
+      orderby: 'start'
+    },
+    dateFormat: 'F j, Y',
+    display: {
+      showTags: false,
+      showFeaturedImage: false,
+      showTitle: true,
+      showDate: true,
+      showTime: true,
+      showLocation: true
+    }
+  }]],
+  example: {
+    innerBlocks: [['core/heading', {
+      className: 'taxonomy-label',
+      level: 2,
+      placeholder: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Add Title...', 'wp-action-network-events'),
+      content: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Learn About Debt', 'wp-action-network-events')
+    }], ['core/paragraph', {
+      className: 'taxonomy-description',
+      placeholder: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Add Description...', 'wp-action-network-events'),
+      content: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Join us for specific trainings and events on different actions and tactics!', 'wp-action-network-events')
+    }], ['wp-action-network-events/event-query', {
+      query: {
+        per_page: 3,
+        order: 'desc',
+        orderby: 'start'
+      },
+      dateFormat: 'F j, Y',
+      display: {
+        showTags: false,
+        showFeaturedImage: false,
+        showTitle: true,
+        showDate: true,
+        showTime: true,
+        showLocation: true
+      }
+    }]]
+  }
 });
 
 /***/ }),
