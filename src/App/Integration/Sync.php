@@ -159,11 +159,11 @@ class Sync extends Base {
 
 		$this->setData();
 
-		$parsed = new Parse( $version, $plugin_name, $this->data );
+		$parsed = new Parse( $this->version, $this->plugin_name, $this->data );
 		$this->parsed_data = $parsed->getParsed();
 		$this->setStatus( 'parseStatus', $parsed->getStatus() );
 
-		$process = new Process( $version, $plugin_name, $this->parsed_data );
+		$process = new Process( $this->version, $this->plugin_name, $this->parsed_data );
 		$processed = $process->evaluatePosts();
 		$this->setStatus( 'evaluatePosts', $process->getStatus() );
 
