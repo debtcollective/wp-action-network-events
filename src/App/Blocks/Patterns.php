@@ -38,8 +38,8 @@ class Patterns extends Base {
 		 * @see Bootstrap::__construct
 		 *
 		 */
-		\add_action( 'init', [ $this, 'register_block_patterns' ] );
-		\add_action( 'init', [ $this, 'register_block_pattern_category' ] );
+		// \add_action( 'init', [ $this, 'register_block_patterns' ] );
+		// \add_action( 'init', [ $this, 'register_block_pattern_category' ] );
 	}
 
 	/**
