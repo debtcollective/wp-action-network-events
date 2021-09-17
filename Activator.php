@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Fired during plugin activation
  *
@@ -31,7 +30,7 @@ class Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
-
+		\flush_rewrite_rules();
 	}
 
 }
