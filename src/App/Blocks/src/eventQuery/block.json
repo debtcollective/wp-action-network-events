@@ -2,7 +2,7 @@
 	"apiVersion": 2,
 	"name": "wp-action-network-events/event-query",
 	"title": "Event Query",
-	"category": "widget",
+	"category": "components",
 	"description": "Display a List of Events",
 	"textdomain": "wp-action-network-events",
 	"attributes": {

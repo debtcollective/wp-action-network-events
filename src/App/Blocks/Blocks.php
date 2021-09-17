@@ -53,6 +53,10 @@ class Blocks extends Base {
 			'theme_template_directory'  => 'template-parts/components',
 		] );
 
+		if( class_exists( '\WP_Block_Editor_Context' ) ) {
+			// \add_filter( 'block_categories_all', [ $this, 'registerBlockCategory' ], 10, 2 );
+		}
+
 		new Patterns( $this->version, $this->plugin_name );
 		// new Meta( $this->version, $this->plugin_name );
 
@@ -78,6 +82,25 @@ class Blocks extends Base {
 		 * https://make.wordpress.org/core/2018/11/09/new-javascript-i18n-support-in-wordpress/
 		 */
 		\wp_set_script_translations( 'wp-action-network-events', 'wp-action-network-events' );
+	}
+
+	/**
+	 * Register custom block category
+	 * 
+	 * @see https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#managing-block-categories
+	 */
+	public function registerBlockCategory( $block_categories, $editor_context ) {
+		if ( !in_array( 'components', $block_categories ) ) {
+			array_push(
+				$block_categories,
+				array(
+					'slug'  => 'components',
+					'title' => __( 'Components', 'site-functionality' ),
+					'icon'  => 'block-default',
+				)
+			);
+		}
+		return $block_categories;
 	}
 
 	/**

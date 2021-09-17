@@ -9033,7 +9033,7 @@ const settings = {
 /*! exports provided: apiVersion, name, title, category, description, textdomain, attributes, providesContext, supports, script, style, editorScript, editorStyle, default */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"apiVersion\":2,\"name\":\"wp-action-network-events/event-query\",\"title\":\"Event Query\",\"category\":\"widget\",\"description\":\"Display a List of Events\",\"textdomain\":\"wp-action-network-events\",\"attributes\":{\"queryId\":{\"type\":\"number\"},\"query\":{\"type\":\"object\",\"default\":{\"per_page\":3,\"event-tags\":[],\"order\":\"desc\",\"orderby\":\"start\"}},\"taxonomy\":{\"type\":\"string\",\"default\":\"event_tag\"},\"postType\":{\"type\":\"string\",\"default\":\"an_event\"},\"metaKey\":{\"type\":\"string\",\"default\":\"start_date\"},\"perPage\":{\"type\":\"number\",\"default\":3},\"orderby\":{\"type\":\"string\",\"default\":\"start/desc\"},\"eventTags\":{\"type\":\"string\",\"default\":\"\"},\"layout\":{\"type\":\"object\",\"default\":{\"type\":\"grid\"}},\"dateFormat\":{\"type\":\"string\"},\"timeFormat\":{\"type\":\"string\",\"default\":\"g:i a\"},\"wrapperTagName\":{\"type\":\"string\",\"default\":\"div\"},\"tagName\":{\"type\":\"string\",\"default\":\"article\"},\"display\":{\"type\":\"object\",\"default\":{\"showTags\":false,\"showFeaturedImage\":false,\"showTitle\":true,\"showDate\":true,\"showTime\":true,\"showLocation\":true}}},\"providesContext\":{\"queryId\":\"queryId\",\"query\":\"query\",\"layout\":\"layout\"},\"supports\":{\"html\":false,\"color\":{\"gradients\":false,\"link\":false,\"text\":false,\"background\":false},\"typography\":{\"fontSize\":false,\"lineHeight\":false,\"__experimentalFontWeight\":false}},\"script\":\"wp-action-network-events\",\"style\":\"file:../../build/style-index.css\",\"editorScript\":\"file:../../build/index.js\",\"editorStyle\":\"file:../../build/index.css\"}");
+module.exports = JSON.parse("{\"apiVersion\":2,\"name\":\"wp-action-network-events/event-query\",\"title\":\"Event Query\",\"category\":\"components\",\"description\":\"Display a List of Events\",\"textdomain\":\"wp-action-network-events\",\"attributes\":{\"queryId\":{\"type\":\"number\"},\"query\":{\"type\":\"object\",\"default\":{\"per_page\":3,\"event-tags\":[],\"order\":\"desc\",\"orderby\":\"start\"}},\"taxonomy\":{\"type\":\"string\",\"default\":\"event_tag\"},\"postType\":{\"type\":\"string\",\"default\":\"an_event\"},\"metaKey\":{\"type\":\"string\",\"default\":\"start_date\"},\"perPage\":{\"type\":\"number\",\"default\":3},\"orderby\":{\"type\":\"string\",\"default\":\"start/desc\"},\"eventTags\":{\"type\":\"string\",\"default\":\"\"},\"layout\":{\"type\":\"object\",\"default\":{\"type\":\"grid\"}},\"dateFormat\":{\"type\":\"string\"},\"timeFormat\":{\"type\":\"string\",\"default\":\"g:i a\"},\"wrapperTagName\":{\"type\":\"string\",\"default\":\"div\"},\"tagName\":{\"type\":\"string\",\"default\":\"article\"},\"display\":{\"type\":\"object\",\"default\":{\"showTags\":false,\"showFeaturedImage\":false,\"showTitle\":true,\"showDate\":true,\"showTime\":true,\"showLocation\":true}}},\"providesContext\":{\"queryId\":\"queryId\",\"query\":\"query\",\"layout\":\"layout\"},\"supports\":{\"html\":false,\"color\":{\"gradients\":false,\"link\":false,\"text\":false,\"background\":false},\"typography\":{\"fontSize\":false,\"lineHeight\":false,\"__experimentalFontWeight\":false}},\"script\":\"wp-action-network-events\",\"style\":\"file:../../build/style-index.css\",\"editorScript\":\"file:../../build/index.js\",\"editorStyle\":\"file:../../build/index.css\"}");
 
 /***/ }),
 
@@ -9835,8 +9835,9 @@ __webpack_require__.r(__webpack_exports__);
 Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__["registerBlockVariation"])('core/group', {
   name: 'events-by-tag-welcome-calls',
   title: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Welcome Calls', 'wp-action-network-events'),
+  description: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Display a specific type of event, without titles.', 'wp-action-network-events'),
   icon: 'calendar-alt',
-  category: '',
+  category: 'components',
   keywords: [Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('event', 'wp-action-network-events'), Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('grid', 'wp-action-network-events'), Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('component', 'wp-action-network-events')],
   attributes: {
     tagName: 'div',
@@ -9899,7 +9900,7 @@ Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__["registerBlockVariation"])
   name: 'events-by-tag',
   title: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Events by Tag', 'wp-action-network-events'),
   icon: 'calendar-alt',
-  category: '',
+  category: 'components',
   keywords: [Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('event', 'wp-action-network-events'), Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('grid', 'wp-action-network-events'), Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('component', 'wp-action-network-events')],
   attributes: {
     tagName: 'div',
@@ -9969,7 +9970,46 @@ Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__["registerBlockVariation"])
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _eventsByTag__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./eventsByTag */ "./src/variations/eventsByTag.js");
+/* harmony import */ var _lists__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./lists */ "./src/variations/lists.js");
 
+
+
+/***/ }),
+
+/***/ "./src/variations/lists.js":
+/*!*********************************!*\
+  !*** ./src/variations/lists.js ***!
+  \*********************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/blocks */ "@wordpress/blocks");
+/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
+
+
+Object(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_0__["registerBlockVariation"])('core/group', {
+  name: 'inline-bullet-list',
+  title: Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('Inline Bullet List', 'wp-action-network-events'),
+  icon: 'editor-ul',
+  category: 'components',
+  keywords: [Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('list', 'wp-action-network-events'), Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__["__"])('grid', 'wp-action-network-events')],
+  attributes: {
+    className: 'inline-bullet-list'
+  },
+  supports: {
+    __experimentalSelector: 'ul'
+  },
+  example: {
+    attributes: {
+      className: 'inline-bullet-list',
+      content: ''
+    }
+  }
+});
 
 /***/ }),
 

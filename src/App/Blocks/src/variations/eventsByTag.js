@@ -9,8 +9,9 @@ registerBlockVariation(
     {
         name: 'events-by-tag-welcome-calls',
         title: __( 'Welcome Calls', 'wp-action-network-events' ),
+        description: __( 'Display a specific type of event, without titles.', 'wp-action-network-events' ),
         icon: 'calendar-alt',
-        category: '',
+        category: 'components',
         keywords: [ 
             __( 'event', 'wp-action-network-events' ),
             __( 'grid', 'wp-action-network-events' ),
@@ -89,7 +90,7 @@ registerBlockVariation(
         name: 'events-by-tag',
         title: __( 'Events by Tag', 'wp-action-network-events' ),
         icon: 'calendar-alt',
-        category: '',
+        category: 'components',
         keywords: [ 
             __( 'event', 'wp-action-network-events' ),
             __( 'grid', 'wp-action-network-events' ),
