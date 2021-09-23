@@ -56,9 +56,9 @@ $timezone_abbr = $generic_date->format( 'T' );
             <div class="event__time event__time-start">
                 <?php 
                     printf( '<time dateTime=%1$s>%2$s</time> %3$s <span class="timezone-abbr">%4$s</span>',
-                        \esc_attr( $raw_start_time ),
+                        \esc_attr( $raw_start_date ),
                         $formatted_start_time,
-                        ( $formatted_end_time ) ? sprintf( '<span class="separator">-</span> <time dateTime=%1$s>%2$s</time>', \esc_attr( $raw_end_time ), $formatted_end_time ) : '',
+                        ( $formatted_end_time ) ? sprintf( '<span class="separator">-</span> <time dateTime=%1$s>%2$s</time>', \esc_attr( $raw_end_date ), $formatted_end_time ) : '',
                         $timezone_abbr 
                     ); 
                 ?>
