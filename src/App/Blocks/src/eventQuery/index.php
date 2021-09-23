@@ -53,8 +53,6 @@ function render( $attributes, $content, $block ) {
 	$args = wp_parse_args( $args, $defaults );
 
 	$taxonomy = $args['taxonomy'];
-	$date_format = $args['dateFormat'];
-	$time_format = $args['timeFormat'];
 
 	if( 'start' === $args['orderby'] ) {
 		$args['orderby'] = 'meta_value';
@@ -76,7 +74,6 @@ function render( $attributes, $content, $block ) {
 
 	if( $query->have_posts() ) : 
 
-		$default_timezone = \get_option( 'timezone_string' );
 		$wrapper_attributes = \get_block_wrapper_attributes( [ 'class' => 'events__list' ] );
 		$loader_params = Blocks::getLoaderParams();
 		$template_loader = new TemplateLoader( $loader_params );
@@ -88,61 +85,13 @@ function render( $attributes, $content, $block ) {
 
 		<?php
 		while( $query->have_posts() ) : $query->the_post(); 
-			$post_id = \get_the_ID();
 
-			$timezone = ( $tz = \get_post_meta( $post_id, 'timezone', true ) ) ? $tz : $default_timezone;
-			$raw_date = \get_post_meta( $post_id, 'start_date', true );
-			$datetime = new \DateTime( $raw_date );
-			$formatted_date = $datetime->format( $date_format );
-			$formatted_time = $datetime->format( $time_format );
-
-			/** Get timezone abbreviation */
-			$generic_date = new \DateTime( $raw_date );
-			$generic_date->setTimezone( new \DateTimeZone( $timezone ) );
-			$timezone_abbr = $generic_date->format( 'T' );
-			?>
-
-			<<?php echo ( $args['tagName'] ); ?> <?php post_class( 'event' ); ?>>
-
-				<?php if( $args['showTags'] && \has_term( '', $taxonomy, $post_id ) ) : 
-					$tags = \wp_get_post_terms( $post_id, $taxonomy, [ 'fields' => 'names' ] );
-					?>
-
-					<div class="event__tag">
-						<?php echo \esc_html( $tags[0] ); ?>
-					</div>
-
-				<?php endif; ?>
-
-				<?php if( $args['showTitle'] ) : ?>
-					
-					<?php the_title( '<h3 class="event__title"><a href="' . \esc_url( \get_permalink() ) . '" rel="bookmark">', '</a></h3>' ); ?>
-					
-				<?php endif; ?>
-
-				<?php if( $args['showDate'] ) : ?>
-					
-					<div class="event__date">
-						<time dateTime=<?php echo \esc_attr( $raw_date ); ?>><?php echo $formatted_date; ?></time>
-					</div>
-					
-				<?php endif; ?>
-
-				<?php if( $args['showTime'] ) : ?>
-					
-					<div class="event__time">
-						<time dateTime=<?php echo esc_attr( $raw_date ); ?>><?php printf( '%s <span class="timezone-abbr">%s</span>', $formatted_time, $timezone_abbr ); ?> </time>
-					</div>
-					
-				<?php endif; ?>
-
-				<?php if( $args['showLocation'] && ( $location = \get_post_meta( $post_id, 'location_venue', true ) ) ) : ?>
-					
-					<div class="event__location"><?php echo \esc_attr( $location ); ?></div>
-					
-				<?php endif; ?>
-
-			</<?php echo ( $args['tagName'] ); ?>>
+			$template_loader
+				->setTemplateData( [
+					'id'	=> \get_the_ID(),
+					'args'	=> $args
+				] )
+				->getTemplatePart( 'event' ); ?>
 
 		<?php
 		endwhile; ?>

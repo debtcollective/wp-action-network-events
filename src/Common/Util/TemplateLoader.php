@@ -2,6 +2,8 @@
 /**
  * Template Loader Class
  * 
+ * @see https://github.com/misfist/wp-template-loader
+ * 
  * @version   1.0.0
  * 
  * @package   WP_Action_Network_Events
@@ -29,7 +31,7 @@ class TemplateLoader {
     /**
      * Directory name where custom templates for this plugin should be found in the theme.
      *
-     * For example: 'your-plugin-templates'.
+     * For example: 'templates'.
      *
      * @since 1.0.0
      *
