@@ -78,7 +78,8 @@ const Edit = ( props ) => {
 		showTitle,
 		showDate,
 		showTime,
-		showLocation
+		showLocation,
+		linkWrap
 	} = display;
 
 	const instanceId = useInstanceId( Edit );

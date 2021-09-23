@@ -49,11 +49,24 @@
 			}
 		},
 		"dateFormat": {
-			"type": "string"
+			"type": "string",
+			"enum": [ 
+				"l, F j, Y",
+				"D, M j, Y",
+				"F j, Y",
+				"M j, Y",
+				"m/j/Y" 
+			]
 		},
 		"timeFormat": {
 			"type": "string",
-			"default": "g:i a"
+			"default": "g:i a",
+			"enum": [ 
+				"g:i a",
+				"g:i A",
+				"g:ia",
+				"H:i"
+			]
 		},
 		"wrapperTagName": {
 			"type": "string",
@@ -62,6 +75,10 @@
 		"tagName": {
 			"type": "string",
 			"default": "article"
+		},
+		"linkWrap": {
+			"type": "boolean",
+			"default": true
 		},
 		"display": {
 			"type": "object",
