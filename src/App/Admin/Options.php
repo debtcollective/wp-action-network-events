@@ -64,8 +64,8 @@ class Options extends Base {
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct( $version, $plugin_name ) {
-		parent::__construct( $version, $plugin_name );
+	public function __construct( $version, $plugin_name, $basename ) {
+		parent::__construct( $version, $plugin_name, $basename );
 		$this->init();
 	}
 
@@ -85,7 +85,7 @@ class Options extends Base {
 		\add_action( 'admin_menu', 			array( $this, 'addAdminMenu' ) );
 		\add_action( 'admin_notices', 		array( $this, 'renderAdminNotices' ) );
 		\add_action( 'admin_init', 			array( $this, 'initSettings'  ) );
-		\add_filter( 'plugin_action_links_' . WPANE_PLUGIN_BASENAME, array( $this, 'addSettingsLink' ), 10, 5 );
+		\add_filter( 'plugin_action_links_' . $this->basename, array( $this, 'addSettingsLink' ), 10, 5 );
 
 		$this->eventTypeOptions = apply_filters( 
 			__NAMESPACE__ . '\Options\eventTypeOptions',

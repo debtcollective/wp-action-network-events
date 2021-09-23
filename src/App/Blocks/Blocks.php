@@ -48,8 +48,8 @@ class Blocks extends Base {
 		 */
 		self::$loader_params = \apply_filters( \get_class() . '\LoaderParams', [
 			'filter_prefix'             => 'wp_action_network_events',
-			'plugin_directory'          => $this->basename,
-			'plugin_template_directory' => 'src/App/Blocks/src/templates',
+			'plugin_directory'          => WPANE_PLUGIN_DIR_PATH,
+			'plugin_template_directory' => 'src/App/Blocks/templates',
 			'theme_template_directory'  => 'template-parts/components',
 		] );
 
