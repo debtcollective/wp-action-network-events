@@ -37,12 +37,8 @@ $timezone_abbr = $generic_date->format( 'T' );
 
         <?php endif; ?>
 
-        <?php if( $args['showTitle'] ) : ?>
+        <h3 class="event__title<?php echo !$args['showTitle'] ? ' sr-only' : ''; ?>"><?php the_title(); ?></h3>
             
-            <?php the_title( '<h3 class="event__title"><a href="' . \esc_url( \get_permalink() ) . '" rel="bookmark">', '</a></h3>' ); ?>
-            
-        <?php endif; ?>
-
         <?php if( $args['showDate'] ) : ?>
             
             <div class="event__date">

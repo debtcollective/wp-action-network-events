@@ -9367,7 +9367,7 @@ const Edit = props => {
   };
 
   const Post = post => {
-    var _tags$, _tags$2, _post$title, _post$meta, _post$meta2, _post$meta3, _post$meta4, _post$meta5;
+    var _tags$, _tags$2, _post$title, _post$title2, _post$meta, _post$meta2, _post$meta3, _post$meta4, _post$meta5, _post$meta6, _post$meta7, _post$meta8;
 
     const [featuredImage, setFeaturedImage] = Object(_wordpress_core_data__WEBPACK_IMPORTED_MODULE_7__["useEntityProp"])('postType', postType, 'featured_media', post.id);
     const media = Object(_wordpress_data__WEBPACK_IMPORTED_MODULE_5__["useSelect"])(select => {
@@ -9391,6 +9391,9 @@ const Edit = props => {
     }, []);
     return Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("article", {
       className: "event"
+    }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("a", {
+      link: post.link,
+      rel: "bookmark"
     }, showTags && tags && Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
       className: "event__tag"
     }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("a", {
@@ -9404,15 +9407,17 @@ const Edit = props => {
     }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("img", {
       src: media.source_url,
       alt: media.alt_text || Object(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_9__["__"])('Featured Image', 'wp-action-network-events')
-    })), showTitle && Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("h3", {
-      className: "event__title"
-    }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("a", {
-      link: post.link,
-      rel: "bookmark",
+    })), showTitle ? Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("h3", {
+      className: "event__title",
       dangerouslySetInnerHTML: {
         __html: post === null || post === void 0 ? void 0 : (_post$title = post.title) === null || _post$title === void 0 ? void 0 : _post$title.rendered
       }
-    })), showDate && Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
+    }) : Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("h3", {
+      className: "event__title sr-only screen-reader-text",
+      dangerouslySetInnerHTML: {
+        __html: post === null || post === void 0 ? void 0 : (_post$title2 = post.title) === null || _post$title2 === void 0 ? void 0 : _post$title2.rendered
+      }
+    }), showDate && Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
       className: "event__date"
     }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("time", {
       dateTime: (_post$meta = post.meta) === null || _post$meta === void 0 ? void 0 : _post$meta["start_date"]
@@ -9420,12 +9425,16 @@ const Edit = props => {
       className: "event__time"
     }, Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("time", {
       dateTime: (_post$meta3 = post.meta) === null || _post$meta3 === void 0 ? void 0 : _post$meta3["start_date"]
-    }, Object(_wordpress_date__WEBPACK_IMPORTED_MODULE_8__["dateI18n"])(timeFormat, (_post$meta4 = post.meta) === null || _post$meta4 === void 0 ? void 0 : _post$meta4["start_date"]))), showLocation && Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
+    }, Object(_wordpress_date__WEBPACK_IMPORTED_MODULE_8__["dateI18n"])(timeFormat, (_post$meta4 = post.meta) === null || _post$meta4 === void 0 ? void 0 : _post$meta4["start_date"])), ((_post$meta5 = post.meta) === null || _post$meta5 === void 0 ? void 0 : _post$meta5["end_date"]) && Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("span", {
+      className: "separator"
+    }, " - "), Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("time", {
+      dateTime: (_post$meta6 = post.meta) === null || _post$meta6 === void 0 ? void 0 : _post$meta6["end_date"]
+    }, Object(_wordpress_date__WEBPACK_IMPORTED_MODULE_8__["dateI18n"])(timeFormat, (_post$meta7 = post.meta) === null || _post$meta7 === void 0 ? void 0 : _post$meta7["end_date"]))), showLocation && Object(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__["createElement"])("div", {
       className: "event__location",
       dangerouslySetInnerHTML: {
-        __html: (_post$meta5 = post.meta) === null || _post$meta5 === void 0 ? void 0 : _post$meta5["location_venue"]
+        __html: (_post$meta8 = post.meta) === null || _post$meta8 === void 0 ? void 0 : _post$meta8["location_venue"]
       }
-    }));
+    })));
   };
 
   const NoPosts = () => {

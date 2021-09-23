@@ -433,6 +433,7 @@ const Edit = ( props ) => {
 
 		return (
 			<article className="event">
+				<a link={ post.link } rel="bookmark">
 				{ ( showTags && tags ) && (
 					<div className="event__tag">
 						<a href={ tags[0]?.link } rel="tag" dangerouslySetInnerHTML={{ __html: tags[0]?.name }}></a>
@@ -446,8 +447,10 @@ const Edit = ( props ) => {
 						/>
 					</picture>
 				) }
-				{ showTitle && (
-					<h3 className="event__title"><a link={ post.link } rel="bookmark" dangerouslySetInnerHTML={{ __html: post?.title?.rendered }} /></h3>
+				{ showTitle ? (
+					<h3 className="event__title" dangerouslySetInnerHTML={{ __html: post?.title?.rendered }}></h3>
+				) : (
+					<h3 className="event__title sr-only screen-reader-text" dangerouslySetInnerHTML={{ __html: post?.title?.rendered }}></h3>
 				) }
 				{ showDate && (
 					<div className="event__date">
@@ -457,11 +460,16 @@ const Edit = ( props ) => {
 				{ showTime && (
 					<div className="event__time">
 						<time dateTime={ post.meta?.["start_date"] }>{ dateI18n( timeFormat, post.meta?.["start_date"] ) }</time>
+						{ post.meta?.["end_date"] && (
+							<span className="separator"> - </span>
+						) }
+						<time dateTime={ post.meta?.["end_date"] }>{ dateI18n( timeFormat, post.meta?.["end_date"] ) }</time>
 					</div>
 					) }
 				{ showLocation && (
 					<div className="event__location" dangerouslySetInnerHTML={{ __html: post.meta?.["location_venue"] }}></div>
 				) }
+				</a>
 			</article>
 		)
 	}
@@ -473,6 +481,7 @@ const Edit = ( props ) => {
 			</div>
 		)
 	}
+
 	const updateQuery = () => {
 		let _query = query;
 
