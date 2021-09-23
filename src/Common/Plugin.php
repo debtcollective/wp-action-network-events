@@ -210,7 +210,7 @@ class Plugin {
 	 */
 	private function define_admin_hooks() {
 
-		$plugin_admin = new Admin( $this->version, $this->plugin_name );
+		$plugin_admin = new Admin( $this->version, $this->plugin_name, $this->basename );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );

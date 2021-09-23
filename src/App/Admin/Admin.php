@@ -31,8 +31,8 @@ class Admin extends Base {
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct( $version, $plugin_name ) {
-		parent::__construct( $version, $plugin_name );
+	public function __construct( $version, $plugin_name, $basename ) {
+		parent::__construct( $version, $plugin_name, $basename );
 		$this->init();
 	}
 
@@ -48,7 +48,7 @@ class Admin extends Base {
 		 * @see Bootstrap::__construct
 		 *
 		 */
-		new Options( $this->version, $this->plugin_name );
+		new Options( $this->version, $this->plugin_name, $this->basename );
 
 		\add_action( 'admin_enqueue_scripts', 		[ $this, 'enqueueStyles' ] );
 		// \add_action( 'admin_enqueue_scripts', 		[ $this, 'enqueueScripts' ] );
@@ -73,7 +73,7 @@ class Admin extends Base {
 		 * class.
 		 */
 
-		\wp_enqueue_style( $this->plugin_name, esc_url( WPANE_PLUGIN_URL . 'assets/public/css/backend.css' ), array(), $this->version, 'all' );
+		\wp_enqueue_style( $this->plugin_name, esc_url( $this->basename. 'assets/public/css/backend.css' ), array(), $this->version, 'all' );
 
 	}
 
@@ -95,7 +95,7 @@ class Admin extends Base {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-		\wp_register_script( $this->plugin_name, esc_url( WPANE_PLUGIN_URL . 'assets/public/js/backend.js' ), array( 'jquery' ), $this->version, false );
+		\wp_register_script( $this->plugin_name, esc_url( $this->basename . 'assets/public/js/backend.js' ), array( 'jquery' ), $this->version, false );
 
 	}
 
