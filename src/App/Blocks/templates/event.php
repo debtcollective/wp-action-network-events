@@ -6,6 +6,7 @@
  */
 $args = $data->args;
 $post_id = $data->id;
+$taxonomy = $data->args['taxonomy'];
 $date_format = $args['dateFormat'];
 $time_format = $args['timeFormat'];
 $default_timezone = \get_option( 'timezone_string' );

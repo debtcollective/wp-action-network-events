@@ -50,6 +50,7 @@
 		},
 		"dateFormat": {
 			"type": "string",
+			"default": "M j, Y",
 			"enum": [ 
 				"l, F j, Y",
 				"D, M j, Y",
@@ -60,7 +61,7 @@
 		},
 		"timeFormat": {
 			"type": "string",
-			"default": "g:i a",
+			"default": "g:ia",
 			"enum": [ 
 				"g:i a",
 				"g:i A",
