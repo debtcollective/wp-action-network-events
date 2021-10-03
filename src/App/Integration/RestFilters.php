@@ -4,13 +4,11 @@
  *
  * @package   WP_Action_Network_Events
  */
-
-declare( strict_types = 1 );
-
 namespace WpActionNetworkEvents\App\Integration;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
-use WpActionNetworkEvents\App\General\PostTypes;
+use WpActionNetworkEvents\App\General\PostTypes\PostTypes;
+use WpActionNetworkEvents\App\General\PostTypes\Event;
 
 /**
  * Class RestFilters
@@ -43,9 +41,9 @@ class RestFilters extends Base {
 		 *
 		 * Add plugin code here
 		 */
-		\add_filter( 'rest_query_vars', 											[ $this, 'rest_query_vars' ] );
-		\add_filter( 'rest_' . PostTypes::POST_TYPE['id'] . '_query', 				[ $this, 'rest_query_start_date' ], 10, 2 );
-		\add_filter( 'rest_' . PostTypes::POST_TYPE['id'] . '_collection_params', 	[ $this, 'rest_collection_params' ], 10, 2 );
+		\add_filter( 'rest_query_vars', 										[ $this, 'rest_query_vars' ] );
+		\add_filter( 'rest_' . Event::POST_TYPE['id'] . '_query', 				[ $this, 'rest_query_start_date' ], 10, 2 );
+		\add_filter( 'rest_' . Event::POST_TYPE['id'] . '_collection_params', 	[ $this, 'rest_collection_params' ], 10, 2 );
 
 	}
 
@@ -56,7 +54,7 @@ class RestFilters extends Base {
 	 * @return array
 	 */
 	function rest_query_vars( $current_vars ) {
-		$current_vars = array_merge( $current_vars, array( 'meta_key' ) );
+		$current_vars = array_merge( $current_vars, array( 'meta_key', 'scope' ) );
 		return $current_vars;
 	}
 
@@ -73,7 +71,21 @@ class RestFilters extends Base {
 	function rest_query_start_date( $params, $request ) {
 		if ( isset( $request['orderby'] ) && 'start' === $request['orderby'] ) {
 			$params['orderby'] = 'meta_value';
-			$params['meta_key'] = '_start_date';
+			$params['meta_key'] = 'start_date';
+		}
+		if ( isset( $request['scope'] ) ) {
+			$compare = '>=';
+			if( 'past' === $request['scope'] ) {
+				$compare = '<';
+			}
+			$params['meta_query'] = [
+				[
+					'key' 		=> 'start_date',
+					'value'		=> \current_datetime(),
+					'compare'	=> $compare,
+					'type'		=> 'DATETIME'
+				]
+			];
 		}
 		return $params;
 	}
@@ -81,16 +93,27 @@ class RestFilters extends Base {
 	/**
 	 * Register collection parameters
 	 * Add `start` as valid value for `orderby`
+	 * Add `scope` parameter
 	 * 
 	 * 
 	 * @see https://developer.wordpress.org/reference/hooks/rest_this-post_type_collection_params/
 	 *
-	 * @param array $args
+	 * @param array $params
 	 * @param string $post_type
 	 * @return void
 	 */
-	function rest_collection_params( $args, $post_type ) {
-		array_push( $args['orderby']['enum'], 'start' );
-		return $args;
+	function rest_collection_params( $params, $post_type ) {
+		array_push( $params['orderby']['enum'], 'start' );
+		$params['scope'] = [
+			'description' => __( 'Limit scope of events to current or past.', 'wp-action-network-events' ),
+			'type'        => 'date',
+			'default'     => 'current',
+			'enum'        => [
+				'current',
+				'past'
+			],
+		];
+		return $params;
 	}
+
 }

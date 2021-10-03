@@ -4,14 +4,12 @@
  *
  * @package   WP_Action_Network_Events
  */
-
-declare( strict_types = 1 );
-
 namespace WpActionNetworkEvents\App\Blocks;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
 use WpActionNetworkEvents\App\Blocks\Patterns;
 use WpActionNetworkEvents\App\Blocks\Fields\Meta;
+use WpActionNetworkEvents\Common\Util\TemplateLoader;
 
 /**
  * Class Blocks
@@ -21,13 +19,15 @@ use WpActionNetworkEvents\App\Blocks\Fields\Meta;
  */
 class Blocks extends Base {
 
+	public static $loader_params = [];
+
 	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct( $version, $plugin_name ) {
-		parent::__construct( $version, $plugin_name );
+	public function __construct( $version, $plugin_name, $basename ) {
+		parent::__construct( $version, $plugin_name, $basename );
 		$this->init();
 	}
 
@@ -43,6 +43,20 @@ class Blocks extends Base {
 		 * @see Bootstrap::__construct
 		 *
 		 */
+		/**
+		 * add_filter( 'WpActionNetworkEvents\App\Blocks\Blocks\LoaderParams', $params );
+		 */
+		self::$loader_params = \apply_filters( \get_class() . '\LoaderParams', [
+			'filter_prefix'             => 'wp_action_network_events',
+			'plugin_directory'          => WPANE_PLUGIN_DIR_PATH,
+			'plugin_template_directory' => 'src/App/Blocks/templates',
+			'theme_template_directory'  => 'template-parts/components',
+		] );
+
+		if( class_exists( '\WP_Block_Editor_Context' ) ) {
+			// \add_filter( 'block_categories_all', [ $this, 'registerBlockCategory' ], 10, 2 );
+		}
+
 		new Patterns( $this->version, $this->plugin_name );
 		// new Meta( $this->version, $this->plugin_name );
 
@@ -54,8 +68,6 @@ class Blocks extends Base {
 		if ( function_exists( '\wp_set_script_translations' ) ) {
 			\add_action(  'init',		[ $this, 'setScriptTranslations' ] );
 		}
-
-
 	}
 
 	/**
@@ -73,10 +85,38 @@ class Blocks extends Base {
 	}
 
 	/**
+	 * Register custom block category
+	 * 
+	 * @see https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#managing-block-categories
+	 */
+	public function registerBlockCategory( $block_categories, $editor_context ) {
+		if ( !in_array( 'components', $block_categories ) ) {
+			array_push(
+				$block_categories,
+				array(
+					'slug'  => 'components',
+					'title' => __( 'Components', 'site-functionality' ),
+					'icon'  => 'block-default',
+				)
+			);
+		}
+		return $block_categories;
+	}
+
+	/**
 	 * Register custom pattern category
 	 * 
 	 * @see https://developer.wordpress.org/reference/functions/register_block_pattern_category/
 	 */
 	public function registerBlockPatternCategory() {}
+
+	/**
+	 * Get loader params
+	 *
+	 * @return array
+	 */
+	public static function getLoaderParams() : array {
+		return self::$loader_params;
+	}
  
 }

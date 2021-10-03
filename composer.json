@@ -15,6 +15,12 @@
             "Carbon_Field_Rest_Api_Select\\": "core/"
         }
     },
+    "config": {
+        "optimize-autoloader": true,
+        "platform": {
+            "php": "7.0"
+        }
+    },
     "require": {
         "htmlburger/carbon-fields": "^3.0",
         "misfist/carbon-field-rest-api-select": "^3.3",

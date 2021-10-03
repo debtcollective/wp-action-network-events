@@ -30,7 +30,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => 'c12bf3a7417674e58a887014f19183c04268dafa',
+    'reference' => '34d0a5769e18b17acfa483918419e6167f829d90',
     'name' => 'debtcollective/wp-action-network-events',
   ),
   'versions' => 
@@ -42,7 +42,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => 'c12bf3a7417674e58a887014f19183c04268dafa',
+      'reference' => '34d0a5769e18b17acfa483918419e6167f829d90',
     ),
     'htmlburger/carbon-field-number' => 
     array (

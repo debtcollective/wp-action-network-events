@@ -18,12 +18,13 @@ use WpActionNetworkEvents\App\Admin\Admin;
 use WpActionNetworkEvents\App\Frontend\Frontend;
 use WpActionNetworkEvents\Common\Loader;
 use WpActionNetworkEvents\Common\I18n;
-use WpActionNetworkEvents\App\General\PostTypes;
+use WpActionNetworkEvents\App\General\PostTypes\PostTypes;
 use WpActionNetworkEvents\App\General\ContentFilters;
 use WpActionNetworkEvents\App\General\Taxonomies\Taxonomies;
 use WpActionNetworkEvents\App\General\CustomFields;
 use WpActionNetworkEvents\App\Integration\RestFilters;
 use WpActionNetworkEvents\App\Blocks\Blocks;
+use WpActionNetworkEvents\App\Integration\Sync;
 
 /**
  * The core plugin class.
@@ -76,7 +77,6 @@ class Plugin {
 	 */
 	protected $basename;
 
-
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
 	 * the plugin.
@@ -93,9 +93,11 @@ class Plugin {
 	 * @param string $version
 	 * @param string $plugin_name
 	 */
-	public function __construct( $version, $plugin_name ) {
+	public function __construct( $version, $plugin_name, $basename ) {
 		$this->version = $version;
 		$this->plugin_name = $plugin_name;
+		$this->basename = $basename;
+
 		// $this::instantiate();
 		$this->init();
 	}
@@ -177,11 +179,9 @@ class Plugin {
 
 		new RestFilters( $this->version, $this->plugin_name );
 
-		new Blocks( $this->version, $this->plugin_name );
+		new Blocks( $this->version, $this->plugin_name, $this->basename );
 
-
-		// $events = new GetEvents();
-		// $events->fetchData();
+		new Sync( $this->version, $this->plugin_name );
 	}
 
 	/**
@@ -210,7 +210,7 @@ class Plugin {
 	 */
 	private function define_admin_hooks() {
 
-		$plugin_admin = new Admin( $this->version, $this->plugin_name );
+		$plugin_admin = new Admin( $this->version, $this->plugin_name, $this->basename );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );

@@ -37,6 +37,15 @@ abstract class Base {
 	protected $plugin_name;
 
 	/**
+	 * The basename of this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      string    $basename
+	 */
+	protected $basename;
+
+	/**
 	 * The current version of the plugin.
 	 *
 	 * @since    1.0.0
@@ -46,13 +55,32 @@ abstract class Base {
 	protected $version;
 
 	/**
+	 * The status.
+	 *
+	 * @since    1.0.0
+	 * @access   public
+	 * @var      array    $status 
+	 */
+	public $status;
+
+	/**
+	 * The errors.
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      array    $errors 
+	 */
+	protected $errors;
+
+	/**
 	 * Base constructor.
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct( $version , $plugin_name ) {
+	public function __construct( $version , $plugin_name, $basename = '' ) {
 		$this->version = $version;
 		$this->plugin_name = $plugin_name;
+		$this->basename = $basename;
 		// $this->init();
 		// self::instantiate();
 	}
@@ -69,4 +97,36 @@ abstract class Base {
 	}
 
 	public function init() {}
+
+	/**
+	 * Handle Errors
+	 *
+	 * @return void
+	 */
+	protected function handleError( $exception ) {
+		$this->errors[] = $exception;
+		// throw new \Exception( $exception );
+	}
+
+	/**
+	 * Set processing status
+	 *
+	 * @param string $prop
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function setStatus( $prop, $value ) {
+		$this->status[$prop] = $value;
+	}
+
+	/**
+	 * Get processing status
+	 *
+	 * @param string $prop
+	 * @param mixed $value
+	 * @return array $this->status
+	 */
+	public function getStatus() {
+		return $this->status;
+	}
 }

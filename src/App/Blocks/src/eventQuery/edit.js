@@ -78,7 +78,8 @@ const Edit = ( props ) => {
 		showTitle,
 		showDate,
 		showTime,
-		showLocation
+		showLocation,
+		linkWrap
 	} = display;
 
 	const instanceId = useInstanceId( Edit );
@@ -273,9 +274,6 @@ const Edit = ( props ) => {
 	};
 
 	const ShowSelectors = () => {
-		// const displayAttributes = Object.entries( display );
-		// const filtered = displayAttributes.filter( ( [ key, value ] ) => typeof value === 'boolean' );
-		// const object = Object.fromEntries( filtered );
 		const fields = Object.keys( display );		
 
 		if( !fields || !fields.length ) {
@@ -435,6 +433,7 @@ const Edit = ( props ) => {
 
 		return (
 			<article className="event">
+				<a link={ post.link } rel="bookmark">
 				{ ( showTags && tags ) && (
 					<div className="event__tag">
 						<a href={ tags[0]?.link } rel="tag" dangerouslySetInnerHTML={{ __html: tags[0]?.name }}></a>
@@ -448,22 +447,29 @@ const Edit = ( props ) => {
 						/>
 					</picture>
 				) }
-				{ showTitle && (
-					<h3 className="event__title"><a link={ post.link } rel="bookmark" dangerouslySetInnerHTML={{ __html: post?.title?.rendered }} /></h3>
+				{ showTitle ? (
+					<h3 className="event__title" dangerouslySetInnerHTML={{ __html: post?.title?.rendered }}></h3>
+				) : (
+					<h3 className="event__title sr-only screen-reader-text" dangerouslySetInnerHTML={{ __html: post?.title?.rendered }}></h3>
 				) }
 				{ showDate && (
 					<div className="event__date">
-						<time dateTime={ post.meta?.["_start_date"] }>{ dateI18n( dateFormat, post.meta?.["_start_date"] ) }</time>
+						<time dateTime={ post.meta?.["start_date"] }>{ dateI18n( dateFormat, post.meta?.["start_date"] ) }</time>
 					</div>
 				) }
 				{ showTime && (
 					<div className="event__time">
-						<time dateTime={ post.meta?.["_start_date"] }>{ dateI18n( timeFormat, post.meta?.["_start_date"] ) }</time>
+						<time dateTime={ post.meta?.["start_date"] }>{ dateI18n( timeFormat, post.meta?.["start_date"] ) }</time>
+						{ post.meta?.["end_date"] && (
+							<span className="separator"> - </span>
+						) }
+						<time dateTime={ post.meta?.["end_date"] }>{ dateI18n( timeFormat, post.meta?.["end_date"] ) }</time>
 					</div>
 					) }
 				{ showLocation && (
-					<div className="event__location" dangerouslySetInnerHTML={{ __html: post.meta?.["_location_venue"] }}></div>
+					<div className="event__location" dangerouslySetInnerHTML={{ __html: post.meta?.["location_venue"] }}></div>
 				) }
+				</a>
 			</article>
 		)
 	}
@@ -471,10 +477,11 @@ const Edit = ( props ) => {
 	const NoPosts = () => {
 		return (
 			<div className="no-posts">
-				No posts
+				{ __( 'No posts', 'wp-action-network-events' ) }
 			</div>
 		)
 	}
+
 	const updateQuery = () => {
 		let _query = query;
 

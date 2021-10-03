@@ -4,10 +4,10 @@
  *
  * @package   WP_Action_Network_Events
  */
-namespace WpActionNetworkEvents\App\General\Taxonomies;
+namespace WpActionNetworkEvents\App\General\PostTypes;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
-use WpActionNetworkEvents\App\General\Taxonomies\EventType;
+use WpActionNetworkEvents\App\General\PostTypes\Event;
 
 /**
  * Class Taxonomies
@@ -15,7 +15,7 @@ use WpActionNetworkEvents\App\General\Taxonomies\EventType;
  * @package WpActionNetworkEvents\App\General
  * @since 0.1.0
  */
-class Taxonomies extends Base {
+class PostTypes extends Base {
 
 	/**
 	 * Constructor.
@@ -39,9 +39,7 @@ class Taxonomies extends Base {
 		 * @see Bootstrap::__construct
 		 *
 		 */
-		new EventType( $this->version, $this->plugin_name );
-
-		new EventTag( $this->version, $this->plugin_name );
+		new Event( $this->version, $this->plugin_name );
 
 	}
 

@@ -4,34 +4,27 @@
  *
  * @package   WP_Action_Network_Events
  */
-
-declare( strict_types = 1 );
-
-namespace WpActionNetworkEvents\App\General;
+namespace WpActionNetworkEvents\Common\Abstracts;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
-use WpActionNetworkEvents\App\General\Taxonomies\Taxonomies;
 
 /**
- * Class PostTypes
+ * Class Taxonomies
  *
  * @package WpActionNetworkEvents\App\General
  * @since 0.1.0
  */
-class PostTypes extends Base {
+abstract class PostType extends Base {
 
 	/**
-	 * Taxonomy data
+	 * PostType data
 	 */
-	public const POST_TYPE = [
-		'id'       		=> 'an_event',
-		'archive'  		=> 'events',
-		'menu'    		=> 'Action Network',
-		'title'    		=> 'Events',
-		'singular' 		=> 'Event',
-		'icon'     		=> 'dashicons-calendar-alt',
-		'taxonomies'	=> [ 'event_type' ],
-	];
+	public const POST_TYPE = self::POST_TYPE;
+
+	/**
+	 * Post Type fields
+	 */
+	public const FIELDS = self::FIELDS;
 
 	/**
 	 * Constructor.
@@ -54,9 +47,11 @@ class PostTypes extends Base {
 		 *
 		 * @see Bootstrap::__construct
 		 *
-		 * Add plugin code here
 		 */
-		add_action( 'init', [ $this, 'register' ] );
+
+		\add_action( 'init', 		[ $this, 'register' ] );
+		\add_filter( 'query_vars', 	[ $this, 'registerQueryVars' ] );
+
 	}
 
 	/**
@@ -116,12 +111,22 @@ class PostTypes extends Base {
 			'publicly_queryable'    => true,
 			'capability_type'       => 'post',
 			'show_in_rest'          => true,
-			'rest_base'             => $this::POST_TYPE['archive'],
+			'rest_base'             => $this::POST_TYPE['rest_base'],
 		);
 		\register_post_type( 
 			$this::POST_TYPE['id'], 
-			\apply_filters( 'WpActionNetworkEvents\App\General\PostTypes\Args', $args )
+			\apply_filters( \get_class( $this ) . '\Args', $args )
 		);
 	
 	}
+
+	/**
+	 * Register custom query vars
+	 * 
+	 * @link https://developer.wordpress.org/reference/hooks/query_vars/
+	 *
+	 * @param array $vars The array of available query variables
+	 */
+	abstract public function registerQueryVars( $vars );
+
 }

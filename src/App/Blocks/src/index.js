@@ -12,6 +12,11 @@ registerBlockCollection( 'wp-action-network-events', {
 	icon: 'calendar-alt'
 } );
 
+/**
+ * Register Variations
+ */
+import './variations';
+
 import * as date from './eventDate';
 import * as location from './eventLocation';
 import * as time from './eventTime';

@@ -34,7 +34,7 @@ const projectFiles = {
     },
     // JS configurations for development and production
     projectJs: {
-        eslint:   true, // enable or disable eslint  | this is only enabled in development env.
+        eslint:   false, // enable or disable eslint  | this is only enabled in development env.
         filename: 'js/[name].js',
         entry:    {
             frontend: projectPaths.projectJsPath + '/frontend.js',

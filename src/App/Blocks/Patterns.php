@@ -4,9 +4,6 @@
  *
  * @package   WP_Action_Network_Events
  */
-
-declare( strict_types = 1 );
-
 namespace WpActionNetworkEvents\App\Blocks;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
@@ -41,8 +38,8 @@ class Patterns extends Base {
 		 * @see Bootstrap::__construct
 		 *
 		 */
-		\add_action( 'init', [ $this, 'register_block_patterns' ] );
-		\add_action( 'init', [ $this, 'register_block_pattern_category' ] );
+		// \add_action( 'init', [ $this, 'register_block_patterns' ] );
+		// \add_action( 'init', [ $this, 'register_block_pattern_category' ] );
 	}
 
 	/**

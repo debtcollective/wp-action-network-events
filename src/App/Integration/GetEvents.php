@@ -4,8 +4,6 @@
  *
  * @package   WP_Action_Network_Events
  */
-declare( strict_types = 1 );
-
 namespace WpActionNetworkEvents\App\Integration;
 
 use WpActionNetworkEvents\Common\Abstracts\GetData;
@@ -23,13 +21,10 @@ class GetEvents extends GetData {
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct( $endpoint = 'events', $types = [], $args = [] ) {
-		$this->endpoint = $endpoint;
-		$this->types = [
-			$this->endpoint	=> \__( 'Events', 'wp-action-network-events' )
-		];
-		$this->args = $args;
-		parent::__construct( $this->endpoint, $this->types, $this->args );
+	public function __construct( $version, $plugin_name ) {
+		$this->endpoint = 'events';
+		$this->args = [];
+		parent::__construct( $this->endpoint, $this->args, $version, $plugin_name );
 	}
 
 	/**
@@ -46,5 +41,29 @@ class GetEvents extends GetData {
 	// 	 */
 
 	// }
+
+	/**
+	 * Get Entire Collection
+	 * If multiple pages, get all
+	 *
+	 * @return void
+	 */
+	public function getCollection() : array {
+		$pages = $this->getResponsePages();
+		$page = 1;
+		$data = [];
+		try {
+			for( $page = 1; $page <= $pages; $page++ ) {
+				$data[] = $this->getResponseBody( $page );
+			}
+		}
+		catch ( Exception $exception ) {
+			$this->handleError( $exception );
+		}
+		if( !empty( $data ) ) {
+			return $data[0]->_embedded->{'osdi:events'};
+		}
+		return $data;
+	}
 
 }
