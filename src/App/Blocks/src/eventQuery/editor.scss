@@ -3,5 +3,14 @@
  *
  * Replace them with your own styles or remove the file completely.
  */
+.editor-styles-wrapper 
+.wp-block-wp-action-network-events-event-query.events__list {
 
-.wp-block-wp-action-network-events-event-query {}
+    .event {}
+
+    @media screen and ( min-width: 720px ) {
+        .event {
+            width: calc(100%/3 - 2.5rem);
+        }
+    }
+}
