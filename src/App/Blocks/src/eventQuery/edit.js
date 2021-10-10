@@ -38,6 +38,7 @@ import {
 } from '@wordpress/compose';
 import { 
 	useEntityProp,
+	__experimentalUseInnerBlocksProps as useInnerBlocksProps,
 	store as coreStore
 } from '@wordpress/core-data';
 import { 
@@ -45,6 +46,12 @@ import {
 	 dateI18n 
 } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+
+import classNames from 'classnames';
+
+//  Import CSS.
+import './editor.scss';
+import './style.scss';
 
 const MAX_ITEMS = 24;
 
@@ -374,7 +381,11 @@ const Edit = ( props ) => {
 		)
 	}
 
-	const blockProps = useBlockProps();
+	const blockProps = useBlockProps(
+        {
+            className: classNames( className, 'events__list' ),
+        }
+    );
 
 	const Posts = () => {
 
@@ -420,9 +431,6 @@ const Edit = ( props ) => {
 
 		const tags = useSelect(
 			( select ) => {
-				if( !showTags ) {
-					return false;
-				}
 				return select( 'core' ).getEntityRecords( 'taxonomy', taxonomy, {
 					include: post["event-tags"],
 					context: 'view',
@@ -431,8 +439,27 @@ const Edit = ( props ) => {
 			[]
 		);
 
+		const classes = () => {
+			let postClassName = 'event';
+			
+			if( tags ) {
+				let tagClasses = tags.map( tag => {
+					console.log( '`${taxonomy}-${tag.slug}`', `${taxonomy}-${tag.slug}` );
+					return `${taxonomy}-${tag.slug}`;
+				} );
+				tagClasses = [ postClassName, ...tagClasses ];
+				postClassName = tagClasses.join( ' ' );
+			}
+
+			return (
+				postClassName
+			)
+		}
+
+		const postClasses = classes();
+
 		return (
-			<article className="event">
+			<article className={ postClasses }>
 				<a link={ post.link } rel="bookmark">
 				{ ( showTags && tags ) && (
 					<div className="event__tag">
@@ -530,12 +557,10 @@ const Edit = ( props ) => {
 
 	return (
 		<>
-		<SettingsPanel />
-		<AdvancedControls />
+			<SettingsPanel />
+			<AdvancedControls />
 
-		<div { ...blockProps }>
 			<Posts />
-		</div>
 		</>
 	);
 };
