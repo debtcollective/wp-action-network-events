@@ -12,7 +12,7 @@
 namespace WpActionNetworkEvents\App\Admin;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
-use WpActionNetworkEvents\App\Admin\Options;
+// use WpActionNetworkEvents\App\Admin\Options;
 
 /**
  * Plugin Options
@@ -175,10 +175,17 @@ class Options extends Base {
 			self::OPTIONS_NAME,
 			self::OPTIONS_NAME . '_section'
 		);
+		// \add_settings_field(
+		// 	'event_types',
+		// 	\__( 'Event Types', 'wp-action-network-events' ),
+		// 	array( $this, 'renderEventTypesField' ),
+		// 	self::OPTIONS_NAME,
+		// 	self::OPTIONS_NAME . '_section'
+		// );
 		\add_settings_field(
-			'event_types',
-			\__( 'Event Types', 'wp-action-network-events' ),
-			array( $this, 'renderEventTypesField' ),
+			'archive_slug',
+			\__( 'Events Page Slug', 'wp-action-network-events' ),
+			array( $this, 'renderEventSlugField' ),
 			self::OPTIONS_NAME,
 			self::OPTIONS_NAME . '_section'
 		);
@@ -299,6 +306,23 @@ class Options extends Base {
 
 		echo '</select>';
 		echo '<p class="description">' . __( 'Select the type of events to sync and display.', 'wp-action-network-events' ) . '</p>';
+
+	}
+
+	/**
+	 * Render Field
+	 *
+	 * @return void
+	 */
+	function renderEventSlugField() {
+		$value = isset( $this->options['archive_slug'] ) ? $this->options['archive_slug'] : 'events';
+
+		printf( 
+			'<input type="text" name="wp_action_network_events_options[archive_slug]" class="regular-text archive_slug_field" placeholder="%s" value="%s">',
+			esc_attr__( 'Events Page Slug', 'wp-action-network-events' ),
+			esc_attr( $value )
+		);
+		echo '<p class="description">' . __( 'Select slug for the events archive page.', 'wp-action-network-events' ) . '</p>';
 
 	}
 
