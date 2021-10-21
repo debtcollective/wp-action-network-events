@@ -444,7 +444,6 @@ const Edit = ( props ) => {
 			
 			if( tags ) {
 				let tagClasses = tags.map( tag => {
-					console.log( '`${taxonomy}-${tag.slug}`', `${taxonomy}-${tag.slug}` );
 					return `${taxonomy}-${tag.slug}`;
 				} );
 				tagClasses = [ postClassName, ...tagClasses ];
