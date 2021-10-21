@@ -7,6 +7,7 @@
 namespace WpActionNetworkEvents\App\General\PostTypes;
 
 use WpActionNetworkEvents\Common\Abstracts\PostType;
+use WpActionNetworkEvents\App\Admin\Options;
 
 /**
  * Class Event
@@ -53,6 +54,35 @@ class Event extends PostType {
 		'post_status'			=> '',
 		'import_id'				=> 'identifiers[0]',
 	];
+
+	/**
+	 * Constructor.
+	 *
+	 * @since 1.0.0
+	 */
+	public function __construct( $version, $plugin_name ) {
+		parent::__construct( $version, $plugin_name );
+		$this->init();
+
+		\add_filter( \get_class( $this ) . '\Args', [ $this, 'set_event_archive_slug' ] );
+	}
+
+	/**
+	 * Modify Event Archive Slug
+	 * 
+	 * @link https://developer.wordpress.org/reference/functions/register_post_type/
+	 *
+	 * @param array $args
+	 * @return array
+	 */
+	function set_event_archive_slug( $args ) {
+		$event_options = \get_option( Options::OPTIONS_NAME );
+		if( isset( $event_options['archive_slug'] ) && $slug = $event_options['archive_slug'] ) {
+			$args['has_archive'] = esc_attr( $slug );
+			$args['rewrite']['slug'] = esc_attr( $slug );
+		}
+		return $args;
+	}
 
 	/**
 	 * Register custom query vars
