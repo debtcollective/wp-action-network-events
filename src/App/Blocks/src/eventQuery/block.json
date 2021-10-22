@@ -50,13 +50,14 @@
 		},
 		"dateFormat": {
 			"type": "string",
-			"default": "M j, Y",
+			"default": "l, F j, Y",
 			"enum": [ 
 				"l, F j, Y",
 				"D, M j, Y",
 				"F j, Y",
 				"M j, Y",
-				"m/j/Y" 
+				"m/j/Y",
+				"D, M j"
 			]
 		},
 		"timeFormat": {
@@ -89,6 +90,7 @@
 				"showTitle": true,
 				"showDate": true,
 				"showTime": true,
+				"showEndTime": true,
 				"showLocation": true
 			}
 		}
