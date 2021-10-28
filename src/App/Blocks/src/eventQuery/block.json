@@ -52,6 +52,7 @@
 			"type": "string",
 			"default": "l, F j, Y",
 			"enum": [ 
+				"l F j, Y",
 				"l, F j, Y",
 				"D, M j, Y",
 				"F j, Y",
