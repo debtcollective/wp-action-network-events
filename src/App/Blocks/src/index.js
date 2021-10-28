@@ -18,12 +18,14 @@ registerBlockCollection( 'wp-action-network-events', {
 import './variations';
 
 import * as date from './eventDate';
+import * as eventsComponent from './eventsComponent';
 import * as location from './eventLocation';
 import * as time from './eventTime';
 import * as query from './eventQuery';
 
 const blocks = [
     date,
+	eventsComponent,
 	location,
 	time,
 	query

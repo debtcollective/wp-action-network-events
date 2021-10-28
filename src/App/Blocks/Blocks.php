@@ -64,6 +64,7 @@ class Blocks extends Base {
 		include_once( \plugin_dir_path( __FILE__ ) . 'src/eventLocation/index.php' );
 		include_once( \plugin_dir_path( __FILE__ ) . 'src/eventTime/index.php' );
 		include_once( \plugin_dir_path( __FILE__ ) . 'src/eventQuery/index.php' );
+		include_once( \plugin_dir_path( __FILE__ ) . 'src/eventsComponent/index.php' );
 
 		if ( function_exists( '\wp_set_script_translations' ) ) {
 			\add_action(  'init',		[ $this, 'setScriptTranslations' ] );
