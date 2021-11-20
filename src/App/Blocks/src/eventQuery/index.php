@@ -33,6 +33,7 @@ function render( $attributes, $content, $block ) {
 			'timeFormat'		=> \get_option( 'time_format' ),
 			'wrapperTagName'	=> $block_type_attributes['wrapperTagName']['default'],
 			'tagName'			=> $block_type_attributes['tagName']['default'],
+			'scope'				=> 'future'
 		],
 		$default_query,
 		$default_display,
@@ -65,6 +66,21 @@ function render( $attributes, $content, $block ) {
 				'taxonomy' => $taxonomy,
 				'field'    => 'id',
 				'terms'    => $args['event-tags'],
+			]
+		];
+	}
+
+	if ( isset( $args['scope'] ) && 'all' !== $args['scope'] ) {
+		$compare = '>=';
+		if( 'past' === $args['scope'] ) {
+			$compare = '<';
+		}
+		$args['meta_query'] = [
+			[
+				'key' 		=> 'start_date',
+				'value'		=> \date( 'c' ),
+				'compare'	=> $compare,
+				'type'		=> 'DATETIME'
 			]
 		];
 	}
