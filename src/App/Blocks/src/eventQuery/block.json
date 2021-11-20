@@ -15,7 +15,8 @@
 				"per_page": 3,
 				"event-tags": [],
 				"order": "desc",
-				"orderby": "start"
+				"orderby": "start",
+				"scope": "future"
 			}
 		},
 		"taxonomy": {
@@ -47,6 +48,15 @@
 			"default": {
 				"type": "grid"
 			}
+		},
+		"scope": {
+			"type": "string",
+			"default": "future",
+			"enum": [ 
+				"future",
+				"past",
+				"all"
+			]
 		},
 		"dateFormat": {
 			"type": "string",

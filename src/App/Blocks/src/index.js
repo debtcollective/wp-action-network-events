@@ -19,6 +19,7 @@ import './variations';
 
 import * as date from './eventDate';
 import * as eventsComponent from './eventsComponent';
+import * as eventsTout from './eventsTout';
 import * as location from './eventLocation';
 import * as time from './eventTime';
 import * as query from './eventQuery';
@@ -26,6 +27,7 @@ import * as query from './eventQuery';
 const blocks = [
     date,
 	eventsComponent,
+	eventsTout,
 	location,
 	time,
 	query
