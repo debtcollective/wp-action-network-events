@@ -15,29 +15,33 @@ const TEMPLATE = [
 		'core/heading',
 		{
 			placeholder: __( 'Add Heading...', 'wp-action-network-events' ),
-			level: 2,
-			className: 'events__title',
-		},
-		[],
-	],
-	[
-		'core/paragraph',
-		{
-			placeholder: __( 'Add Content...', 'wp-action-network-events' ),
-			className: 'events__content',
+			level: 3,
+			className: 'events-tout__title',
 		},
 		[],
 	],
 	[
 		'wp-action-network-events/event-query',
 		{
-			className: 'events__list',
+			className: 'events-tout__list'
+		},
+		[],
+	],
+	[
+		'core/button',
+		{
+			className: 'events-tout__button btn jade',
+			content: __( 'See More Events', 'wp-action-network-events' ) 
 		},
 		[],
 	],
 ];
 
-const ALLOWED_BLOCKS = [ 'core/heading', 'core/paragraph', 'wp-action-network-events/event-query' ];
+const ALLOWED_BLOCKS = [ 
+	'core/heading', 
+	'wp-action-network-events/event-query', 
+	'core/button'
+];
 
 const Edit = ( props ) => {
 	const {
@@ -47,7 +51,7 @@ const Edit = ( props ) => {
 	} = props;
 
 	const blockProps = useBlockProps( {
-		className: classNames( className, 'events' ),
+		className: classNames( className, 'events-tout' ),
 	} );
 
 	return (

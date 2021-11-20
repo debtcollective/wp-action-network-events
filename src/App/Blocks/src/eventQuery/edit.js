@@ -76,7 +76,8 @@ const Edit = ( props ) => {
 		timeFormat,
 		wrapperTagName,
 		tagName,
-		display
+		display,
+		scope
 	} = attributes;
 
 	const {
@@ -168,6 +169,12 @@ const Edit = ( props ) => {
 		} );
 	}
 
+	const setScope = ( value ) => {
+		setAttributes( {
+			scope: value
+		} );
+	}
+
 	const TermSelector = () => {
 		const terms = useSelect( ( select ) => {
 			return select( 'core' ).getEntityRecords( 'taxonomy', taxonomy );
@@ -239,6 +246,31 @@ const Edit = ( props ) => {
 				/>
 			</>
 		);
+	}; 
+
+	const ScopeSelector = () => {
+		const scopes = [	
+			'future',
+			'past',
+			'all'
+		];
+
+		if( !scopes || !scopes.length ) {
+			return <Spinner />;
+		}
+
+		const options = scopes.map( scope => ( { value: scope, label: startCase( scope ) } ) );
+
+		return (
+			<>
+				<SelectControl
+					label={ __( 'Scope', 'wp-action-network-events' ) }
+					options={ options }
+					onChange={ setScope }
+					value={ scope }
+				/>
+			</>
+		);
 	};
 
 	const DateFormatSelector = () => {
@@ -285,8 +317,7 @@ const Edit = ( props ) => {
 
 	const ShowSelectors = () => {
 		const fields = Object.keys( display );	
-		
-		console.log( display, fields );
+		// console.log( display, fields );
 
 		if( !fields || !fields.length ) {
 			return null;
@@ -328,6 +359,9 @@ const Edit = ( props ) => {
 					</PanelRow>
 					<PanelRow>
 						<OrderSelector />
+					</PanelRow>
+					<PanelRow>
+						<ScopeSelector />
 					</PanelRow>
 					<PanelRow>
 						<PerPageSelector />
@@ -524,8 +558,11 @@ const Edit = ( props ) => {
 			per_page: parseInt( perPage ),
 			order: _ordering[1],
 			orderby: _ordering[0],
+			scope: scope,
 			"event-tags": eventTags ? [ parseInt( eventTags ) ] : [],
 		}
+
+		// console.log( _query );
 
 		setAttributes( { 
 			query: { 
@@ -537,7 +574,7 @@ const Edit = ( props ) => {
 
 	useEffect( () => {
         updateQuery();
-    }, [ eventTags, perPage, orderby ] );
+    }, [ eventTags, perPage, orderby, scope ] );
 
 	useEffect( () => {
 		if ( ! queryId ) {

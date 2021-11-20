@@ -2,16 +2,17 @@
     "apiVersion": 2,
     "version": "1.0.0",
     "textdomain": "wp-action-network-events",
-    "name": "wp-action-network-events/events",
-    "title": "Events Component",
+    "name": "wp-action-network-events/events-tout",
+    "title": "Events Tout",
     "category": "components",
     "collection": "wp-action-network-events",
-    "icon": "calendar-alt",
-    "className": "events",
-    "description": "Display events with section header and description.",
+    "icon": "calendar",
+    "className": "events-tout",
+    "description": "Display a tout displaying a group of events.",
     "keywords": [
         "events",
-        "section"
+        "section",
+        "tout"
     ],
     "supports": {
         "align": false,

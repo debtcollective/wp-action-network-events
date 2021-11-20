@@ -73,7 +73,7 @@ class RestFilters extends Base {
 			$params['orderby'] = 'meta_value';
 			$params['meta_key'] = 'start_date';
 		}
-		if ( isset( $request['scope'] ) ) {
+		if ( isset( $request['scope'] ) && 'all' !== $request['scope'] ) {
 			$compare = '>=';
 			if( 'past' === $request['scope'] ) {
 				$compare = '<';
@@ -81,7 +81,7 @@ class RestFilters extends Base {
 			$params['meta_query'] = [
 				[
 					'key' 		=> 'start_date',
-					'value'		=> \current_datetime(),
+					'value'		=> \date( 'c' ),
 					'compare'	=> $compare,
 					'type'		=> 'DATETIME'
 				]
@@ -105,12 +105,13 @@ class RestFilters extends Base {
 	function rest_collection_params( $params, $post_type ) {
 		array_push( $params['orderby']['enum'], 'start' );
 		$params['scope'] = [
-			'description' => __( 'Limit scope of events to current or past.', 'wp-action-network-events' ),
-			'type'        => 'date',
-			'default'     => 'current',
+			'description' => __( 'Limit scope of events to future or past.', 'wp-action-network-events' ),
+			'type'        => 'string',
+			'default'     => 'future',
 			'enum'        => [
-				'current',
-				'past'
+				'future',
+				'past',
+				'all'
 			],
 		];
 		return $params;
