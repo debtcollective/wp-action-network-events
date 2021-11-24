@@ -42,16 +42,8 @@ abstract class PostType extends Base {
 	 * @since 0.1.0
 	 */
 	public function init() {
-		/**
-		 * This general class is always being instantiated as requested in the Bootstrap class
-		 *
-		 * @see Bootstrap::__construct
-		 *
-		 */
-
 		\add_action( 'init', 		[ $this, 'register' ] );
 		\add_filter( 'query_vars', 	[ $this, 'registerQueryVars' ] );
-
 	}
 
 	/**
@@ -109,10 +101,12 @@ abstract class PostType extends Base {
 			],
 			'exclude_from_search'   => false,
 			'publicly_queryable'    => true,
-			'capability_type'       => 'post',
 			'show_in_rest'          => true,
 			'rest_base'             => $this::POST_TYPE['rest_base'],
+			'capability_type'		=> $this::POST_TYPE['capability_type'],
+			'map_meta_cap'			=> $this::POST_TYPE['map_meta_cap']
 		);
+
 		\register_post_type( 
 			$this::POST_TYPE['id'], 
 			\apply_filters( \get_class( $this ) . '\Args', $args )

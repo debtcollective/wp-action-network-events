@@ -28,6 +28,8 @@ namespace WpActionNetworkEvents;
 require plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
 
 use WpActionNetworkEvents\App\Admin\Options;
+use WpActionNetworkEvents\Activator as Activator;
+use WpActionNetworkEvents\Deactivator as Deactivator;
 
 /**
  * Autoload Files
@@ -71,7 +73,7 @@ define( 'WPANE_PLUGIN_URL', \plugin_dir_url( __FILE__ ) );
  */
 function activate_wp_action_network_events() {
 	require_once \plugin_dir_path( __FILE__ ) . 'Activator.php';
-	__NAMESPACE__ . \Activator::activate();
+	Activator::activate();
 }
 
 /**
@@ -80,10 +82,10 @@ function activate_wp_action_network_events() {
  */
 function deactivate_wp_action_network_events() {
 	require_once \plugin_dir_path( __FILE__ ) . 'Deactivator.php';
-	__NAMESPACE__ . \Deactivator::deactivate();
+	Deactivator::deactivate();
 }
-\register_activation_hook( __FILE__, 'activate_wp_action_network_events' );
-\register_deactivation_hook( __FILE__, 'deactivate_wp_action_network_events' );
+\register_activation_hook( __FILE__, __NAMESPACE__ . '\activate_wp_action_network_events' );
+\register_deactivation_hook( __FILE__, __NAMESPACE__ . '\deactivate_wp_action_network_events' );
 
 /**
  * Begins execution of the plugin.
