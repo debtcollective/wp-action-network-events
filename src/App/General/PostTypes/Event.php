@@ -33,14 +33,16 @@ class Event extends PostType {
 	 * Post type data
 	 */
 	public const POST_TYPE = [
-		'id'       		=> 'an_event',
-		'archive'  		=> 'event-archive',
-		'menu'    		=> 'Action Network',
-		'title'    		=> 'Events',
-		'singular' 		=> 'Event',
-		'icon'     		=> 'dashicons-calendar-alt',
-		'taxonomies'	=> [ 'event_type' ],
-		'rest_base'		=> 'events',
+		'id'       			=> 'an_event',
+		'archive'  			=> 'event-archive',
+		'menu'    			=> 'Action Network',
+		'title'    			=> 'Events',
+		'singular' 			=> 'Event',
+		'icon'     			=> 'dashicons-calendar-alt',
+		'taxonomies'		=> [ 'event_type' ],
+		'rest_base'			=> 'events',
+		'capability_type'	=> 'post',
+		'map_meta_cap'		=> true
 	];
 
 	/**
@@ -82,6 +84,46 @@ class Event extends PostType {
 			$args['rewrite']['slug'] = esc_attr( $slug );
 		}
 		return $args;
+	}
+
+	/**
+	 * Add custom capabilities for admin
+	 *
+	 * @return void
+	 */
+	public static function add_admin_capabilities() {
+		if( empty( self::$capabilities ) ) {
+			return;
+		}
+
+		$role = \get_role( 'administrator' );
+
+		foreach( self::$capabilities as $post_cap => $capability ) {
+			if( ! $role->has_cap( $capability ) ) {
+				$role->add_cap( $capability ); 
+			}
+		}
+	}
+
+	/**
+	 * Remove custom capabilities for admin
+	 * 
+	 * @link https://developer.wordpress.org/reference/classes/wp_role/remove_cap/
+	 *
+	 * @return void
+	 */
+	public static function remove_admin_capabilities() {
+		if( empty( self::$capabilities ) ) {
+			return;
+		}
+
+		$role = \get_role( 'administrator' );
+
+		foreach( self::$capabilities as $post_cap => $capability ) {
+			if( $role->has_cap( $capability ) ) {
+				$role->remove_cap( $capability ); 
+			}
+		}
 	}
 
 	/**
