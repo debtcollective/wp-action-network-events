@@ -60,6 +60,8 @@ class Blocks extends Base {
 		new Patterns( $this->version, $this->plugin_name );
 		// new Meta( $this->version, $this->plugin_name );
 
+		\add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_blocks_scripts' ] );
+
 		include_once( \plugin_dir_path( __FILE__ ) . 'src/eventDate/index.php' );
 		include_once( \plugin_dir_path( __FILE__ ) . 'src/eventLocation/index.php' );
 		include_once( \plugin_dir_path( __FILE__ ) . 'src/eventTime/index.php' );
@@ -119,6 +121,21 @@ class Blocks extends Base {
 	 */
 	public static function getLoaderParams() : array {
 		return self::$loader_params;
+	}
+
+	/**
+	 * Enqueue Build Script
+	 * 
+	 * When using @wordpress/create-block set-up with multiple blocks, we get "Block ... is already registered." error because each block's block.json file calls the build script again.
+	 * Remove build script reference in block.json files
+	 * 
+	 * @link https://wordpress.slack.com/archives/C02QB2JS7/p1629116113108600
+	 *
+	 * @return void
+	 */
+	function enqueue_blocks_scripts() {
+		$asset_file = require \plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
+		\wp_enqueue_script( 'wp-action-network-events', \plugins_url( '/build/index.js', __FILE__ ), $asset_file['dependencies'], $asset_file['version'], false );
 	}
  
 }

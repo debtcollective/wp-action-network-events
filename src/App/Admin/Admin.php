@@ -73,7 +73,7 @@ class Admin extends Base {
 		 * class.
 		 */
 
-		\wp_enqueue_style( $this->plugin_name, esc_url( $this->basename. 'assets/public/css/backend.css' ), array(), $this->version, 'all' );
+		\wp_enqueue_style( $this->plugin_name, \esc_url( WPANE_PLUGIN_URL . 'assets/public/css/backend.css' ), array(), $this->version, 'all' );
 
 	}
 
@@ -95,7 +95,7 @@ class Admin extends Base {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-		\wp_register_script( $this->plugin_name, esc_url( $this->basename . 'assets/public/js/backend.js' ), array( 'jquery' ), $this->version, false );
+		\wp_register_script( $this->plugin_name, \esc_url( WPANE_PLUGIN_URL . 'assets/public/js/backend.js' ), array( 'jquery' ), $this->version, false );
 
 	}
 

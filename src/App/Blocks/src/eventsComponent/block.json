@@ -34,8 +34,7 @@
     "variations": [],
     "styles": [],
     "example": {},
-    "script": "wp-action-network-events",
     "style": "file:../../build/style-index.css",
-    "editorScript": "file:../../build/index.js",
+    "editorScript": "wp-action-network-events",
 	"editorStyle": "file:../../build/index.css"
 }
