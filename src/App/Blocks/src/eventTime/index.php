@@ -6,6 +6,8 @@
  */
 namespace WpActionNetworkEvents\App\Blocks\Event_Time;
 
+use WpActionNetworkEvents\Common\Util\get_nearest_timezone as get_nearest_timezone;
+
 /**
  * Renders the `wp-action-network-events/event-time` block on the server.
  *
@@ -23,7 +25,7 @@ function render( $attributes, $content, $block ) {
 	$format .= ( 'g:i a' === $format ) ? ' T' : '';
 	$timezone = \get_option( 'timezone_string' );
 
-	$calculated_timezone = \Site_Functionality\get_nearest_timezone( '37.778008', '-122.431272', 'CA' );
+	$calculated_timezone = get_nearest_timezone( '37.778008', '-122.431272', 'CA' );
 
 	$post_ID            = $block->context['postId'];
 	$wrapper_attributes = \get_block_wrapper_attributes( array( 'class' => 'event__time' ) );
