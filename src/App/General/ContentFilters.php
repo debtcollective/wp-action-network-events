@@ -7,7 +7,7 @@
 namespace WpActionNetworkEvents\App\General;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
-use WpActionNetworkEvents\App\General\PostTypes;
+use WpActionNetworkEvents\App\General\PostTypes\Event as Event;
 
 /**
  * Class ContentFilters
@@ -41,8 +41,8 @@ class ContentFilters extends Base {
 		 *
 		 */
 		if( !class_exists( '\CWS_PageLinksTo' ) ) {
-			add_filter( 'post_link', 		[ $this, 'modifyEventUrl' ], 10, 2 );
-			add_filter( 'post_type_link', 	[ $this, 'modifyEventUrl' ], 10, 2 );
+			\add_filter( 'post_link', 		[ $this, 'modifyEventUrl' ], 10, 2 );
+			\add_filter( 'post_type_link', 	[ $this, 'modifyEventUrl' ], 10, 2 );
 		}
 
 	}
@@ -58,10 +58,10 @@ class ContentFilters extends Base {
 	 */
 	public function modifyEventUrl( $url, $post ) {
 		if( 
-			( PostTypes::POST_TYPE['id'] === get_post_type( $post->ID ) ) &&
-			( $external_url = get_post_meta( $post->ID, '_browser_url', 'true' ) ) 
+			( Event::POST_TYPE['id'] === \get_post_type( $post->ID ) ) &&
+			( $external_url = \get_post_meta( $post->ID, '_browser_url', 'true' ) ) 
 		) {
-			$url = esc_url( $external_url );
+			$url = \esc_url( $external_url );
 		}
 		return $url;
 	}

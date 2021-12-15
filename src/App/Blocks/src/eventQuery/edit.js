@@ -76,7 +76,8 @@ const Edit = ( props ) => {
 		timeFormat,
 		wrapperTagName,
 		tagName,
-		display
+		display,
+		scope
 	} = attributes;
 
 	const {
@@ -85,6 +86,7 @@ const Edit = ( props ) => {
 		showTitle,
 		showDate,
 		showTime,
+		showEndTime,
 		showLocation,
 		linkWrap
 	} = display;
@@ -100,11 +102,13 @@ const Edit = ( props ) => {
 	const dateOptions = () => {
 		const date = new Date();
 		let formats = [	
+			'l F j, Y',
 			'l, F j, Y',
 			'D, M j, Y',
 			'F j, Y',
 			'M j, Y',
-			'm/j/Y'
+			'm/j/Y',
+			'D, M j'
 		];
 		const options = formats
 			.filter( format => format !== settings.formats.date )
@@ -162,6 +166,12 @@ const Edit = ( props ) => {
 	const setOrderBy = ( value ) => {
 		setAttributes( {
 			orderby: value
+		} );
+	}
+
+	const setScope = ( value ) => {
+		setAttributes( {
+			scope: value
 		} );
 	}
 
@@ -236,6 +246,31 @@ const Edit = ( props ) => {
 				/>
 			</>
 		);
+	}; 
+
+	const ScopeSelector = () => {
+		const scopes = [	
+			'future',
+			'past',
+			'all'
+		];
+
+		if( !scopes || !scopes.length ) {
+			return <Spinner />;
+		}
+
+		const options = scopes.map( scope => ( { value: scope, label: startCase( scope ) } ) );
+
+		return (
+			<>
+				<SelectControl
+					label={ __( 'Scope', 'wp-action-network-events' ) }
+					options={ options }
+					onChange={ setScope }
+					value={ scope }
+				/>
+			</>
+		);
 	};
 
 	const DateFormatSelector = () => {
@@ -281,7 +316,8 @@ const Edit = ( props ) => {
 	};
 
 	const ShowSelectors = () => {
-		const fields = Object.keys( display );		
+		const fields = Object.keys( display );	
+		// console.log( display, fields );
 
 		if( !fields || !fields.length ) {
 			return null;
@@ -323,6 +359,9 @@ const Edit = ( props ) => {
 					</PanelRow>
 					<PanelRow>
 						<OrderSelector />
+					</PanelRow>
+					<PanelRow>
+						<ScopeSelector />
 					</PanelRow>
 					<PanelRow>
 						<PerPageSelector />
@@ -444,7 +483,6 @@ const Edit = ( props ) => {
 			
 			if( tags ) {
 				let tagClasses = tags.map( tag => {
-					console.log( '`${taxonomy}-${tag.slug}`', `${taxonomy}-${tag.slug}` );
 					return `${taxonomy}-${tag.slug}`;
 				} );
 				tagClasses = [ postClassName, ...tagClasses ];
@@ -487,10 +525,12 @@ const Edit = ( props ) => {
 				{ showTime && (
 					<div className="event__time">
 						<time dateTime={ post.meta?.["start_date"] }>{ dateI18n( timeFormat, post.meta?.["start_date"] ) }</time>
-						{ post.meta?.["end_date"] && (
-							<span className="separator"> - </span>
+						{ post.meta?.["end_date"] && showEndTime && (
+							<>
+								<span className="separator"> - </span>
+								<time dateTime={ post.meta?.["end_date"] }>{ dateI18n( timeFormat, post.meta?.["end_date"] ) }</time>
+							</>
 						) }
-						<time dateTime={ post.meta?.["end_date"] }>{ dateI18n( timeFormat, post.meta?.["end_date"] ) }</time>
 					</div>
 					) }
 				{ showLocation && (
@@ -518,8 +558,11 @@ const Edit = ( props ) => {
 			per_page: parseInt( perPage ),
 			order: _ordering[1],
 			orderby: _ordering[0],
+			scope: scope,
 			"event-tags": eventTags ? [ parseInt( eventTags ) ] : [],
 		}
+
+		// console.log( _query );
 
 		setAttributes( { 
 			query: { 
@@ -531,7 +574,7 @@ const Edit = ( props ) => {
 
 	useEffect( () => {
         updateQuery();
-    }, [ eventTags, perPage, orderby ] );
+    }, [ eventTags, perPage, orderby, scope ] );
 
 	useEffect( () => {
 		if ( ! queryId ) {

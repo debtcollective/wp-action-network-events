@@ -15,7 +15,8 @@
 				"per_page": 3,
 				"event-tags": [],
 				"order": "desc",
-				"orderby": "start"
+				"orderby": "start",
+				"scope": "future"
 			}
 		},
 		"taxonomy": {
@@ -48,15 +49,26 @@
 				"type": "grid"
 			}
 		},
+		"scope": {
+			"type": "string",
+			"default": "future",
+			"enum": [ 
+				"future",
+				"past",
+				"all"
+			]
+		},
 		"dateFormat": {
 			"type": "string",
-			"default": "M j, Y",
+			"default": "l, F j, Y",
 			"enum": [ 
+				"l F j, Y",
 				"l, F j, Y",
 				"D, M j, Y",
 				"F j, Y",
 				"M j, Y",
-				"m/j/Y" 
+				"m/j/Y",
+				"D, M j"
 			]
 		},
 		"timeFormat": {
@@ -89,6 +101,7 @@
 				"showTitle": true,
 				"showDate": true,
 				"showTime": true,
+				"showEndTime": true,
 				"showLocation": true
 			}
 		}
@@ -112,8 +125,7 @@
 			"__experimentalFontWeight": false
 		}
 	},
-	"script": "wp-action-network-events",
 	"style": "file:../../build/style-index.css",
-	"editorScript": "file:../../build/index.js",
+	"editorScript": "wp-action-network-events",
 	"editorStyle": "file:../../build/index.css"
 }

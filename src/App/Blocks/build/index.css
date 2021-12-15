@@ -1,2 +1,4 @@
 
-@media screen and (min-width: 720px){.editor-styles-wrapper .wp-block-wp-action-network-events-event-query.events__list .event{width:calc(100%/3 - 2.5rem)}}
+
+
+@media screen and (min-width:720px){.editor-styles-wrapper .wp-block-wp-action-network-events-event-query.events__list .event{width:calc(33.33333% - 2.5rem)}}
