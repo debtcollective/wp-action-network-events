@@ -2,7 +2,7 @@
 	"apiVersion": 2,
 	"name": "wp-action-network-events/event-time",
 	"title": "Event Time",
-	"category": "theme",
+	"category": "events",
 	"description": "Display event time in event query.",
 	"textdomain": "wp-action-network-events",
 	"attributes": {

@@ -2,7 +2,7 @@
 	"apiVersion": 2,
 	"name": "wp-action-network-events/event-date",
 	"title": "Event Date",
-	"category": "theme",
+	"category": "events",
 	"description": "Display event date in event query.",
 	"textdomain": "wp-action-network-events",
 	"attributes": {
