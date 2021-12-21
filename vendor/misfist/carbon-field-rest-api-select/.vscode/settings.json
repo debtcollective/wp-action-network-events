@@ -1,4 +1,0 @@
-{
-    "phpSniffer.executablesFolder": "./vendor/bin/",
-    "phpSniffer.standard": "./phpcs.xml"
-}
