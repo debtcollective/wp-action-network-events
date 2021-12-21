@@ -22,7 +22,7 @@ use WpActionNetworkEvents\App\General\PostTypes\PostTypes;
 use WpActionNetworkEvents\App\General\ContentFilters;
 use WpActionNetworkEvents\App\General\Taxonomies\Taxonomies;
 use WpActionNetworkEvents\App\General\CustomFields;
-use WpActionNetworkEvents\App\Integration\RestFilters;
+use WpActionNetworkEvents\App\Integration\RestAPI;
 use WpActionNetworkEvents\App\Blocks\Blocks;
 use WpActionNetworkEvents\App\Integration\Sync;
 
@@ -177,7 +177,7 @@ class Plugin {
 
 		new CustomFields( $this->version, $this->plugin_name );
 
-		new RestFilters( $this->version, $this->plugin_name );
+		new RestAPI( $this->version, $this->plugin_name );
 
 		new Blocks( $this->version, $this->plugin_name, $this->basename );
 
