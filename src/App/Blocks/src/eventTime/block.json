@@ -12,7 +12,7 @@
 		}
 	},
 	"usesContext": [ "postId", "postType", "queryId" ],
-	"parent": [ "core/post-template" ],
+	"parent": [ "core/post-template", "wp-action-network-events/event-query"],
 	"supports": {
 		"html": false,
 		"color": {
