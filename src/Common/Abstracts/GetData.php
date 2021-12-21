@@ -118,13 +118,13 @@ abstract class GetData {
 
 	/**
 	 * Get Data
-	 * 
+	 *
 	 * @see https://developer.wordpress.org/reference/functions/wp_remote_get/
 	 *
 	 * @return mixed (array|WP_Error) The response or WP_Error on failure.
 	 */
-	public function getRequest( $page = 1 ) {
-		$endpoint = \esc_url( $this->base_url . $this->endpoint );
+	public function getRequest( $page = 1, $params = '' ) {
+		$endpoint = \esc_url( $this->base_url . $this->endpoint . $params );
 
 		$options = [
 			'headers' => [
@@ -135,7 +135,7 @@ abstract class GetData {
 			'redirection' 				=> 5,
 			'body'						=> [
 				'page'					=> $page
-			]	
+			],
 		];
 
 		$response = \wp_remote_get( $endpoint, $options );
@@ -153,14 +153,14 @@ abstract class GetData {
 
 	/**
 	 * Get the response body
-	 * 
+	 *
 	 * @see https://developer.wordpress.org/reference/functions/wp_remote_retrieve_body/
 	 *
 	 * @return mixed (array|WP_Error) The response or WP_Error on failure.
 	 */
-	public function getResponseBody( $page = 1 ) {
-		$response = $this->getRequest( $page );
-		if( empty( $response ) || !is_wp_error( $response ) ) {
+	public function getResponseBody( $page = 1, $params = '' ) {
+		$response = $this->getRequest( $page, $params );
+		if ( empty( $response ) || ! is_wp_error( $response ) ) {
 			return $this->handleError( $response );
 		}
 		$body = wp_remote_retrieve_body( $response );
@@ -169,7 +169,7 @@ abstract class GetData {
 
 	/**
 	 * Get the response code
-	 * 
+	 *
 	 * @see https://developer.wordpress.org/reference/functions/wp_remote_retrieve_response_code/
 	 *
 	 * @return mixed (array|WP_Error) The response or WP_Error on failure.

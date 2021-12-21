@@ -86,10 +86,9 @@ class Sync extends Base {
 	 * Transient Name
 	 *
 	 * @since    1.0.0
-	 * @access   protected
-	 * @var      string 
+	 * @var      string TRANSIENT
 	 */
-	public const TRANSIENT = 'wp_action_network_events_sync_last_';
+	public const TRANSIENT = 'wp_action_network_events_sync';
 
 	/**
 	 * Sync Frequency
@@ -120,15 +119,14 @@ class Sync extends Base {
 		 * This general class is always being instantiated as requested in the Bootstrap class
 		 *
 		 * @see Bootstrap::__construct
-		 *
 		 */
 		$options = Options::getOptions();
 		$this->sync_frequency = intval( $options['sync_frequency'] ) * HOUR_IN_SECONDS;
 
-		\add_action( 'admin_enqueue_scripts', 							[ $this, 'enqueueScripts' ] );
+		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScripts' ) );
 
-		\add_action( 'wp_ajax_' . Options::SYNC_ACTION_NAME, 			[ $this, 'ajaxAction' ] );
-		\add_action( 'wp_ajax_nopriv_' . Options::SYNC_ACTION_NAME, 	[ $this, 'ajaxAction' ] );
+		\add_action( 'wp_ajax_' . Options::SYNC_ACTION_NAME, array( $this, 'ajaxAction' ) );
+		\add_action( 'wp_ajax_nopriv_' . Options::SYNC_ACTION_NAME, array( $this, 'ajaxAction' ) );
 	}
 
 	/**
@@ -137,128 +135,184 @@ class Sync extends Base {
 	 * @return void
 	 */
 	public function ajaxAction() {
-		$this->startSync( 'manual' );
-		\wp_send_json( $this->processed );
+		// $this->startSync( 'manual' );
+		// \wp_send_json( $this->processed );
+
+		$response = $this->poll();
+		$body = \wp_remote_retrieve_body( $response );
+		$status = \wp_remote_retrieve_response_code( $response );
+
+		\wp_send_json( $data );
 
 		\wp_die();
 	}
 
 	/**
-	 * Kick off sync
+	 * Start sync
 	 *
 	 * @param string $origin
 	 * @return void
 	 */
-	public function startSync( string $origin = 'cron' ) {
-		$start = new \DateTime();
-		$this->setStatus( 'origin', $origin );
-		$this->status = 'processing';
-		$this->setStatus( 'started', $start->format( $this->date_format ) );
-		$this->setStatus( 'sync_frequency', $this->sync_frequency );
-		\set_transient( self::TRANSIENT . 'started', $this->processed['started'], $this->sync_frequency );
+	public function startSync( string $origin = 'poll' ) {
+		//process timestamp
+		//get last successful update
+		//poll
 
-		$this->setData();
-
-		$parsed = new Parse( $this->version, $this->plugin_name, $this->data );
-		$this->parsed_data = $parsed->getParsed();
-		$this->setStatus( 'parseStatus', $parsed->getStatus() );
-
-		$process = new Process( $this->version, $this->plugin_name, $this->parsed_data );
-		$processed = $process->evaluatePosts();
-		$this->setStatus( 'evaluatePosts', $process->getStatus() );
-
-		$this->completeSync();
 	}
 
 	/**
-	 * Complete sync
+	 * Poll for updated data
 	 *
 	 * @return void
 	 */
-	public function completeSync() {
-		$completed = new \DateTime();
-		$this->setStatus( 'completed', $completed->format( $this->date_format ) );
-		\set_transient( self::TRANSIENT . 'completed', $this->processed['completed'], $this->sync_frequency );
-		$this->setStatus( 'status', 'complete' );
-		\set_transient( 'wp_action_network_events_sync_status_' . $this->processed['completed'], $this->processed, $this->sync_frequency );
-
-		return $this->processed;
-	}
-
-	/**
-	 * Get data
-	 * 
-	 * @return object $events->getResponseBody()
-	 */
-	function getData( $page = 1 ) {
-		$events = new GetEvents( $this->version, $this->plugin_name );
-		if( is_a( $events, '\WP_Error' ) ) {
-			return $this->handleError( 'Failed at ' . __FUNCTION__ );
-			// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
+	public function poll() {
+		$params = '';
+		if ( $last_update = $this->getLastUpdate() ) {
+			$format = 'Y-m-d';
+			$date = date( $format, strtotime( $last_update ) );
+			$params = "?filter=modified_date gt '$date'";
 		}
-		return $events->getCollection();
+		$get_events = new GetEvents( $this->version, $this->plugin_name );
+		return $get_events->getRequest( 1, $params );
+		// return \wp_remote_retrieve_body( $response );
 	}
 
 	/**
-	 * Set data
-	 * 
-	 * @return void
-	 */
-	function setData( $page = 1 ) {
-		$this->data = $this->getData( $page );
-	}
-
-	/**
-	 * Handle Errors
+	 * Get last successful update
 	 *
-	 * @return void
+	 * @return mixed string || false
 	 */
-	protected function handleError( $exception ) {
-		$this->status = 'failed';
-		$this->errors = $exception;
-		$this->setStatus( 'errors', $this->errors );
-		$this->completeSync();
-
-		$this->errors = new \WP_Error( $exception );
-		// throw new \Exception( $exception );
-
-
-		// if ( is_a( $results, '\WP_Error' ) ) {
-		// 	$this->errors = new \WP_Error(); 
-		// 	throw new \Exception();
-		// }
+	public function getLastUpdate() {
+		return \get_transient( self::TRANSIENT );
 	}
 
 	/**
-	 * Set processing status
+	 * Has updates
 	 *
-	 * @param string $prop
-	 * @param mixed $value
-	 * @return void
+	 * @param obj $response
+	 * @return boolean
 	 */
-	function setStatus( $prop, $value ) {
-		$this->processed[$prop] = $value;
+	public function hasUpdate( $response ) {
+		$body = \wp_remote_retrieve_body( $response );
+		return $body->total_records;
 	}
 
-	/**
-	 * Get duration in seconds
-	 *
-	 * @param string $started
-	 * @param string $completed
-	 * @return integer $seconds
-	 */
-	function getDuration( $started, $completed ) : integer {
-		$start = new \DateTime( $started );
-		$end = new \DateTime( $completed );
-		$diff = $start->diff( $end );
-		$daysInSecs = $diff->format( '%r%a' ) * 24 * 60 * 60;
-		$hoursInSecs = $diff->h * 60 * 60;
-		$minsInSecs = $diff->i * 60;
+	// /**
+	//  * Kick off sync
+	//  *
+	//  * @param string $origin
+	//  * @return void
+	//  */
+	// public function startSync( string $origin = 'cron' ) {
+	// 	$start = new \DateTime();
+	// 	$this->setStatus( 'origin', $origin );
+	// 	$this->status = 'processing';
+	// 	$this->setStatus( 'started', $start->format( $this->date_format ) );
+	// 	$this->setStatus( 'sync_frequency', $this->sync_frequency );
+	// 	\set_transient( self::TRANSIENT . 'started', $this->processed['started'], $this->sync_frequency );
 
-		$seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
+	// 	$this->setData();
 
-		return $seconds;
-	}
+	// 	$parsed = new Parse( $this->version, $this->plugin_name, $this->data );
+	// 	$this->parsed_data = $parsed->getParsed();
+	// 	$this->setStatus( 'parseStatus', $parsed->getStatus() );
+
+	// 	$process = new Process( $this->version, $this->plugin_name, $this->parsed_data );
+	// 	$processed = $process->evaluatePosts();
+	// 	$this->setStatus( 'evaluatePosts', $process->getStatus() );
+
+	// 	$this->completeSync();
+	// }
+
+	// /**
+	//  * Complete sync
+	//  *
+	//  * @return void
+	//  */
+	// public function completeSync() {
+	// 	$completed = new \DateTime();
+	// 	$this->setStatus( 'completed', $completed->format( $this->date_format ) );
+	// 	\set_transient( self::TRANSIENT . 'completed', $this->processed['completed'], $this->sync_frequency );
+	// 	$this->setStatus( 'status', 'complete' );
+	// 	\set_transient( 'wp_action_network_events_sync_status_' . $this->processed['completed'], $this->processed, $this->sync_frequency );
+
+	// 	return $this->processed;
+	// }
+
+	// /**
+	//  * Get data
+	//  * 
+	//  * @return object $events->getResponseBody()
+	//  */
+	// function getData( $page = 1 ) {
+	// 	$events = new GetEvents( $this->version, $this->plugin_name );
+	// 	if( is_a( $events, '\WP_Error' ) ) {
+	// 		return $this->handleError( 'Failed at ' . __FUNCTION__ );
+	// 		// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
+	// 	}
+	// 	return $events->getCollection();
+	// }
+
+	// /**
+	//  * Set data
+	//  * 
+	//  * @return void
+	//  */
+	// function setData( $page = 1 ) {
+	// 	$this->data = $this->getData( $page );
+	// }
+
+	// /**
+	//  * Handle Errors
+	//  *
+	//  * @return void
+	//  */
+	// protected function handleError( $exception ) {
+	// 	$this->status = 'failed';
+	// 	$this->errors = $exception;
+	// 	$this->setStatus( 'errors', $this->errors );
+	// 	$this->completeSync();
+
+	// 	$this->errors = new \WP_Error( $exception );
+	// 	// throw new \Exception( $exception );
+
+
+	// 	// if ( is_a( $results, '\WP_Error' ) ) {
+	// 	// 	$this->errors = new \WP_Error(); 
+	// 	// 	throw new \Exception();
+	// 	// }
+	// }
+
+	// /**
+	//  * Set processing status
+	//  *
+	//  * @param string $prop
+	//  * @param mixed $value
+	//  * @return void
+	//  */
+	// function setStatus( $prop, $value ) {
+	// 	$this->processed[$prop] = $value;
+	// }
+
+	// /**
+	//  * Get duration in seconds
+	//  *
+	//  * @param string $started
+	//  * @param string $completed
+	//  * @return integer $seconds
+	//  */
+	// function getDuration( $started, $completed ) : integer {
+	// 	$start = new \DateTime( $started );
+	// 	$end = new \DateTime( $completed );
+	// 	$diff = $start->diff( $end );
+	// 	$daysInSecs = $diff->format( '%r%a' ) * 24 * 60 * 60;
+	// 	$hoursInSecs = $diff->h * 60 * 60;
+	// 	$minsInSecs = $diff->i * 60;
+
+	// 	$seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
+
+	// 	return $seconds;
+	// }
 
 	/**
 	 * Enqueue Scripts
