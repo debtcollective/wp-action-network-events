@@ -53,12 +53,16 @@ class Blocks extends Base {
 			'theme_template_directory'  => 'template-parts/components',
 		] );
 
-		if( class_exists( '\WP_Block_Editor_Context' ) ) {
-			// \add_filter( 'block_categories_all', [ $this, 'registerBlockCategory' ], 10, 2 );
+		/**
+		 * @link https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#managing-block-categories
+		 */
+		if ( class_exists( '\WP_Block_Editor_Context' ) ) {
+			\add_filter( 'block_categories_all', [ $this, 'registerBlockCategory' ], 10, 2 );
+		} else {
+			\add_filter( 'block_categories', [ $this, 'registerBlockCategory' ], 10, 2 );
 		}
 
 		new Patterns( $this->version, $this->plugin_name );
-		// new Meta( $this->version, $this->plugin_name );
 
 		\add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_blocks_scripts' ] );
 
@@ -94,13 +98,13 @@ class Blocks extends Base {
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#managing-block-categories
 	 */
 	public function registerBlockCategory( $block_categories, $editor_context ) {
-		if ( !in_array( 'components', $block_categories ) ) {
+		if ( ! in_array( 'events', $block_categories ) ) {
 			array_push(
 				$block_categories,
 				array(
 					'slug'  => 'events',
 					'title' => __( 'Events', 'site-functionality' ),
-					'icon'  => 'calendar',
+					'icon'  => 'calendar-alt',
 				)
 			);
 		}
@@ -133,7 +137,7 @@ class Blocks extends Base {
 	 *
 	 * @return void
 	 */
-	function enqueue_blocks_scripts() {
+	public function enqueue_blocks_scripts() {
 		$asset_file = require \plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
 		\wp_enqueue_script( 'wp-action-network-events', \plugins_url( '/build/index.js', __FILE__ ), $asset_file['dependencies'], $asset_file['version'], false );
 	}
