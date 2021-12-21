@@ -2,7 +2,7 @@
 	"apiVersion": 2,
 	"name": "wp-action-network-events/event-time",
 	"title": "Event Time",
-	"category": "theme",
+	"category": "events",
 	"description": "Display event time in event query.",
 	"textdomain": "wp-action-network-events",
 	"attributes": {
@@ -12,7 +12,7 @@
 		}
 	},
 	"usesContext": [ "postId", "postType", "queryId" ],
-	"parent": [ "core/post-template" ],
+	"parent": [ "core/post-template", "wp-action-network-events/event-query"],
 	"supports": {
 		"html": false,
 		"color": {
