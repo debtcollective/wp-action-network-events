@@ -2,7 +2,7 @@
 	"apiVersion": 2,
 	"name": "wp-action-network-events/event-location",
 	"title": "Event Location",
-	"category": "theme",
+	"category": "events",
 	"description": "Display event location in event query.",
 	"textdomain": "wp-action-network-events",
 	"icon": "location-alt",
