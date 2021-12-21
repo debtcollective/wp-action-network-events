@@ -7,10 +7,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Register Custom Block Collection
  */
-registerBlockCollection( 'wp-action-network-events', { 
-    title: __( 'Action Network Events', 'wp-action-network-events' ),
-	icon: 'calendar-alt'
-} );
+// registerBlockCollection( 'wp-action-network-events', { 
+//     title: __( 'Action Network Events', 'wp-action-network-events' ),
+// 	icon: 'calendar-alt'
+// } );
 
 /**
  * Register Variations
