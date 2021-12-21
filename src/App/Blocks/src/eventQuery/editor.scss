@@ -3,14 +3,16 @@
  *
  * Replace them with your own styles or remove the file completely.
  */
-.editor-styles-wrapper 
+.editor-styles-wrapper
 .wp-block-wp-action-network-events-event-query.events__list {
-
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    column-gap: 1rem;
+    row-gap: 1rem;
     .event {}
 
     @media screen and ( min-width: 720px ) {
         .event {
-            width: calc(100%/3 - 2.5rem);
         }
     }
 }

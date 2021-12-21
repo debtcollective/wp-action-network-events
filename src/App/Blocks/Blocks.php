@@ -90,7 +90,7 @@ class Blocks extends Base {
 
 	/**
 	 * Register custom block category
-	 * 
+	 *
 	 * @see https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#managing-block-categories
 	 */
 	public function registerBlockCategory( $block_categories, $editor_context ) {
@@ -98,9 +98,9 @@ class Blocks extends Base {
 			array_push(
 				$block_categories,
 				array(
-					'slug'  => 'components',
-					'title' => __( 'Components', 'site-functionality' ),
-					'icon'  => 'block-default',
+					'slug'  => 'events',
+					'title' => __( 'Events', 'site-functionality' ),
+					'icon'  => 'calendar',
 				)
 			);
 		}
@@ -109,7 +109,7 @@ class Blocks extends Base {
 
 	/**
 	 * Register custom pattern category
-	 * 
+	 *
 	 * @see https://developer.wordpress.org/reference/functions/register_block_pattern_category/
 	 */
 	public function registerBlockPatternCategory() {}
@@ -125,10 +125,10 @@ class Blocks extends Base {
 
 	/**
 	 * Enqueue Build Script
-	 * 
+	 *
 	 * When using @wordpress/create-block set-up with multiple blocks, we get "Block ... is already registered." error because each block's block.json file calls the build script again.
 	 * Remove build script reference in block.json files
-	 * 
+	 *
 	 * @link https://wordpress.slack.com/archives/C02QB2JS7/p1629116113108600
 	 *
 	 * @return void
@@ -137,5 +137,5 @@ class Blocks extends Base {
 		$asset_file = require \plugin_dir_path( __FILE__ ) . 'build/index.asset.php';
 		\wp_enqueue_script( 'wp-action-network-events', \plugins_url( '/build/index.js', __FILE__ ), $asset_file['dependencies'], $asset_file['version'], false );
 	}
- 
+
 }
