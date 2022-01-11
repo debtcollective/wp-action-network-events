@@ -6,4 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    '' => array($vendorDir . '/elliotchance/iterator/tests', $vendorDir . '/elliotchance/iterator/src'),
 );
