@@ -51,16 +51,7 @@ class Process extends Base {
 	 * @access   protected
 	 * @var      array    $processed
 	 */
-	protected $processed = [];
-
-	/**
-	 * Errors
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      array    $errors
-	 */
-	protected $errors;
+	protected $raw_data;
 
 	/**
 	 * Date Format
@@ -70,6 +61,15 @@ class Process extends Base {
 	 * @var      string    $date_format for storing date
 	 */
 	protected $date_format = 'Y-m-d H:i:s';
+
+	/**
+	 * Errors
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      array    $errors
+	 */
+	protected $errors;
 
 	/**
 	 * Field Mapping
@@ -282,40 +282,6 @@ class Process extends Base {
 			// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
 		}
 		return $image;
-	}
-
-	/**
-	 * Delete Posts
-	 *
-	 * @param array $posts
-	 * @return void
-	 */
-	function deletePosts( $posts ) {
-		$count = 0;
-		foreach( $posts as $post ) {
-			$deleted = $this->deletePost( $post_id );
-			if( $deleted ) {
-				$count++;
-			}
-		}
-		$this->status['deleted_posts'] = $count;
-	}
-
-	/**
-	 * Delete post
-	 * 
-	 * @see https://developer.wordpress.org/reference/functions/wp_delete_post/
-	 *
-	 * @param int $post_id
-	 * @return mixed (WP_Post|false|null) Post data on success, false or null on failure.
-	 */
-	function deletePost( $post_id ) {
-		$deleted = wp_delete_post( $post_id );
-		if( is_a( $deleted, '\WP_Error' ) ) {
-			$this->handleError( 'Failed at ' . __FUNCTION__ );
-			// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
-		}
-		return $deleted;
 	}
 
 	/**
