@@ -117,14 +117,7 @@ class Parse extends Base {
 	 * @since 0.1.0
 	 */
 	public function init() {
-		/**
-		 * This general class is always being instantiated as requested in the Bootstrap class
-		 *
-		 * @see Bootstrap::__construct
-		 *
-		 */
 		$this->parsed_data = $this->parseRecords( $this->data );
-		$this->setStatus( 'Parsed Data', $this->parsed_data );
 	}
 
 	/**
@@ -140,7 +133,7 @@ class Parse extends Base {
 			$count++;
 		}
 		if( is_a( $parsed_records, '\WP_Error' ) ) {
-			$this->handleError( 'Failed at ' . __FUNCTION__ );
+			throw new \Exception( 'Failed at ' . __FUNCTION__ );
 		}
 		return $parsed_records;
 	}
@@ -175,25 +168,12 @@ class Parse extends Base {
 				case '_links_to_target' :
 					$post_data[$key] = 'blank';
 					break;
+			
 				default :
 					$post_data[$key] = $record->{$value} ?? '';
 				break;
 
 			}
-
-
-			// if( 'post_status' === $key ) {
-			// 	$post_data[$key] = $status;
-			// }
-			// elseif( '_links_to_target' === $key ) {
-			// 	$post_data[$key] = 'blank';
-			// }
-			// elseif( 'an_id' === $key ) {
-			// 	$post_data[$key] = $record->identifiers[0];
-			// }
-			// else {
-			// 	$post_data[$key] = $record->{$value} ?? '';
-			// }
 		}
 		return (object) $post_data;
 	}
