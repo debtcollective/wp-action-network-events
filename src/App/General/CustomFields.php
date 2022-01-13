@@ -75,9 +75,6 @@ class CustomFields extends Base {
 		 */
 		\add_filter( 'acf/settings/remove_wp_meta_box', '__return_false' );
 
-		// \add_action( 'plugins_loaded', 					[ $this, 'load' ] );
-		// \add_action( 'carbon_fields_register_fields', 	[ $this, 'addFields' ] );
-
 		/**
 		 * API Fields
 		 * identifiers[0],

@@ -81,22 +81,7 @@ abstract class Base {
 		$this->version = $version;
 		$this->plugin_name = $plugin_name;
 		$this->basename = $basename;
-		// $this->init();
-		// self::instantiate();
 	}
-
-	/**
-	 * @return self
-	 * @since 1.0.0
-	 */
-	final public static function instantiate(): self {
-		if ( ! self::$instance ) {
-			self::$instance = new self();
-		}
-		return self::$instance;
-	}
-
-	public function init() {}
 
 	/**
 	 * Handle Errors
