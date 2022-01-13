@@ -45,15 +45,6 @@ class Process extends Base {
 	protected $processed_data;
 
 	/**
-	 * Processed Info
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      array    $processed
-	 */
-	protected $raw_data;
-
-	/**
 	 * Date Format
 	 *
 	 * @since    1.0.0
@@ -80,7 +71,7 @@ class Process extends Base {
 		'post_title'			=> 'title',
 		'post_content'			=> 'description',
 		'post_date'				=> 'created_date',
-		'post_modified'			=> 'identifiers[0]',
+		'post_modified'			=> 'modified_date',
 		'post_status'			=> '',
 		'browser_url'			=> 'browser_url',
 		'_links_to'				=> 'browser_url',
@@ -240,9 +231,9 @@ class Process extends Base {
 		$count = 0;
 		foreach( $posts as $post ) {
 			$post_id = $this->updatePost( $post );
-			if( $post_id ) {
-				$count++;
-			}
+				if( $post_id ) {
+					$count++;
+				}	
 		}
 		$this->status['updated_posts'] = $count;
 	}
@@ -254,15 +245,16 @@ class Process extends Base {
 	 *
 	 * @return mixed (int|WP_Error) The post ID on success. The value 0 or WP_Error on failure.
 	 */
-	function updatePost( $post, array $fields ) {
-		$post_id = \wp_update_post( $post );
-		if( is_a( $post_id, '\WP_Error' ) ) {
-			$this->handleError( 'Failed at ' . __FUNCTION__ );
-			// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
-		}
-		if( $post_id ) {
-			$this->status['updated'][] = $post_id;
-		}
+	function updatePost( $post ) {
+
+		// $post_id = \wp_update_post( $post );
+		// if( is_a( $post_id, '\WP_Error' ) ) {
+		// 	$this->handleError( 'Failed at ' . __FUNCTION__ );
+		// 	// throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
+		// }
+		// if( $post_id ) {
+		// 	$this->status['updated'][] = $post_id;
+		// }
 		return $post_id;
 	}
 
@@ -284,182 +276,197 @@ class Process extends Base {
 		return $image;
 	}
 
+	public function getDifferences() {}
+
+	public function getDifference() {}
+
 	/**
-	 * Get differences in posts
+	 * Compare modified date
 	 *
-	 * @param array $existing
-	 * @param array $new
-	 * @return array
+	 * @param object $existing Post
+	 * @param array $incoming
+	 * @return boolean
 	 */
-	function getDifferences( $existing, $new ) : array {
-		$post_id = $existing->ID;
-		$existing_post = [
-			'post_title'			=> $existing->post_title,
-			'post_content'			=> $existing->post_content,
-			'post_modified'			=> $existing->modified_date,
-			'browser_url'			=> get_post_meta( $post_id, 'browser_url', true ),
-			'instructions'			=> get_post_meta( $post_id, 'instructions', true ),
-			'start_date'			=> get_post_meta( $post_id, 'start_date', true ),
-			'end_date'				=> get_post_meta( $post_id, 'end_date', true ),
-			'featured_image'		=> get_post_meta( $post_id, 'featured_image', true ),
-			'location_venue'		=> get_post_meta( $post_id, 'location_venue', true ),
-			'location_latitude'		=> get_post_meta( $post_id, 'location_latitude', true ),
-			'location_longitude'	=> get_post_meta( $post_id, 'location_longitude', true ),
-			'visibility'			=> get_post_meta( $post_id, 'visibility', true ),
-			'status'				=> get_post_meta( $post_id, 'status', true ),
-			'internal_name'			=> get_post_meta( $post_id, 'internal_name', true ),
-		];
+	public function hasChanged( $existing, $incoming ) : boolean {
+		return $existing->post_modified < $incoming['modified_date'];
+	}
 
-		$new_post = [
-			'post_title'			=> $new->title,
-			'post_content'			=> $new->description,
-			'post_modified'			=> $new->modified_date,
-			'browser_url'			=> $new->browser_url,
-			'instructions'			=> $new->instructions,
-			'start_date'			=> $new->start_date,
-			'end_date'				=> $new->end_date,
-			'featured_image'		=> $new->featured_image_url,
-			'location_venue'		=> $new->location->venue ? $new->location->venue[0] : '',
-			'location_latitude'		=> $new->location->location->latitude,
-			'location_longitude'	=> $new->location->location->longitude,
-			'visibility'			=> $new->visibility,
-			'status'				=> $new->status,
-			'internal_name'			=> $new->name,
-		];
+	// /**
+	//  * Get differences in posts
+	//  *
+	//  * @param array $existing
+	//  * @param array $new
+	//  * @return array
+	//  */
+	// function getDifferences( $existing, $new ) : array {
+	// 	$post_id = $existing->ID;
+	// 	$existing_post = [
+	// 		'post_title'			=> $existing->post_title,
+	// 		'post_content'			=> $existing->post_content,
+	// 		'post_modified'			=> $existing->modified_date,
+	// 		'browser_url'			=> \get_post_meta( $post_id, 'browser_url', true ),
+	// 		'instructions'			=> \get_post_meta( $post_id, 'instructions', true ),
+	// 		'start_date'			=> \get_post_meta( $post_id, 'start_date', true ),
+	// 		'end_date'				=> \get_post_meta( $post_id, 'end_date', true ),
+	// 		'featured_image'		=> \get_post_meta( $post_id, 'featured_image', true ),
+	// 		'location_venue'		=> \get_post_meta( $post_id, 'location_venue', true ),
+	// 		'location_latitude'		=> \get_post_meta( $post_id, 'location_latitude', true ),
+	// 		'location_longitude'	=> \get_post_meta( $post_id, 'location_longitude', true ),
+	// 		'visibility'			=> \get_post_meta( $post_id, 'visibility', true ),
+	// 		'status'				=> \get_post_meta( $post_id, 'status', true ),
+	// 		'internal_name'			=> \get_post_meta( $post_id, 'internal_name', true ),
+	// 	];
 
-		$differences = [];
-		$diff = [];
+	// 	$new_post = [
+	// 		'post_title'			=> $new->title,
+	// 		'post_content'			=> $new->description,
+	// 		'post_modified'			=> $new->modified_date,
+	// 		'browser_url'			=> $new->browser_url,
+	// 		'instructions'			=> $new->instructions,
+	// 		'start_date'			=> $new->start_date,
+	// 		'end_date'				=> $new->end_date,
+	// 		'featured_image'		=> $new->featured_image_url,
+	// 		'location_venue'		=> $new->location->venue ? $new->location->venue[0] : '',
+	// 		'location_latitude'		=> $new->location->location->latitude,
+	// 		'location_longitude'	=> $new->location->location->longitude,
+	// 		'visibility'			=> $new->visibility,
+	// 		'status'				=> $new->status,
+	// 		'internal_name'			=> $new->name,
+	// 	];
 
-		foreach( array_keys( $this->field_map ) as $field ) {
-			if( $this->compareField( $existing->{$field}, $new->{$field} ) ) {
-				// $this->setStatus( 'key', $key );
-				// $this->setStatus( 'value', $value );
-				// $differences[$key] = $new[$key];
-				$diff[$post_id][$field] = [
-					$existing->{$field}, $new->{$field}
-				];
-			}
-		}
+	// 	$differences = [];
+	// 	$diff = [];
+
+	// 	foreach( array_keys( $this->field_map ) as $field ) {
+	// 		if( $this->compareField( $existing->{$field}, $new->{$field} ) ) {
+	// 			// $this->setStatus( 'key', $key );
+	// 			// $this->setStatus( 'value', $value );
+	// 			// $differences[$key] = $new[$key];
+	// 			$diff[$post_id][$field] = [
+	// 				$existing->{$field}, $new->{$field}
+	// 			];
+	// 		}
+	// 	}
 		
-		$this->setStatus( "differences $post_id", $diff );
-		$this->setStatus( "new", $new );
-		$this->setStatus( "existing", $existing );
+	// 	$this->setStatus( "differences $post_id", $diff );
+	// 	$this->setStatus( "new", $new );
+	// 	$this->setStatus( "existing", $existing );
 
 
-		return $differences;
+	// 	return $differences;
 
-		// $this->status[ 'differences'] = array_diff_assoc( $existing_post, $new_post );
+	// 	// $this->status[ 'differences'] = array_diff_assoc( $existing_post, $new_post );
 
 
-		// // $this->setStatus( 'existing', $existing_post  );
-		// // $this->setStatus( 'existing', $existing  );
-		// // $this->setStatus( 'new', $new_post );
-		// // $this->setStatus( 'new_mapped', $new_post );
-		// $this->setStatus( 'differences', $differences );
+	// 	// // $this->setStatus( 'existing', $existing_post  );
+	// 	// // $this->setStatus( 'existing', $existing  );
+	// 	// // $this->setStatus( 'new', $new_post );
+	// 	// // $this->setStatus( 'new_mapped', $new_post );
+	// 	// $this->setStatus( 'differences', $differences );
 
-		// return $differences;
+	// 	// return $differences;
 
-		// $differences = array_map( function( $field ) use $existing {
+	// 	// $differences = array_map( function( $field ) use $existing {
 			
-		// }, $new );
+	// 	// }, $new );
 
 
-		// $this->status[ ' existing'] = $existing;
-		// $this->status[ ' new'] = $new;
+	// 	// $this->status[ ' existing'] = $existing;
+	// 	// $this->status[ ' new'] = $new;
 
-		// $this->status[ 'difference'][$post_id] = array_diff_assoc( $existing_post, $new_post );
-		// return $this->status[ 'difference'][$post_id];
+	// 	// $this->status[ 'difference'][$post_id] = array_diff_assoc( $existing_post, $new_post );
+	// 	// return $this->status[ 'difference'][$post_id];
 		
-		// return array_diff_assoc( $existing_post, $new_post );
-	}
+	// 	// return array_diff_assoc( $existing_post, $new_post );
+	// }
 
-	/**
-	 * Compare
-	 *
-	 * @param [type] $existing
-	 * @param [type] $new
-	 * @return void
-	 */
-	function compareField( $existing, $new ) {
-		return $existing !== $new;
-	}
+	// /**
+	//  * Compare
+	//  *
+	//  * @param [type] $existing
+	//  * @param [type] $new
+	//  * @return void
+	//  */
+	// function compareField( $existing, $new ) {
+	// 	return $existing !== $new;
+	// }
 
-	/**
-	 * Get existing post matching
-	 * 
-	 * @see https://developer.wordpress.org/reference/classes/wp_query/
-	 *
-	 * @param object $post
-	 * @return array Return an array of post IDs
-	 */
-	function getExistingPost( $post ) {
-		return $this->queryPost( $post )->post;
-	}
+	// /**
+	//  * Get existing post matching
+	//  * 
+	//  * @see https://developer.wordpress.org/reference/classes/wp_query/
+	//  *
+	//  * @param object $post
+	//  * @return array Return an array of post IDs
+	//  */
+	// function getExistingPost( $post ) {
+	// 	return $this->queryPost( $post )->post;
+	// }
 
-		/**
-	 * Get existing post matching
-	 * 
-	 * @see https://developer.wordpress.org/reference/classes/wp_query/
-	 *
-	 * @param object $post
-	 * @return array Return an array of post IDs
-	 */
-	function queryPost( $identifier ) {
-		$args = [
-			'post_type'			=> Event::POST_TYPE['id'],
-			'posts_per_page'	=> 1,
-			'meta_query'		=> [
-				[
-					'key' 			=> 'an_id',
-					'value' 		=> $identifier
-				]
-			]
-		];
-		return new \WP_Query( $args );
-	}
+	// 	/**
+	//  * Get existing post matching
+	//  * 
+	//  * @see https://developer.wordpress.org/reference/classes/wp_query/
+	//  *
+	//  * @param object $post
+	//  * @return array Return an array of post IDs
+	//  */
+	// function queryPost( $identifier ) {
+	// 	$args = [
+	// 		'post_type'			=> Event::POST_TYPE['id'],
+	// 		'posts_per_page'	=> 1,
+	// 		'meta_query'		=> [
+	// 			[
+	// 				'key' 			=> 'an_id',
+	// 				'value' 		=> $identifier
+	// 			]
+	// 		]
+	// 	];
+	// 	return new \WP_Query( $args );
+	// }
 
-	/**
-	 * The record has a post
-	 *
-	 * @param obj $post
-	 * @return boolean
-	 */
-	function doesExist( $post ) {
-		$query = $this->queryPost( $post );
-		return $query->have_posts();
-	}
+	// /**
+	//  * The record has a post
+	//  *
+	//  * @param obj $post
+	//  * @return boolean
+	//  */
+	// function doesExist( $post ) {
+	// 	$query = $this->queryPost( $post );
+	// 	return $query->have_posts();
+	// }
 
-	/**
-	 * Compare existing to new data
-	 *
-	 * @param array $current
-	 * @param array $new
-	 * @return boolean
-	 */
-	function hasChanged( $post ) {
-		$current = $this->getExistingPost( $post );
-		return !empty( $this->getDifferences( $current, $post ) );
-	}
+	// /**
+	//  * Compare existing to new data
+	//  *
+	//  * @param array $current
+	//  * @param array $new
+	//  * @return boolean
+	//  */
+	// function hasChanged( $post ) {
+	// 	$current = $this->getExistingPost( $post );
+	// 	return !empty( $this->getDifferences( $current, $post ) );
+	// }
 
-	/**
-	 * Get duration in seconds
-	 *
-	 * @param string $started
-	 * @param string $completed
-	 * @return integer $seconds
-	 */
-	function getDuration( $started, $completed ) : integer {
-		$start = new \DateTime( $started );
-		$end = new \DateTime( $completed );
-		$diff = $start->diff( $end );
-		$daysInSecs = $diff->format( '%r%a' ) * 24 * 60 * 60;
-		$hoursInSecs = $diff->h * 60 * 60;
-		$minsInSecs = $diff->i * 60;
+	// /**
+	//  * Get duration in seconds
+	//  *
+	//  * @param string $started
+	//  * @param string $completed
+	//  * @return integer $seconds
+	//  */
+	// function getDuration( $started, $completed ) : integer {
+	// 	$start = new \DateTime( $started );
+	// 	$end = new \DateTime( $completed );
+	// 	$diff = $start->diff( $end );
+	// 	$daysInSecs = $diff->format( '%r%a' ) * 24 * 60 * 60;
+	// 	$hoursInSecs = $diff->h * 60 * 60;
+	// 	$minsInSecs = $diff->i * 60;
 
-		$seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
+	// 	$seconds = $daysInSecs + $hoursInSecs + $minsInSecs + $diff->s;
 
-		return $seconds;
-	}
+	// 	return $seconds;
+	// }
 
 	/**
 	 * Get timezone abbreviation
