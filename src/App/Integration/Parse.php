@@ -16,10 +16,10 @@ use WpActionNetworkEvents\App\Integration\GetEvents;
 use WpActionNetworkEvents\App\Integration\Sync;
 use WpActionNetworkEvents\App\Admin\Options;
 use WpActionNetworkEvents\App\General\PostTypes\Event;
+use WpActionNetworkEvents\App\General\CustomFields;
 
 /**
  * Parser
- *
  *
  * @package    Wp_Action_Network_Events
  * @subpackage Wp_Action_Network_Events/admin
@@ -86,7 +86,7 @@ class Parse extends Base {
 	/**
 	 * Initialize the class.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function init() {
 		$this->parsed_data = $this->parseRecords( $this->data );
@@ -95,55 +95,55 @@ class Parse extends Base {
 	/**
 	 * Parse Records
 	 *
-	 * @return array $parsed_records
+	 * @return array $parsed_records array of record objects
 	 */
-	public function parseRecords() {
-		$parsed_records = [];
-		$count = 0;
-		foreach( $this->data as $record ) {
-			array_push( $parsed_records, $this->parseRecord( $record ) );
-			$count++;
-		}
-		if( is_a( $parsed_records, '\WP_Error' ) ) {
+	public function parseRecords() : array {
+		$parsed_records = array();
+		if ( is_a( $this->data, '\WP_Error' ) ) {
 			throw new \Exception( 'Failed at ' . __FUNCTION__ );
 		}
-		return $parsed_records;
+		foreach ( $this->data as $record ) {
+			$parsed_records[] = $this->parseRecord( $record );
+		}
+
+		// error_log( json_encode( $parsed_records ) );
+		return (array) $parsed_records;
 	}
 
 	/**
-	 * Parse Records
+	 * Parse Record
 	 *
 	 * @param object $record
 	 * @return object $record
 	 */
 	public function parseRecord( object $record ) : object {
-		$status = Event::STATUSES[$record->status];
-		$post_data = [];
+		$status    = Event::STATUSES[ $record->status ];
+		$post_data = array();
 
-		foreach( $this->field_map as $key => $value ) {
-			switch( $key ) {
-				case 'post_status' :
-					$post_data[$key] = $status;
+		foreach ( CustomFields::FIELD_MAP as $key => $value ) {
+			switch ( $key ) {
+				case 'post_status':
+					$post_data[ $key ] = $status;
 					break;
-				case 'an_id' :
-					$post_data[$key] = $record->identifiers[0];
+				case 'an_id':
+					$post_data[ $key ] = $record->identifiers[0];
 					break;
-				case 'location_venue' :
-					$post_data[$key] = $record->location->venue ?? 'Virtual';
+				case 'location_venue':
+					$post_data[ $key ] = $record->location->venue ?? 'Virtual';
 					break;
 				case 'location_latitude';
-					$post_data[$key] = $record->location->location->latitude;
+					$post_data[ $key ] = $record->location->location->latitude ?? '';
 					break;
 				case 'location_longitude';
-					$post_data[$key] = $record->location->location->longitude;
+					$post_data[ $key ] = $record->location->location->longitude ?? '';
 					break;
-				case '_links_to_target' :
-					$post_data[$key] = 'blank';
+				case '_links_to_target':
+					$post_data[ $key ] = 'blank';
 					break;
-			
-				default :
-					$post_data[$key] = $record->{$value} ?? '';
-				break;
+
+				default:
+					$post_data[ $key ] = $record->{$value} ?? '';
+					break;
 
 			}
 		}
@@ -155,7 +155,7 @@ class Parse extends Base {
 	 *
 	 * @return array $this->parsed_data
 	 */
-	public function getParsed() {
+	public function getParsed() : array {
 		return $this->parsed_data;
 	}
 

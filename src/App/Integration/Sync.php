@@ -63,6 +63,12 @@ class Sync extends Base {
 	 */
 	public $status;
 
+	protected $start;
+
+	protected $finish;
+
+	protected $log;
+
 	/**
 	 * Last Run DateTime
 	 *
@@ -80,6 +86,15 @@ class Sync extends Base {
 	protected $date_format = 'Y-m-d H:i:s';
 
 	/**
+	 * Sync Frequency
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      string    $sync_frequency
+	 */
+	protected $sync_frequency;
+
+	/**
 	 * Transient Name
 	 *
 	 * @since    1.0.0
@@ -89,15 +104,6 @@ class Sync extends Base {
 	public const TRANSIENT_KEY = 'wp_action_network_events_sync_status';
 
 	public const LAST_RUN_TRANSIENT_KEY = 'wp_action_network_events_sync_datetime';
-
-	/**
-	 * Sync Frequency
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      string    $sync_frequency
-	 */
-	protected $sync_frequency;
 
 	/**
 	 * Constructor.
@@ -112,7 +118,7 @@ class Sync extends Base {
 	/**
 	 * Initialize the class.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function init() {
 		/**
@@ -123,7 +129,7 @@ class Sync extends Base {
 		$options              = Options::getOptions();
 		$this->sync_frequency = intval( $options['sync_frequency'] ) * HOUR_IN_SECONDS;
 
-		$this->last_run = \get_option( self::LAST_RUN_TRANSIENT_KEY, null );
+		$this->last_run = \get_option( self::LAST_RUN_TRANSIENT_KEY );
 
 		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScripts' ) );
 
@@ -149,19 +155,35 @@ class Sync extends Base {
 	 * @return void
 	 */
 	public function startSync( $source = 'manual' ) {
+		$this->start = date( $this->date_format );
 		$args = array(
-			'per_page' => 50
+			'per_page' => 25
 		);
+
+		if( $this->last_run ) {
+			$args['filter'] = date( 'Y-m-d', strtotime( $this->last_run ) );
+		}
 
 		$this->getData( $args );
 
+		$message = 'Data: ' . json_encode( $this->data ) . ' | Count: ' . count( $this->data );
+		error_log( $message );
+
 		if( $this->data ) {
-			$this->parsed_data = new Parse( $version, $plugin_name, $this->data );
-			$process = new Process( $version, $plugin_name, $this->parsed_data );
+			$parse = new Parse( $this->version, $this->plugin_name, $this->data );
+			$this->parsed_data = $parse->getParsed();
+			$message = 'Parsed: ' . json_encode( $this->parsed_data ) . ' | Count: ' . count( $this->parsed_data );
+			error_log( $message );
+
+			$process = new Process( $this->version, $this->plugin_name, $this->parsed_data );
+
+			if( $process->status ) {
+				$message = 'Processed Status: ' . json_encode( $process->status );
+				error_log( $message );
+			}
 		}
 
-
-		\wp_send_json( json_encode( $this->data ) );
+		\wp_send_json( $message );
 		\wp_die();
 	}
 
