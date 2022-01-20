@@ -8,6 +8,7 @@ namespace WpActionNetworkEvents\Common\Abstracts;
 
 use WpActionNetworkEvents\App\Admin\Options;
 use WpActionNetworkEvents\Common\Util\Iterator;
+use WpActionNetworkEvents\Common\Util\log_remote_request;
 
 /**
  * The Data class which can be extended by other classes to load in default methods
@@ -168,7 +169,7 @@ abstract class GetData {
 		$request = \wp_remote_get( $url, $options );
 
 		if ( is_a( $request, '\WP_Error' ) ) {
-			throw new \Exception( \wp_remote_retrieve_response_code( $request ) . ': ' . json_decode( \wp_remote_retrieve_body( $request ), true)['error'] );
+			throw new \Exception( \wp_remote_retrieve_response_code( $request ) . ': ' . json_decode( \wp_remote_retrieve_body( $request ), false )->error );
 		}
 
 		return $request;
@@ -177,7 +178,7 @@ abstract class GetData {
 	/**
 	 * Get Records
 	 *
-	 * @return void
+	 * @return mixed object $response || null $response
 	 */
 	public function getRecords() {
 		$args = array(
@@ -186,42 +187,28 @@ abstract class GetData {
 		if ( $this->search_filter ) {
 			$args['filter'] = "modified_date gt '{$this->search_filter}'";
 		}
-		$query = http_build_query( $args );
-		$url   = \esc_url( $this->base_url . $this->endpoint ) . "?$query";
+		$url = \add_query_arg(
+			$args,
+			\esc_url( $this->base_url . $this->endpoint )
+		);
+
+		// $url   = \esc_url( $this->base_url . $this->endpoint ) . "?$query";
 
 		try {
-			$request = $this->request( $url );
+			$request    = $this->request( $url );
+			$response   = $this->handleRequest( $url, $request );
+			$this->data = $response->{'_embedded'}->{'osdi:events'};
 
-			if ( 200 === \wp_remote_retrieve_response_code( $request ) ) {
-				$response   = json_decode( \wp_remote_retrieve_body( $request ), true );
-				$this->data = $response['_embedded']['osdi:events'];
-
-				while ( $response['total_pages'] > $response['page'] && isset( $response['_links']['next']['href'] ) ) {
-					$url     = $response['_links']['next']['href'];
-					$request = $this->request( $url );
-					error_log( $url );
-
-					if ( 200 === \wp_remote_retrieve_response_code( $request ) ) {
-						$nextResponse = json_decode( \wp_remote_retrieve_body( $request ), true );
-						$data         = $nextResponse['_embedded']['osdi:events'];
-						$this->data   = array_merge( $this->data, $data );
-						$response     = array_merge( $response, $nextResponse );
-					} else {
-						error_log( \wp_remote_retrieve_response_code( $request ) . ': ' . \wp_remote_retrieve_body( $request ) );
-						$response = null;
-					}
-				}
-				error_log( count( $this->data ) );
-			} else {
-				error_log( \wp_remote_retrieve_response_code( $request ) . ': ' . json_decode( \wp_remote_retrieve_body( $request ), true)['error'] );
-				$response = null;
+			while ( $response->total_pages > $response->page && isset( $response->{'_links'}->next->href ) ) {
+					$url      = $response->{'_links'}->next->href;
+					$request  = $this->request( $url );
+					$response = $this->handleRequest( $url, $request );
+					$this->data = array_merge( $this->data, $response->{'_embedded'}->{'osdi:events'} );
 			}
 		} catch ( \Exception $exception ) {
 			error_log( $exception );
 			$response = null;
-			$data     = null;
 		}
-		// return $data;
 		return $response;
 	}
 
@@ -240,12 +227,17 @@ abstract class GetData {
 	 * @param object $request
 	 * @return mixed object $response || null;
 	 */
-	public function handleRequest( $request ) {
-		if ( 200 === \wp_remote_retrieve_response_code( $request ) ) {
-			$response = json_decode( \wp_remote_retrieve_body( $request ), true );
+	public function handleRequest( $url, $request ) {
+		$response      = \wp_remote_retrieve_body( $request );
+		$response_code = (int) \wp_remote_retrieve_response_code( $request );
+		if ( 200 === $response_code ) {
+			$response = json_decode( $response, false );
+		} elseif ( 401 === $response_code ) { // 401 Unauthorized
+			$response = false;
+			log_remote_request( $url, $request, $response );
 		} else {
-			error_log( \wp_remote_retrieve_response_code( $request ) . ': ' . \wp_remote_retrieve_body( $request ) );
 			$response = null;
+			log_remote_request( $url, $request, $response );
 		}
 		return $response;
 	}
