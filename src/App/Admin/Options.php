@@ -72,7 +72,7 @@ class Options extends Base {
 	/**
 	 * Initialize the class.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function init() {
 		/**
@@ -155,8 +155,14 @@ class Options extends Base {
 		);
 
 		\add_settings_section(
-			self::OPTIONS_NAME . '_section',
-			'',
+			self::OPTIONS_NAME . '_sync_section',
+			esc_attr__( 'Sync Settings', 'wp-action-network-events' ),
+			false,
+			self::OPTIONS_NAME
+		);
+		\add_settings_section(
+			self::OPTIONS_NAME . '_general_section',
+			esc_attr__( 'General Settings', 'wp-action-network-events' ),
 			false,
 			self::OPTIONS_NAME
 		);
@@ -166,14 +172,14 @@ class Options extends Base {
 			\__( 'Action Network Base URL', 'wp-action-network-events' ),
 			array( $this, 'renderBaseUrlField' ),
 			self::OPTIONS_NAME,
-			self::OPTIONS_NAME . '_section'
+			self::OPTIONS_NAME . '_sync_section'
 		);
 		\add_settings_field(
 			'api_key',
 			\__( 'Action Network API Key', 'wp-action-network-events' ),
 			array( $this, 'renderApiKeyField' ),
 			self::OPTIONS_NAME,
-			self::OPTIONS_NAME . '_section'
+			self::OPTIONS_NAME . '_sync_section'
 		);
 		// \add_settings_field(
 		// 	'event_types',
@@ -183,18 +189,25 @@ class Options extends Base {
 		// 	self::OPTIONS_NAME . '_section'
 		// );
 		\add_settings_field(
-			'archive_slug',
-			\__( 'Events Page Slug', 'wp-action-network-events' ),
-			array( $this, 'renderEventSlugField' ),
-			self::OPTIONS_NAME,
-			self::OPTIONS_NAME . '_section'
-		);
-		\add_settings_field(
 			'sync_frequency',
 			\__( 'Frequency', 'wp-action-network-events' ),
 			array( $this, 'renderFrequencyField' ),
 			self::OPTIONS_NAME,
-			self::OPTIONS_NAME . '_section'
+			self::OPTIONS_NAME . '_sync_section'
+		);
+		\add_settings_field(
+			'archive_slug',
+			\__( 'Events Page Slug', 'wp-action-network-events' ),
+			array( $this, 'renderEventSlugField' ),
+			self::OPTIONS_NAME,
+			self::OPTIONS_NAME . '_general_section'
+		);
+		add_settings_field(
+			'hide_canceled',
+			__( 'Hide Canceled Events', 'wp-action-network-events' ),
+			array( $this, 'renderHideCanceledField' ),
+			self::OPTIONS_NAME,
+			self::OPTIONS_NAME . '_general_section'
 		);
 
 	}
@@ -306,7 +319,23 @@ class Options extends Base {
 
 		echo '</select>';
 		echo '<p class="description">' . __( 'Select the type of events to sync and display.', 'wp-action-network-events' ) . '</p>';
+	}
 
+	/**
+	 * Render Field
+	 *
+	 * @return void
+	 */
+	function renderFrequencyField() {
+		$value = isset( $this->options['sync_frequency'] ) ? $this->options['sync_frequency'] : (int) 24;
+
+		printf( 
+			'<input type="number" name="wp_action_network_events_options[sync_frequency]" class="regular-text sync_frequency_field" placeholder="%s" value="%s"> %s',
+			esc_attr__( '', 'wp-action-network-events' ),
+			esc_attr( $value ),
+			esc_attr__( 'hours', 'wp-action-network-events' ),
+		);
+		echo '<p class="description">' . __( 'Select the frequency with which to sync events.', 'wp-action-network-events' ) . '</p>';
 	}
 
 	/**
@@ -331,17 +360,15 @@ class Options extends Base {
 	 *
 	 * @return void
 	 */
-	function renderFrequencyField() {
-		$value = isset( $this->options['sync_frequency'] ) ? $this->options['sync_frequency'] : (int) 24;
+	function renderHideCanceledField() {
+		$value = isset( $this->options['hide_canceled'] ) ? $this->options['hide_canceled'] : 'false';
 
 		printf( 
-			'<input type="number" name="wp_action_network_events_options[sync_frequency]" class="regular-text sync_frequency_field" placeholder="%s" value="%s"> %s',
-			esc_attr__( '', 'wp-action-network-events' ),
-			esc_attr( $value ),
-			esc_attr__( 'hours', 'wp-action-network-events' ),
+			'<input type="checkbox" name="wp_action_network_events_options[hide_canceled]" class="hide_canceled_field" value="checked" %s> %s',
+			checked( $value, 'checked', false ),
+			esc_attr__( 'Hide', 'wp-action-network-events' )
 		);
-		echo '<p class="description">' . __( 'Select the frequency with which to sync events.', 'wp-action-network-events' ) . '</p>';
-
+		echo '<p class="description">' . __( 'Hide canceled events on site.', 'wp-action-network-events' ) . '</p>';
 	}
 
 	/**
