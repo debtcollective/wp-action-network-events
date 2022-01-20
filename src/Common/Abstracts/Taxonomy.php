@@ -12,7 +12,7 @@ use WpActionNetworkEvents\Common\Abstracts\Base;
  * Class Taxonomies
  *
  * @package WpActionNetworkEvents\App\General
- * @since 0.1.0
+ * @since 1.0.0
  */
 abstract class Taxonomy extends Base {
 
@@ -34,7 +34,7 @@ abstract class Taxonomy extends Base {
 	/**
 	 * Initialize the class.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function init() {
 		/**
@@ -51,7 +51,7 @@ abstract class Taxonomy extends Base {
 	/**
 	 * Register taxonomy
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function register() {
 

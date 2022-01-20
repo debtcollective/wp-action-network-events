@@ -13,7 +13,7 @@ use WpActionNetworkEvents\App\General\PostTypes\Event as Event;
  * Class ContentFilters
  *
  * @package WpActionNetworkEvents\App\General
- * @since 0.1.0
+ * @since 1.0.0
  */
 class ContentFilters extends Base {
 
@@ -31,35 +31,33 @@ class ContentFilters extends Base {
 	/**
 	 * Initialize the class.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function init() {
 		/**
 		 * This general class is always being instantiated as requested in the Bootstrap class
 		 *
 		 * @see Bootstrap::__construct
-		 *
 		 */
-		if( !class_exists( '\CWS_PageLinksTo' ) ) {
-			\add_filter( 'post_link', 		[ $this, 'modifyEventUrl' ], 10, 2 );
-			\add_filter( 'post_type_link', 	[ $this, 'modifyEventUrl' ], 10, 2 );
+		if ( ! class_exists( '\CWS_PageLinksTo' ) ) {
+			\add_filter( 'post_link', array( $this, 'modifyEventUrl' ), 10, 2 );
+			\add_filter( 'post_type_link', array( $this, 'modifyEventUrl' ), 10, 2 );
 		}
 
 	}
 
 	/**
 	 * Change Event URL to Action Network URL
-	 * Modify link to Action Network URL; 
+	 * Modify link to Action Network URL;
 	 * Let Page Links To <https://wordpress.org/plugins/page-links-to/> handle this, if it is available
 	 *
 	 * @param string $url
-	 * @param obj $post
+	 * @param obj    $post
 	 * @return string $url
 	 */
 	public function modifyEventUrl( $url, $post ) {
-		if( 
-			( Event::POST_TYPE['id'] === \get_post_type( $post->ID ) ) &&
-			( $external_url = \get_post_meta( $post->ID, '_browser_url', 'true' ) ) 
+		if ( ( Event::POST_TYPE['id'] === \get_post_type( $post->ID ) ) &&
+			( $external_url = \get_post_meta( $post->ID, '_browser_url', 'true' ) )
 		) {
 			$url = \esc_url( $external_url );
 		}

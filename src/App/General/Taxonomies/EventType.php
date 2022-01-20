@@ -12,7 +12,7 @@ use WpActionNetworkEvents\Common\Abstracts\Taxonomy;
  * Class Taxonomies
  *
  * @package WpActionNetworkEvents\App\General
- * @since 0.1.0
+ * @since 1.0.0
  */
 class EventType extends Taxonomy {
 

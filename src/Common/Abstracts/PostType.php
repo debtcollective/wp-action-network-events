@@ -12,7 +12,7 @@ use WpActionNetworkEvents\Common\Abstracts\Base;
  * Class Taxonomies
  *
  * @package WpActionNetworkEvents\App\General
- * @since 0.1.0
+ * @since 1.0.0
  */
 abstract class PostType extends Base {
 
@@ -39,7 +39,7 @@ abstract class PostType extends Base {
 	/**
 	 * Initialize the class.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function init() {
 		\add_action( 'init', 		[ $this, 'register' ] );
@@ -49,7 +49,7 @@ abstract class PostType extends Base {
 	/**
 	 * Register post type
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function register() {
 		$labels = array(
