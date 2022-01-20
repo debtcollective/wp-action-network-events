@@ -37,5 +37,6 @@ return array(
     'WpActionNetworkEvents\\Common\\Loader' => $baseDir . '/src/Common/Loader.php',
     'WpActionNetworkEvents\\Common\\Plugin' => $baseDir . '/src/Common/Plugin.php',
     'WpActionNetworkEvents\\Common\\Traits\\Singleton' => $baseDir . '/src/Common/Traits/Singleton.php',
+    'WpActionNetworkEvents\\Common\\Util\\Iterator' => $baseDir . '/src/Common/Util/Iterator.php',
     'WpActionNetworkEvents\\Common\\Util\\TemplateLoader' => $baseDir . '/src/Common/Util/TemplateLoader.php',
 );

@@ -57,6 +57,7 @@ class ComposerStaticInit2201770520a8ece95e14484947b79447
         'WpActionNetworkEvents\\Common\\Loader' => __DIR__ . '/../..' . '/src/Common/Loader.php',
         'WpActionNetworkEvents\\Common\\Plugin' => __DIR__ . '/../..' . '/src/Common/Plugin.php',
         'WpActionNetworkEvents\\Common\\Traits\\Singleton' => __DIR__ . '/../..' . '/src/Common/Traits/Singleton.php',
+        'WpActionNetworkEvents\\Common\\Util\\Iterator' => __DIR__ . '/../..' . '/src/Common/Util/Iterator.php',
         'WpActionNetworkEvents\\Common\\Util\\TemplateLoader' => __DIR__ . '/../..' . '/src/Common/Util/TemplateLoader.php',
     );
 
