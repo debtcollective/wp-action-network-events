@@ -10,7 +10,15 @@ namespace WpActionNetworkEvents\Common\Util;
 
 use Elliotchance\Iterator\AbstractPagedIterator;
 
-class EventsIterator extends AbstractPagedIterator {
+class Iterator extends AbstractPagedIterator {
+
+	/**
+	 * API Key
+	 *
+	 * @var string
+	 */
+	private $api_key;
+
 
 	/**
 	 * Base URL
@@ -31,14 +39,14 @@ class EventsIterator extends AbstractPagedIterator {
 	 *
 	 * @var integer $totalSize
 	 */
-	protected $totalSize = 0;
+	public $totalSize = 0;
 
 	/**
 	 * Number of records per page
 	 *
 	 * @var integer $pageSize
 	 */
-	protected $pageSize;
+	public $pageSize;
 
 	/**
 	 * Search Filters
@@ -52,9 +60,10 @@ class EventsIterator extends AbstractPagedIterator {
 	 *
 	 * @param array $options
 	 */
-	public function __construct( $base_url = 'events', $endpoint, $options = array() ) {
+	public function __construct( $base_url, $endpoint = 'events', $api_key, $options = array() ) {
 		$this->pageSize     = isset( $options['per_page'] ) ? (int) $options['per_page'] : 25;
 		$this->searchFilter = isset( $options['modified_date'] ) ? \esc_attr( $options['modified_date'] ) : '';
+		$this->api_key      = $api_key;
 		$this->base_url     = $base_url;
 		$this->endpoint     = $endpoint;
 
@@ -90,7 +99,7 @@ class EventsIterator extends AbstractPagedIterator {
 	public function getUrl( $pageNumber ) {
 		$endpoint = \esc_url( $this->base_url . $this->endpoint );
 
-		$query    = array(
+		$query = array(
 			'page' => $pageNumber + 1,
 		);
 
@@ -114,9 +123,40 @@ class EventsIterator extends AbstractPagedIterator {
 	 * @return void
 	 */
 	public function getPage( $pageNumber ) {
-		$url             = $this->getUrl( $pageNumber );
-		$result          = json_decode( file_get_contents( $url ), true );
-		$this->totalSize = $result['total_count'];
-		return $result['items'];
+		try {
+			$response        = json_decode( \wp_remote_retrieve_body( $this->loadPage( $pageNumber ) ), true );
+            error_log( $response );
+			$this->totalSize = $response->total_records;
+		} catch ( Exception $exception ) {
+			$response = null;
+			error_log( $exception->getMessage() );
+		}
+		return $response;
+	}
+
+	/**
+	 * Load Records
+	 *
+	 * @param int $pageNumber
+	 * @return object $request || Exception
+	 */
+	public function loadPage( $pageNumber ) {
+		$url     = $this->getUrl( $pageNumber );
+		$options = array(
+			'headers'     => array(
+				'Content-Type'   => 'application/json',
+				'OSDI-API-Token' => $this->api_key,
+			),
+			'timeout'     => 100,
+			'redirection' => 5,
+		);
+
+		$request = \wp_remote_get( $url, $options );
+
+		if ( is_a( $request, 'WP_Error' ) ) {
+			throw new \Exception();
+		}
+
+		return $request;
 	}
 }
