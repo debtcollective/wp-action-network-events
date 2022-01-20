@@ -46,7 +46,8 @@ class CustomFields extends Base {
 		'status',
 		'visibility',
 		'an_campaign_id',
-		'internal_name'
+		'internal_name',
+		'hidden'
 	];
 
 	/**
