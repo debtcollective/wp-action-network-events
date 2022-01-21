@@ -26,7 +26,7 @@ class Event extends PostType {
 	const STATUSES = array(
 		'confirmed' => 'publish',
 		'tentative' => 'draft',
-		'cancelled' => 'canceled', // API misspells
+		'cancelled' => 'cancelled', // API misspells
 	);
 
 	/**
@@ -49,7 +49,7 @@ class Event extends PostType {
 	 * Status data
 	 */
 	public const STATUS = array(
-		'id'    => 'canceled',
+		'id'    => 'cancelled',
 		'label' => 'Canceled',
 	);
 
@@ -235,14 +235,34 @@ class Event extends PostType {
 
 	/**
 	 * Display Custom Status on Post List
+	 * Add Canceled, Draft and/or Private status in post list
+	 * Display only Hidden if hidden field is set to try
+	 * 
 	 *
-	 * @param string $statuses
-	 * @return void
+	 * @link https://developer.wordpress.org/reference/hooks/display_post_states/
+	 *
+	 * @param array $statuses
+	 * @return array $statuses Maybe modified array
 	 */
 	public function displayPostStatus( $statuses, $post ) {
 		if ( $post->post_type === self::POST_TYPE['id'] && \get_query_var( 'post_status' ) !== self::STATUS['id'] ) {
-			if ( $post->post_status === self::STATUS['id'] ) {
-				return array( self::STATUS['label'] );
+			if ( self::STATUS['id'] == $post->post_status ) {
+				$statuses[] = \esc_attr__( self::STATUS['label'], 'wp-action-network-events' );
+			} elseif ( 'draft' === $post->post_status ) {
+				$statuses[] = \esc_attr__( 'Draft', 'wp-action-network-events' );
+			}
+			if ( 'private' === \get_post_meta( $post->ID, 'visibility', true ) ) {
+				$statuses[] = \esc_attr__( 'Private', 'wp-action-network-events' );
+			}
+			if ( ! class_exists( '\CWS_PageLinksTo' ) && ( $url = \get_post_meta( $post->ID, 'browser_url', true ) ) ) {
+				$output_parts = array(
+					'custom' => '<a title="' . \esc_attr__( 'External Link', 'wp-action-network-events' ) . '" href="' . \esc_url( $url ) . '" class="post-state-link"><span class="dashicons dashicons-admin-links"></span><span class="url"> ' . \esc_url( $url ) . '</span></a>',
+				);
+				$output = '<span class="post-info">' . implode( $output_parts ) . '</span>';
+				$statuses['external'] = $output;
+			}
+			if ( true == \get_post_meta( $post->ID, 'hidden', true ) ) {
+				$statuses = array( \esc_attr__( 'Hidden', 'wp-action-network-events' ) );
 			}
 		}
 		return $statuses;

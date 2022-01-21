@@ -41,7 +41,7 @@ function render( $attributes, $content, $block ) {
 		$default_display,
 		array(
 			'posts_per_page' => $default_query['per_page'],
-			'post_status'    => array( 'publish', 'canceled' ),
+			'post_status'    => array( 'publish', Event::STATUS['id'] ),
 		)
 	);
 

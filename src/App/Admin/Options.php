@@ -12,7 +12,6 @@
 namespace WpActionNetworkEvents\App\Admin;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
-// use WpActionNetworkEvents\App\Admin\Options;
 
 /**
  * Plugin Options

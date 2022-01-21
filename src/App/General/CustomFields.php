@@ -10,15 +10,11 @@ use WpActionNetworkEvents\Common\Abstracts\Base;
 use WpActionNetworkEvents\App\General\Taxonomies\Taxonomies;
 use WpActionNetworkEvents\App\General\PostTypes\Event;
 
-use Carbon_Fields\Container;
-use Carbon_Fields\Field;
-use Carbon_Fields\Helper\Helper;
-
 /**
  * Class CustomFields
  *
  * @package WpActionNetworkEvents\App\General
- * @since 0.1.0
+ * @since 1.0.0
  */
 class CustomFields extends Base {
 
@@ -92,7 +88,7 @@ class CustomFields extends Base {
 	/**
 	 * Initialize the class.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function init() {
 		/**
@@ -101,34 +97,65 @@ class CustomFields extends Base {
 		 * @see Bootstrap::__construct
 		 */
 		\add_action( 'init', array( $this, 'registerPostMeta' ) );
+		\add_action( 'acf/init', array( $this, 'registerACFFields' ) );
 
 		/**
-		 * Don't hide custom fields meta box
-		 *
-		 * @see https://www.advancedcustomfields.com/resources/acf-settings/
-		 */
-		\add_filter( 'acf/settings/remove_wp_meta_box', '__return_false' );
+		* Don't hide custom fields meta box
+		*
+		* @see https://www.advancedcustomfields.com/resources/acf-settings/
+		*/
+		// \add_filter( 'acf/settings/remove_wp_meta_box', '__return_false' );
 
-		/**
-		 * API Fields
-		 * identifiers[0],
-		 * title (core - title),
-		 * name,
-		 * browser_url,
-		 * featured_image_url (core - featured image),
-		 * instructions,
-		 * description (core - content ),
-		 * start_date,
-		 * end_date,
-		 * created_date,
-		 * modified_date,
-		 * location.venue,
-		 * location.location.latitude,
-		 * location.location.longitude,
-		 * status ["confirmed" "tentative" "cancelled"]
-		 * visibility ["public" "private"]
-		 * action_network:event_campaign_id
-		 */
+	}
+
+	/**
+	 * Display Fields with ACF
+	 * If ACF is active, display as readonly fields using ACF UI
+	 *
+	 * @link https://www.advancedcustomfields.com/resources/register-fields-via-php/
+	 *
+	 * @return void
+	 */
+	public function registerACFFields() {
+		$fields  = array_map(
+			function( $field ) {
+				return array(
+					'key'               => 'field_' . $field,
+					'label'             => ucwords( str_replace( '_', ' ', $field ) ),
+					'name'              => $field,
+					'type'              => 'text',
+					'required'          => 0,
+					'conditional_logic' => 0,
+					'readonly'          => ( 'timezone' === $field ) ? 0 : 1,
+				);
+			},
+			self::FIELDS
+		);
+		\acf_add_local_field_group(
+			array(
+				'key'                   => 'group_event_fields',
+				'title'                 => __( 'Event Fields', 'wp-action-network-events' ),
+				'fields'                => $fields,
+				'location'              => array(
+					array(
+						array(
+							'param'    => 'post_type',
+							'operator' => '==',
+							'value'    => Event::POST_TYPE['id'],
+						),
+					),
+				),
+				'menu_order'            => 0,
+				'position'              => 'normal',
+				'style'                 => 'default',
+				'label_placement'       => 'top',
+				'instruction_placement' => 'label',
+				'hide_on_screen'        => '',
+				'active'                => true,
+				'description'           => '',
+				'show_in_rest'          => 0,
+			)
+		);
 	}
 
 	/**
@@ -141,27 +168,15 @@ class CustomFields extends Base {
 	public function registerPostMeta() {
 
 		foreach ( self::FIELDS as $field ) {
-			if ( 'hidden' === $field ) {
-				\register_post_meta(
-					Event::POST_TYPE['id'],
-					$field,
-					array(
-						'show_in_rest' => true,
-						'single'       => true,
-						'type'         => 'boolean',
-					)
-				);
-			} else {
-				\register_post_meta(
-					Event::POST_TYPE['id'],
-					$field,
-					array(
-						'show_in_rest' => true,
-						'single'       => true,
-						'type'         => 'string',
-					)
-				);
-			}
+			\register_post_meta(
+				Event::POST_TYPE['id'],
+				$field,
+				array(
+					'show_in_rest' => true,
+					'single'       => true,
+					'type'         => 'string',
+				)
+			);
 		}
 	}
 

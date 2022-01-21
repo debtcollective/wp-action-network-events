@@ -13,7 +13,7 @@ use WpActionNetworkEvents\App\General\Taxonomies\EventType;
  * Class Taxonomies
  *
  * @package WpActionNetworkEvents\App\General
- * @since 0.1.0
+ * @since 1.0.0
  */
 class Taxonomies extends Base {
 
@@ -30,7 +30,7 @@ class Taxonomies extends Base {
 	/**
 	 * Initialize the class.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function init() {
 		/**

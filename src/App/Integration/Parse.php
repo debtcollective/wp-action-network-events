@@ -16,6 +16,7 @@ use WpActionNetworkEvents\App\Integration\GetEvents;
 use WpActionNetworkEvents\App\Integration\Sync;
 use WpActionNetworkEvents\App\Admin\Options;
 use WpActionNetworkEvents\App\General\PostTypes\Event;
+use WpActionNetworkEvents\App\General\CustomFields;
 
 /**
  * Parser
@@ -72,35 +73,6 @@ class Parse extends Base {
 	protected $date_format = 'Y-m-d H:i:s';
 
 	/**
-	 * Field Mapping
-	 *
-	 * @var array
-	 */
-	protected $field_map = array(
-		'post_title'         => 'title',
-		'post_content'       => 'description',
-		'post_date'          => 'created_date',
-		'post_modified'      => 'modified_date',
-		'post_status'        => '',
-		'browser_url'        => 'browser_url',
-		'_links_to'          => 'browser_url',
-		'_links_to_target'   => 'blank',
-		'an_id'              => 'identifiers[0]',
-		'instructions'       => 'instructions',
-		'start_date'         => 'start_date',
-		'end_date'           => 'end_date',
-		'featured_image'     => 'featured_image_url',
-		'location_venue'     => 'location->venue',
-		'location_latitude'  => 'location->location->latitude',
-		'location_longitude' => 'location->location->longitute',
-		'status'             => 'status',
-		'visibility'         => 'visibility',
-		'an_campaign_id'     => 'action_network:event_campaign_id',
-		'internal_name'      => 'name',
-		'hidden'             => 'action_network:hidden',
-	);
-
-	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
@@ -114,38 +86,32 @@ class Parse extends Base {
 	/**
 	 * Initialize the class.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function init() {
-		/**
-		 * This general class is always being instantiated as requested in the Bootstrap class
-		 *
-		 * @see Bootstrap::__construct
-		 */
 		$this->parsed_data = $this->parseRecords( $this->data );
-		$this->setStatus( 'Parsed Data', $this->parsed_data );
 	}
 
 	/**
 	 * Parse Records
 	 *
-	 * @return array $parsed_records
+	 * @return array $parsed_records array of record objects
 	 */
-	public function parseRecords() {
+	public function parseRecords() : array {
 		$parsed_records = array();
-		$count          = 0;
+		if ( is_a( $this->data, '\WP_Error' ) ) {
+			throw new \Exception( 'Failed at ' . __FUNCTION__ );
+		}
 		foreach ( $this->data as $record ) {
-			array_push( $parsed_records, $this->parseRecord( $record ) );
-			$count++;
+			$parsed_records[] = $this->parseRecord( $record );
 		}
-		if ( is_a( $parsed_records, '\WP_Error' ) ) {
-			$this->handleError( 'Failed at ' . __FUNCTION__ );
-		}
-		return $parsed_records;
+
+		// error_log( json_encode( $parsed_records ) );
+		return (array) $parsed_records;
 	}
 
 	/**
-	 * Parse Records
+	 * Parse Record
 	 *
 	 * @param object $record
 	 * @return object $record
@@ -154,7 +120,7 @@ class Parse extends Base {
 		$status    = Event::STATUSES[ $record->status ];
 		$post_data = array();
 
-		foreach ( $this->field_map as $key => $value ) {
+		foreach ( CustomFields::FIELD_MAP as $key => $value ) {
 			switch ( $key ) {
 				case 'post_status':
 					$post_data[ $key ] = $status;
@@ -166,32 +132,20 @@ class Parse extends Base {
 					$post_data[ $key ] = $record->location->venue ?? 'Virtual';
 					break;
 				case 'location_latitude';
-					$post_data[ $key ] = $record->location->location->latitude;
+					$post_data[ $key ] = $record->location->location->latitude ?? '';
 					break;
 				case 'location_longitude';
-					$post_data[ $key ] = $record->location->location->longitude;
+					$post_data[ $key ] = $record->location->location->longitude ?? '';
 					break;
 				case '_links_to_target':
 					$post_data[ $key ] = 'blank';
 					break;
+
 				default:
 					$post_data[ $key ] = $record->{$value} ?? '';
 					break;
 
 			}
-
-			// if( 'post_status' === $key ) {
-			// $post_data[$key] = $status;
-			// }
-			// elseif( '_links_to_target' === $key ) {
-			// $post_data[$key] = 'blank';
-			// }
-			// elseif( 'an_id' === $key ) {
-			// $post_data[$key] = $record->identifiers[0];
-			// }
-			// else {
-			// $post_data[$key] = $record->{$value} ?? '';
-			// }
 		}
 		return (object) $post_data;
 	}
@@ -201,7 +155,7 @@ class Parse extends Base {
 	 *
 	 * @return array $this->parsed_data
 	 */
-	public function getParsed() {
+	public function getParsed() : array {
 		return $this->parsed_data;
 	}
 
