@@ -77,10 +77,10 @@ class Event extends PostType {
 		\add_filter( 'WpActionNetworkEvents\App\General\PostTypes\Event\Args', array( $this, 'set_event_archive_slug' ) );
 		\add_action( 'init', array( $this, 'registerPostStatus' ) );
 		\add_filter( 'display_post_states', array( $this, 'displayPostStatus' ), 11, 2 );
-		\add_action( 'admin_footer-post.php', array( $array, 'addStatusToPostEdit' ) );
-		\add_action( 'admin_footer-post-new.php', array( $array, 'addStatusToPostEdit' ) );
+		\add_action( 'admin_footer-post.php', array( $this, 'addStatusToPostEdit' ) );
+		\add_action( 'admin_footer-post-new.php', array( $this, 'addStatusToPostEdit' ) );
 		\add_action( 'admin_footer-edit.php', array( $this, 'addStatusToQuickEdit' ) );
-		\add_action( 'pre_get_posts', array( $array, 'hideEvents' ) );
+		\add_action( 'pre_get_posts', array( $this, 'hideEvents' ) );
 		\add_filter( 'post_class', array( $this, 'addPostClass' ), 10, 3 );
 	}
 
@@ -164,9 +164,9 @@ class Event extends PostType {
 		$event_options = \get_option( Options::OPTIONS_NAME );
 		$args          = array(
 			'label'                     => \_x( self::STATUS['label'], 'Custom Post Status Label', 'wp-action-network-events' ),
-			'public'                    => ( 'checked' == $event_options['hide_canceled'] ) ? false : true,
-			'protected'                 => ( 'checked' == $event_options['hide_canceled'] ) ? true : false,
-			'exclude_from_search'       => ( 'checked' == $event_options['hide_canceled'] ) ? true : false,
+			'public'                    => ( isset( $event_options['hide_canceled'] ) && 'checked' == $event_options['hide_canceled'] ) ? false : true,
+			'protected'                 => ( isset( $event_options['hide_canceled'] ) && 'checked' == $event_options['hide_canceled'] ) ? true : false,
+			'exclude_from_search'       => ( isset( $event_options['hide_canceled'] ) && 'checked' == $event_options['hide_canceled'] ) ? true : false,
 			'show_in_admin_all_list'    => true,
 			'show_in_admin_status_list' => true,
 			'label_count'               => \_n_noop( 'Canceled <span class="count">(%s)</span>', 'Canceled <span class="count">(%s)</span>', 'wp-action-network-events' ),
