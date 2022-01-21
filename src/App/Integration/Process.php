@@ -339,8 +339,6 @@ class Process extends Base {
 				}
 			}
 		}
-		return $deleted;
-	}
 
 		return $differences;
 	}
