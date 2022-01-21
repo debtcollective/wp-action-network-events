@@ -137,27 +137,15 @@ class CustomFields extends Base {
 	public function registerPostMeta() {
 
 		foreach ( self::FIELDS as $field ) {
-			if ( 'hidden' === $field ) {
-				\register_post_meta(
-					Event::POST_TYPE['id'],
-					$field,
-					array(
-						'show_in_rest' => true,
-						'single'       => true,
-						'type'         => 'boolean',
-					)
-				);
-			} else {
-				\register_post_meta(
-					Event::POST_TYPE['id'],
-					$field,
-					array(
-						'show_in_rest' => true,
-						'single'       => true,
-						'type'         => 'string',
-					)
-				);
-			}
+			\register_post_meta(
+				Event::POST_TYPE['id'],
+				$field,
+				array(
+					'show_in_rest' => true,
+					'single'       => true,
+					'type'         => 'string',
+				)
+			);
 		}
 	}
 
