@@ -325,7 +325,7 @@ class Event extends PostType {
 	 */
 	public function addPostClass( $classes, $class, $post_id ) {
 		if ( \is_admin() ) {
-		return $classes;
+			return $classes;
 		}
 		if ( true == \get_post_meta( $post_id, 'hidden', true ) ) {
 			$classes[] = 'is-hidden';
