@@ -10,14 +10,14 @@ namespace WpActionNetworkEvents\Common\Traits;
  * The singleton skeleton trait to instantiate the class only once
  *
  * @package WpActionNetworkEvents\Common\Traits
- * @since 0.1.0
+ * @since 1.0.0
  */
 trait Singleton {
 	private static $instance;
 
 	/**
 	 * @return self
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	final public static function instantiate(): self {
 		if ( ! self::$instance ) {
