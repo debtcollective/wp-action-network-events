@@ -26,7 +26,7 @@ class Event extends PostType {
 	const STATUSES = array(
 		'confirmed' => 'publish',
 		'tentative' => 'draft',
-		'cancelled' => 'canceled', // API misspells
+		'cancelled' => 'cancelled', // API misspells
 	);
 
 	/**
@@ -49,7 +49,7 @@ class Event extends PostType {
 	 * Status data
 	 */
 	public const STATUS = array(
-		'id'    => 'canceled',
+		'id'    => 'cancelled',
 		'label' => 'Canceled',
 	);
 
