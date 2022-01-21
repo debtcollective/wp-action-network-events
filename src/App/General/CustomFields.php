@@ -47,8 +47,37 @@ class CustomFields extends Base {
 		'visibility',
 		'an_campaign_id',
 		'internal_name',
-		'hidden'
-	];
+		'hidden',
+	);
+
+	/**
+	 * Field Mapping
+	 *
+	 * @var array
+	 */
+	public const FIELD_MAP = array(
+		'post_title'         => 'title',
+		'post_content'       => 'description',
+		'post_date'          => 'created_date',
+		'post_modified'      => 'modified_date',
+		'post_status'        => '',
+		'browser_url'        => 'browser_url',
+		'_links_to'          => 'browser_url',
+		'_links_to_target'   => 'blank',
+		'an_id'              => 'identifiers[0]',
+		'instructions'       => 'instructions',
+		'start_date'         => 'start_date',
+		'end_date'           => 'end_date',
+		'featured_image'     => 'featured_image_url',
+		'location_venue'     => 'location->venue',
+		'location_latitude'  => 'location->location->latitude',
+		'location_longitude' => 'location->location->longitute',
+		'status'             => 'status',
+		'visibility'         => 'visibility',
+		'an_campaign_id'     => 'action_network:event_campaign_id',
+		'internal_name'      => 'name',
+		'hidden'             => 'action_network:hidden',
+	);
 
 	/**
 	 * Constructor.
