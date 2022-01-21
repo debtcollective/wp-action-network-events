@@ -164,9 +164,9 @@ class Event extends PostType {
 		$event_options = \get_option( Options::OPTIONS_NAME );
 		$args          = array(
 			'label'                     => \_x( self::STATUS['label'], 'Custom Post Status Label', 'wp-action-network-events' ),
-			'public'                    => ( 'checked' == $event_options['hide_canceled'] ) ? false : true,
-			'protected'                 => ( 'checked' == $event_options['hide_canceled'] ) ? true : false,
-			'exclude_from_search'       => ( 'checked' == $event_options['hide_canceled'] ) ? true : false,
+			'public'                    => ( isset( $event_options['hide_canceled'] ) && 'checked' == $event_options['hide_canceled'] ) ? false : true,
+			'protected'                 => ( isset( $event_options['hide_canceled'] ) && 'checked' == $event_options['hide_canceled'] ) ? true : false,
+			'exclude_from_search'       => ( isset( $event_options['hide_canceled'] ) && 'checked' == $event_options['hide_canceled'] ) ? true : false,
 			'show_in_admin_all_list'    => true,
 			'show_in_admin_status_list' => true,
 			'label_count'               => \_n_noop( 'Canceled <span class="count">(%s)</span>', 'Canceled <span class="count">(%s)</span>', 'wp-action-network-events' ),
