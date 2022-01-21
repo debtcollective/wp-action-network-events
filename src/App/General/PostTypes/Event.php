@@ -81,6 +81,7 @@ class Event extends PostType {
 		\add_action( 'admin_footer-post-new.php', array( $array, 'addStatusToPostEdit' ) );
 		\add_action( 'admin_footer-edit.php', array( $this, 'addStatusToQuickEdit' ) );
 		\add_action( 'pre_get_posts', array( $array, 'hideEvents' ) );
+		\add_filter( 'post_class', array( $this, 'addPostClass' ), 10, 3 );
 	}
 
 	/**
@@ -155,21 +156,25 @@ class Event extends PostType {
 	/**
 	 * Register post status
 	 *
+	 * @link https://developer.wordpress.org/reference/functions/register_post_status/
+	 *
 	 * @return void
 	 */
 	public function registerPostStatus() {
+		$event_options = \get_option( Options::OPTIONS_NAME );
+		$args          = array(
+			'label'                     => \_x( self::STATUS['label'], 'Custom Post Status Label', 'wp-action-network-events' ),
+			'public'                    => ( 'checked' == $event_options['hide_canceled'] ) ? false : true,
+			'protected'                 => ( 'checked' == $event_options['hide_canceled'] ) ? true : false,
+			'exclude_from_search'       => ( 'checked' == $event_options['hide_canceled'] ) ? true : false,
+			'show_in_admin_all_list'    => true,
+			'show_in_admin_status_list' => true,
+			'label_count'               => \_n_noop( 'Canceled <span class="count">(%s)</span>', 'Canceled <span class="count">(%s)</span>', 'wp-action-network-events' ),
+		);
+
 		\register_post_status(
 			self::STATUS['id'],
-			array(
-				'label'                     => \_x( self::STATUS['label'], 'Custom Post Status Label', 'wp-action-network-events' ),
-				'public'                    => false,
-				'protected'                 => true,
-				'internal'                  => true,
-				'exclude_from_search'       => true,
-				'show_in_admin_all_list'    => true,
-				'show_in_admin_status_list' => true,
-				'label_count'               => \_n_noop( 'Canceled <span class="count">(%s)</span>', 'Canceled <span class="count">(%s)</span>', 'wp-action-network-events' ),
-			)
+			$args
 		);
 	}
 
@@ -256,18 +261,59 @@ class Event extends PostType {
 	function hideEvents( $query ) {
 		$event_options = \get_option( Options::OPTIONS_NAME );
 		if ( ! is_admin() && $query->is_main_query() && ( is_post_type_archive( self::POST_TYPE['id'] ) || $query->is_search ) ) {
-			$meta_query == array(
+			$meta_query = array(
+				'relation' => 'AND',
 				array(
-					'key'          => 'hidden',
-					'value'        => true,
-					'meta_compare' => '!=',
+					'relation' => 'OR',
+					array(
+						'key'     => 'hidden',
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => 'hidden',
+						'value'   => 'true',
+						'compare' => 'NOT LIKE',
+					),
+				),
+				array(
+					'relation' => 'OR',
+					array(
+						'key'     => 'visibility',
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => 'visibility',
+						'value'   => 'private',
+						'compare' => 'NOT LIKE',
+					),
 				),
 			);
 			$query->set( 'meta_query', $meta_query );
-
-			if ( $event_options['hide_canceled_events'] ) {
-				$query->set( 'post_status', 'publish' );
-			}
 		}
 	}
+
+	/**
+	 * Add Post Class
+	 * If `hidden` is true add `is-hidden` to post class
+	 *
+	 * @link https://developer.wordpress.org/reference/hooks/post_class/
+	 *
+	 * @param array   $classes
+	 * @param string  $class
+	 * @param integer $post_id
+	 * @return array $classes
+	 */
+	public function addPostClass( $classes, $class, $post_id ) {
+		if ( \is_admin() ) {
+			return $classes;
+		}
+		if ( true == \get_post_meta( $post_id, 'hidden', true ) ) {
+			$classes[] = 'is-hidden';
+		}
+		if ( 'private' === \get_post_meta( $post_id, 'visibility', true ) ) {
+			$classes[] = 'is-private';
+		}
+		return $classes;
+	}
+
 }
