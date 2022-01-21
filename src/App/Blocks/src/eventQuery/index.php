@@ -101,7 +101,7 @@ function render( $attributes, $content, $block ) {
 		),
 	);
 
-	if ( 'checked' == $event_options['hide_canceled'] ) {
+	if ( isset( $event_options['hide_canceled'] ) && 'checked' == $event_options['hide_canceled'] ) {
 		$args['post_status'] = array( 'publish' );
 	}
 
@@ -162,7 +162,7 @@ function render( $attributes, $content, $block ) {
 }
 
 /**
- * Registers the `wp-action-network-events/event-time` block on the server.
+ * Registers the `wp-action-network-events/event-query` block on the server.
  */
 function register() {
 	\register_block_type(
