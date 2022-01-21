@@ -120,13 +120,13 @@ class Process extends Base {
 			$this->status['error'][] = $post->an_id;
 			error_log( 'Error: ' . json_encode( $search_post ) );
 		} elseif ( empty( $search_post ) ) {
-			$result                = $this->addPost( $post );
+			$result = $this->addPost( $post );
 			// $this->status['new'][] = $result;
 			$this->status['new'][] = $post->an_id;
 			error_log( 'New: ' . $post->an_id );
 		} elseif ( $this->hasChanged( $search_post[0], $post ) ) {
-			$existing_post             = $search_post[0];
-			$result                    = $this->updatePost( $existing_post, $post );
+			$existing_post = $search_post[0];
+			$result        = $this->updatePost( $existing_post, $post );
 			// $this->status['updated'][] = $result;
 			$this->status['updated'][] = $post->an_id;
 
@@ -312,6 +312,7 @@ class Process extends Base {
 			'status',
 			'visibility',
 			'an_campaign_id',
+			'hidden',
 		);
 
 		foreach ( $post_fields as $field ) {
