@@ -77,10 +77,10 @@ class Event extends PostType {
 		\add_filter( 'WpActionNetworkEvents\App\General\PostTypes\Event\Args', array( $this, 'set_event_archive_slug' ) );
 		\add_action( 'init', array( $this, 'registerPostStatus' ) );
 		\add_filter( 'display_post_states', array( $this, 'displayPostStatus' ), 11, 2 );
-		\add_action( 'admin_footer-post.php', array( $array, 'addStatusToPostEdit' ) );
-		\add_action( 'admin_footer-post-new.php', array( $array, 'addStatusToPostEdit' ) );
+		\add_action( 'admin_footer-post.php', array( $this, 'addStatusToPostEdit' ) );
+		\add_action( 'admin_footer-post-new.php', array( $this, 'addStatusToPostEdit' ) );
 		\add_action( 'admin_footer-edit.php', array( $this, 'addStatusToQuickEdit' ) );
-		\add_action( 'pre_get_posts', array( $array, 'hideEvents' ) );
+		\add_action( 'pre_get_posts', array( $this, 'hideEvents' ) );
 		\add_filter( 'post_class', array( $this, 'addPostClass' ), 10, 3 );
 	}
 
