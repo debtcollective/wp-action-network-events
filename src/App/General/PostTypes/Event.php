@@ -77,8 +77,10 @@ class Event extends PostType {
 		\add_filter( 'WpActionNetworkEvents\App\General\PostTypes\Event\Args', array( $this, 'set_event_archive_slug' ) );
 		\add_action( 'init', array( $this, 'registerPostStatus' ) );
 		\add_filter( 'display_post_states', array( $this, 'displayPostStatus' ), 11, 2 );
-		\add_action( 'admin_footer-edit.php', array( $this, 'addPostStatusToEdit' ) );
-		\add_action( 'pre_get_posts', array( $array, 'hideCanceledEvents' ) );
+		\add_action( 'admin_footer-post.php', array( $array, 'addStatusToPostEdit' ) );
+		\add_action( 'admin_footer-post-new.php', array( $array, 'addStatusToPostEdit' ) );
+		\add_action( 'admin_footer-edit.php', array( $this, 'addStatusToQuickEdit' ) );
+		\add_action( 'pre_get_posts', array( $array, 'hideEvents' ) );
 	}
 
 	/**
@@ -159,16 +161,38 @@ class Event extends PostType {
 		\register_post_status(
 			self::STATUS['id'],
 			array(
-				'label'                     => _x( self::STATUS['label'], 'wp-action-network-events' ),
+				'label'                     => \_x( self::STATUS['label'], 'Custom Post Status Label', 'wp-action-network-events' ),
 				'public'                    => false,
-				'private'                   => true,
+				'protected'                 => true,
 				'internal'                  => true,
 				'exclude_from_search'       => true,
 				'show_in_admin_all_list'    => true,
 				'show_in_admin_status_list' => true,
-				'label_count'               => _n_noop( 'Canceled <span class="count">(%s)</span>', 'Canceled <span class="count">(%s)</span>' ),
+				'label_count'               => \_n_noop( 'Canceled <span class="count">(%s)</span>', 'Canceled <span class="count">(%s)</span>', 'wp-action-network-events' ),
 			)
 		);
+	}
+
+	/**
+	 * Add Status to Post Edit
+	 *
+	 * @return void
+	 */
+	public function addStatusToPostEdit() {
+		global $post;
+		if ( $post->post_type !== self::POST_TYPE['id'] ) {
+			return false;
+		}
+
+		ob_start();
+		?>
+		<script>
+			jQuery(document).ready(function () {
+				jQuery( 'select#post_status' ).append( '<option value="<?php echo self::STATUS['id']; ?>"><?php echo self::STATUS['label']; ?></option>' );
+			});
+		</script>
+		<?php
+		echo ob_get_clean();
 	}
 
 	/**
@@ -176,12 +200,13 @@ class Event extends PostType {
 	 *
 	 * @return void
 	 */
-	public function addPostStatusToEdit() {
+	public function addStatusToQuickEdit() {
 		global $post;
 		if ( $post->post_type !== self::POST_TYPE['id'] ) {
 			return false;
 		}
-		ob_start(); ?>
+		ob_start();
+		?>
 
 			<script>
 			jQuery(document).ready( function() {
@@ -193,16 +218,14 @@ class Event extends PostType {
 					jQuery( '#post-status-display' ).text( '<?php echo self::STATUS['label']; ?>' );
 					jQuery( 'select[name="_status"]' ).val( '<?php echo self::STATUS['id']; ?>' );
 					<?php
-				endif;
+					endif;
 				?>
 
 			});
 			</script>
 
-		<?php
-		$output = ob_get_clean();
-
-		echo $output;
+			<?php
+			echo ob_get_clean();
 	}
 
 	/**
@@ -221,17 +244,30 @@ class Event extends PostType {
 	}
 
 	/**
-	 * Hide Canceled
+	 * Hide Event
+	 * Hide if `hidden` field is true
+	 * Hide `post_status` = `canceled` if plugin setting selected
 	 *
 	 * @link https://developer.wordpress.org/reference/hooks/pre_get_posts/
 	 *
 	 * @param object $query
 	 * @return void
 	 */
-	function hideCanceledEvents( $query ) {
+	function hideEvents( $query ) {
 		$event_options = \get_option( Options::OPTIONS_NAME );
-		if ( $event_options['hide_canceled_events'] && ! is_admin() && $query->is_main_query() && ( is_post_type_archive( self::POST_TYPE['id'] ) || $query->is_search ) ) {
-			$query->set( 'post_status', 'publish' );
+		if ( ! is_admin() && $query->is_main_query() && ( is_post_type_archive( self::POST_TYPE['id'] ) || $query->is_search ) ) {
+			$meta_query == array(
+				array(
+					'key'          => 'hidden',
+					'value'        => true,
+					'meta_compare' => '!=',
+				),
+			);
+			$query->set( 'meta_query', $meta_query );
+
+			if ( $event_options['hide_canceled_events'] ) {
+				$query->set( 'post_status', 'publish' );
+			}
 		}
 	}
 }
