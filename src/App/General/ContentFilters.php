@@ -7,7 +7,7 @@
 namespace WpActionNetworkEvents\App\General;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
-use WpActionNetworkEvents\App\General\PostTypes\Event as Event;
+use WpActionNetworkEvents\App\General\PostTypes\Event;
 
 /**
  * Class ContentFilters
@@ -43,6 +43,7 @@ class ContentFilters extends Base {
 			\add_filter( 'post_link', array( $this, 'modifyEventUrl' ), 10, 2 );
 			\add_filter( 'post_type_link', array( $this, 'modifyEventUrl' ), 10, 2 );
 		}
+		\add_filter( 'post_row_actions', array( $this, 'hideViewLink' ), 10, 2 );
 
 	}
 
@@ -57,12 +58,28 @@ class ContentFilters extends Base {
 	 */
 	public function modifyEventUrl( $url, $post ) {
 		if ( ( Event::POST_TYPE['id'] === \get_post_type( $post->ID ) ) &&
-			( $external_url = \get_post_meta( $post->ID, '_browser_url', 'true' ) )
+			( $external_url = \get_post_meta( $post->ID, 'browser_url', 'true' ) )
 		) {
 			$url = \esc_url( $external_url );
 		}
 		return $url;
 	}
 
+	/**
+	 * Hide View Link
+	 * If the event is hidden, don't display the View link in the post list
+	 * 
+	 * @link https://developer.wordpress.org/reference/hooks/post_row_actions/
+	 *
+	 * @param array   $actions
+	 * @param WP_Post $post
+	 * @return array $actions
+	 */
+	public function hideViewLink( $actions, $post ) : array {
+		if ( Event::POST_TYPE['id'] === $post->post_type && true == \get_post_meta( $post->ID, 'hidden', true ) ) {
+			unset( $actions['view'] );
+		}
+		return $actions;
+	}
 
 }
