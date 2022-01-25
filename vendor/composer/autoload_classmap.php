@@ -7,8 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
-    'Elliotchance\\Iterator\\AbstractPagedIterator' => $vendorDir . '/elliotchance/iterator/src/Elliotchance/Iterator/AbstractPagedIterator.php',
-    'Elliotchance\\Iterator\\PagedIteratorTest' => $vendorDir . '/elliotchance/iterator/tests/Elliotchance/Iterator/PagedIteratorTest.php',
     'WpActionNetworkEvents\\App\\Admin\\Admin' => $baseDir . '/src/App/Admin/Admin.php',
     'WpActionNetworkEvents\\App\\Admin\\Options' => $baseDir . '/src/App/Admin/Options.php',
     'WpActionNetworkEvents\\App\\Blocks\\Blocks' => $baseDir . '/src/App/Blocks/Blocks.php',
@@ -37,6 +35,5 @@ return array(
     'WpActionNetworkEvents\\Common\\Loader' => $baseDir . '/src/Common/Loader.php',
     'WpActionNetworkEvents\\Common\\Plugin' => $baseDir . '/src/Common/Plugin.php',
     'WpActionNetworkEvents\\Common\\Traits\\Singleton' => $baseDir . '/src/Common/Traits/Singleton.php',
-    'WpActionNetworkEvents\\Common\\Util\\Iterator' => $baseDir . '/src/Common/Util/Iterator.php',
     'WpActionNetworkEvents\\Common\\Util\\TemplateLoader' => $baseDir . '/src/Common/Util/TemplateLoader.php',
 );

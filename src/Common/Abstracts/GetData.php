@@ -7,7 +7,6 @@
 namespace WpActionNetworkEvents\Common\Abstracts;
 
 use WpActionNetworkEvents\App\Admin\Options;
-use WpActionNetworkEvents\Common\Util\Iterator;
 use WpActionNetworkEvents\Common\Util\log_remote_request;
 
 /**
