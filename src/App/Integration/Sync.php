@@ -156,49 +156,88 @@ class Sync extends Base {
 	 */
 	public function startSync( $source = 'manual' ) {
 		$this->start = date( $this->date_format );
-		$args = array(
-			'per_page' => 25
-		);
 
-		if( $this->last_run ) {
+		$args        = array(
+			'per_page' => 25,
+		);
+		if ( $this->last_run ) {
 			$args['filter'] = date( 'Y-m-d', strtotime( $this->last_run ) );
 		}
+		$this->data = $this->fetchData( $args );
 
-		$this->getData( $args );
+		if ( $this->data ) {
+			$this->parsed_data = $this->parseData();
 
-		$message = 'Data: ' . json_encode( $this->data ) . ' | Count: ' . count( $this->data );
-		error_log( $message );
-
-		if( $this->data ) {
-			$parse = new Parse( $this->version, $this->plugin_name, $this->data );
-			$this->parsed_data = $parse->getParsed();
-			$message = 'Parsed: ' . json_encode( $this->parsed_data ) . ' | Count: ' . count( $this->parsed_data );
-			error_log( $message );
-
-			$process = new Process( $this->version, $this->plugin_name, $this->parsed_data );
-
-			if( $process->status ) {
-				$message = 'Processed Status: ' . json_encode( $process->status );
-				error_log( $message );
+			if( $this->parsed_data ) {
+				$process = new Process( $this->version, $this->plugin_name, $this->parsed_data );
+				$this->processed_data = $process->status;
 			}
 		}
 
-		\wp_send_json( $message );
+		$this->finishSync( $message );
+	}
+
+	/**
+	 * Finish Sync process
+	 *
+	 * @param string $status
+	 * @return void
+	 */
+	public function finishSync( $status = '' ) {
+		\wp_send_json( $status );
 		\wp_die();
 	}
 
-	public function lastRun() {}
-
-	public function hasUpdates() {}
+	/**
+	 * Get Last run datetime
+	 *
+	 * @return mixed null || datetime
+	 */
+	public function getLastRun() {
+		return $this->last_run;
+	}
 
 	/**
-	 * Store Data
+	 * Get status
 	 *
 	 * @return void
 	 */
-	public function setData( $args = array() ) {
+	public function getStatus() {
+		return $this->status;
+	}
+
+	/**
+	 * Fetch the data
+	 *
+	 * @param array $args
+	 * @return mixed
+	 */
+	public function fetchData( $args = array() ) {
 		$events = new GetEvents( $this->version, $this->plugin_name, $args );
-		$this->data = $events->getData();
+		// $this->setData( $events );
+		return $events;
+	}
+
+	/**
+	 * Parse the data
+	 *
+	 * @return mixed
+	 */
+	public function parseData() {
+		$parse             = new Parse( $this->version, $this->plugin_name, $this->data );
+		$this->setParsedData( $parse );
+		return $this->parsed_data;
+	}
+
+	/**
+	 * Process the data
+	 *
+	 * @return mixed
+	 */
+	public function processData() {
+		$process              = new Process( $this->version, $this->plugin_name, $this->parsed_data );
+		$this->setProcessedData( $process );
+		return $this->processed_data;
 	}
 
 	/**
@@ -206,14 +245,75 @@ class Sync extends Base {
 	 *
 	 * @return array $this->data
 	 */
-	public function getData( $args = array() ) {
-		$this->setData( $args );
+	public function getData() {
 		return $this->data;
 	}
 
-	public function processData() {}
+	/**
+	 * Get parsed data
+	 *
+	 * @return array
+	 */
+	public function getParsedData() {
+		return $this->parsed_data;
+	}
 
-	public function parseData() {}
+	/**
+	 * Get the processed data
+	 *
+	 * @return void
+	 */
+	public function getProcessedData() {
+		return $this->processed_data;
+	}
+
+	/**
+	 * Store Data
+	 *
+	 * @return void
+	 */
+	public function setData( $data ) {
+		$this->data = $data;
+	}
+
+	/**
+	 * Set parsed data
+	 *
+	 * @return void
+	 */
+	public function setParsedData( $parsed_data ) {
+		$this->parsed_data = $parsed_data;
+	}
+
+	/**
+	 * Set the processed data
+	 *
+	 * @return void
+	 */
+	public function setProcessedData( $processed_data ) {
+		$this->processed_data = $processed;
+	}
+
+	/**
+	 * Set last run datetime
+	 *
+	 * @return void
+	 */
+	public function setLastRun() {
+		$this->last_run = date( $this->date_format );
+	}
+
+	/**
+	 * Set status
+	 *
+	 * @param [type] $status
+	 * @return void
+	 */
+	public function setStatus( $status ) {
+		$this->status = $status;
+	}
+
+	public function hasUpdates() {}
 
 	public function log() {}
 
