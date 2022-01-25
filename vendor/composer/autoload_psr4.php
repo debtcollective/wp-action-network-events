@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'WpActionNetworkEvents\\' => array($baseDir . '/src'),
+    'WPTRT\\AdminNotices\\' => array($vendorDir . '/wptrt/admin-notices/src'),
 );

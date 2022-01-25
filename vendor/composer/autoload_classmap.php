@@ -7,7 +7,11 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
+    'WPTRT\\AdminNotices\\Dismiss' => $vendorDir . '/wptrt/admin-notices/src/Dismiss.php',
+    'WPTRT\\AdminNotices\\Notice' => $vendorDir . '/wptrt/admin-notices/src/Notice.php',
+    'WPTRT\\AdminNotices\\Notices' => $vendorDir . '/wptrt/admin-notices/src/Notices.php',
     'WpActionNetworkEvents\\App\\Admin\\Admin' => $baseDir . '/src/App/Admin/Admin.php',
+    'WpActionNetworkEvents\\App\\Admin\\Notices' => $baseDir . '/src/App/Admin/Notices.php',
     'WpActionNetworkEvents\\App\\Admin\\Options' => $baseDir . '/src/App/Admin/Options.php',
     'WpActionNetworkEvents\\App\\Blocks\\Blocks' => $baseDir . '/src/App/Blocks/Blocks.php',
     'WpActionNetworkEvents\\App\\Blocks\\Fields\\Fields' => $baseDir . '/src/App/Blocks/Fields/Fields.php',
