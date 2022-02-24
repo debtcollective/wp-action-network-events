@@ -46,12 +46,11 @@ class Admin extends Base {
 		 * This general class is always being instantiated as requested in the Bootstrap class
 		 *
 		 * @see Bootstrap::__construct
-		 *
 		 */
 		new Options( $this->version, $this->plugin_name, $this->basename );
 
-		\add_action( 'admin_enqueue_scripts', 		[ $this, 'enqueueStyles' ] );
-		// \add_action( 'admin_enqueue_scripts', 		[ $this, 'enqueueScripts' ] );
+		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueStyles' ) );
+		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScripts' ) );
 	}
 
 	/**
