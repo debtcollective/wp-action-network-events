@@ -71,6 +71,15 @@ abstract class GetData {
 	protected $args;
 
 	/**
+	 * Status.
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      array   $status
+	 */
+	protected $status;
+
+	/**
 	 * API Data.
 	 *
 	 * @since    1.0.0
@@ -229,6 +238,7 @@ abstract class GetData {
 	public function handleRequest( $url, $request ) {
 		$response      = \wp_remote_retrieve_body( $request );
 		$response_code = (int) \wp_remote_retrieve_response_code( $request );
+		$this->setStatus( 'response', $response_code );
 		if ( 200 === $response_code ) {
 			$response = json_decode( $response, false );
 		} elseif ( 401 === $response_code ) { // 401 Unauthorized
@@ -239,6 +249,28 @@ abstract class GetData {
 			log_remote_request( $url, $request, $response );
 		}
 		return $response;
+	}
+
+	/**
+	 * Set processing status
+	 *
+	 * @param string $prop
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function setStatus( $prop, $value ) {
+		$this->status[$prop] = $value;
+	}
+
+	/**
+	 * Get processing status
+	 *
+	 * @param string $prop
+	 * @param mixed $value
+	 * @return array $this->status
+	 */
+	public function getStatus() {
+		return $this->status;
 	}
 
 	/**
