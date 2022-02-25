@@ -37,6 +37,7 @@ class ComposerStaticInitf6fb53fdd853c8d28aecfb9aa420a6a7
         'WpActionNetworkEvents\\App\\Blocks\\Fields\\Fields' => __DIR__ . '/../..' . '/src/App/Blocks/Fields/Fields.php',
         'WpActionNetworkEvents\\App\\Blocks\\Fields\\Meta' => __DIR__ . '/../..' . '/src/App/Blocks/Fields/Meta.php',
         'WpActionNetworkEvents\\App\\Blocks\\Patterns' => __DIR__ . '/../..' . '/src/App/Blocks/Patterns.php',
+        'WpActionNetworkEvents\\App\\Cron\\Cron' => __DIR__ . '/../..' . '/src/App/Cron/Cron.php',
         'WpActionNetworkEvents\\App\\Frontend\\Frontend' => __DIR__ . '/../..' . '/src/App/Frontend/Frontend.php',
         'WpActionNetworkEvents\\App\\General\\ContentFilters' => __DIR__ . '/../..' . '/src/App/General/ContentFilters.php',
         'WpActionNetworkEvents\\App\\General\\CustomFields' => __DIR__ . '/../..' . '/src/App/General/CustomFields.php',

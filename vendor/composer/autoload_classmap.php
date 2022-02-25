@@ -17,6 +17,7 @@ return array(
     'WpActionNetworkEvents\\App\\Blocks\\Fields\\Fields' => $baseDir . '/src/App/Blocks/Fields/Fields.php',
     'WpActionNetworkEvents\\App\\Blocks\\Fields\\Meta' => $baseDir . '/src/App/Blocks/Fields/Meta.php',
     'WpActionNetworkEvents\\App\\Blocks\\Patterns' => $baseDir . '/src/App/Blocks/Patterns.php',
+    'WpActionNetworkEvents\\App\\Cron\\Cron' => $baseDir . '/src/App/Cron/Cron.php',
     'WpActionNetworkEvents\\App\\Frontend\\Frontend' => $baseDir . '/src/App/Frontend/Frontend.php',
     'WpActionNetworkEvents\\App\\General\\ContentFilters' => $baseDir . '/src/App/General/ContentFilters.php',
     'WpActionNetworkEvents\\App\\General\\CustomFields' => $baseDir . '/src/App/General/CustomFields.php',
