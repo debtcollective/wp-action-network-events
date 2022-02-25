@@ -1,3 +1,5 @@
+import '../scss/admin.scss';
+
 document.addEventListener( "DOMContentLoaded", () => {
     const buttonEl = document.getElementById( 'wp-action-network-events-sync-submit' );
     const nonce = document.getElementById( 'wp_action_network_events_sync_nonce' );
@@ -11,6 +13,7 @@ document.addEventListener( "DOMContentLoaded", () => {
     const sendRequest = ( props ) => {
         const params = {
             action: data.action,
+            nonce: data.nonce
         }
 
         let query = new URLSearchParams( params ).toString();

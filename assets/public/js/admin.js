@@ -2,10 +2,10 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./assets/src/scss/frontend.scss":
-/*!***************************************!*\
-  !*** ./assets/src/scss/frontend.scss ***!
-  \***************************************/
+/***/ "./assets/src/scss/admin.scss":
+/*!************************************!*\
+  !*** ./assets/src/scss/admin.scss ***!
+  \************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -56,22 +56,46 @@ __webpack_require__.r(__webpack_exports__);
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-/*!***********************************!*\
-  !*** ./assets/src/js/frontend.js ***!
-  \***********************************/
+/*!********************************!*\
+  !*** ./assets/src/js/admin.js ***!
+  \********************************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _scss_frontend_scss__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scss/frontend.scss */ "./assets/src/scss/frontend.scss");
-/**
- * SASS
- */
+/* harmony import */ var _scss_admin_scss__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scss/admin.scss */ "./assets/src/scss/admin.scss");
 
-/**
- * JavaScript
- */
+document.addEventListener("DOMContentLoaded", function () {
+  var buttonEl = document.getElementById('wp-action-network-events-sync-submit');
+  var nonce = document.getElementById('wp_action_network_events_sync_nonce');
+  var data = wpANEData;
 
-/**
- * Add here your JavasScript code
- */
+  var onClick = function onClick(event) {
+    event.preventDefault();
+    sendRequest(data);
+  };
+
+  var sendRequest = function sendRequest(props) {
+    var params = {
+      action: data.action,
+      nonce: data.nonce
+    };
+    var query = new URLSearchParams(params).toString();
+    fetch(data.ajax_url, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: new Headers({
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }),
+      body: query
+    }).then(function (response) {
+      return response.json();
+    }).then(function (data) {
+      console.log(data);
+    });
+  };
+
+  if (buttonEl && data && nonce) {
+    buttonEl.addEventListener('click', onClick);
+  }
+});
 })();
 
 /******/ })()
