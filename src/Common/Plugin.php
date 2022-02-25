@@ -14,6 +14,7 @@
  */
 namespace WpActionNetworkEvents\Common;
 
+use WpActionNetworkEvents\App\Cron\Cron;
 use WpActionNetworkEvents\App\Admin\Admin;
 use WpActionNetworkEvents\App\Frontend\Frontend;
 use WpActionNetworkEvents\Common\Loader;
@@ -182,6 +183,8 @@ class Plugin {
 		new Blocks( $this->version, $this->plugin_name, $this->basename );
 
 		new Sync( $this->version, $this->plugin_name );
+
+		new Cron( $this->version, $this->plugin_name );
 	}
 
 	/**
