@@ -64,6 +64,15 @@ abstract class Base {
 	public $status;
 
 	/**
+	 * The log.
+	 *
+	 * @since    1.0.0
+	 * @access   public
+	 * @var      array    $log 
+	 */
+	public $log;
+
+	/**
 	 * The errors.
 	 *
 	 * @since    1.0.0
@@ -94,7 +103,29 @@ abstract class Base {
 	}
 
 	/**
-	 * Set processing status
+	 * Set log
+	 *
+	 * @param string $prop
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function setLog( $prop, $value ) {
+		$this->log[$prop] = $value;
+	}
+
+	/**
+	 * Get log
+	 *
+	 * @param string $prop
+	 * @param mixed $value
+	 * @return array $this->log
+	 */
+	public function getLog() {
+		return $this->log;
+	}
+
+	/**
+	 * Set status
 	 *
 	 * @param string $prop
 	 * @param mixed $value
@@ -105,7 +136,7 @@ abstract class Base {
 	}
 
 	/**
-	 * Get processing status
+	 * Get tatus
 	 *
 	 * @param string $prop
 	 * @param mixed $value
