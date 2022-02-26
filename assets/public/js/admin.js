@@ -63,18 +63,25 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _scss_admin_scss__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scss/admin.scss */ "./assets/src/scss/admin.scss");
 
 document.addEventListener("DOMContentLoaded", function () {
-  var buttonEl = document.getElementById('wp-action-network-events-sync-submit');
-  var nonce = document.getElementById('wp_action_network_events_sync_nonce');
   var data = wpANEData;
+  var syncButton = document.getElementById('wp-action-network-events-sync-submit');
+  var importButton = document.getElementById('wp-action-network-events-sync-submit-clean');
+  var nonce = document.getElementById('wp_action_network_events_sync_nonce');
+  var noticeContainer = document.getElementById('sync-notice-container');
+  var errorNotice = '<div class="notice notice-error"><p>%s</p></div>';
+  var successNotice = '<div class="notice notice-success is-dismissible"><p>Successfully completed at %s</p></div>';
+  var infoNotice = '<div class="notice notice-info is-dismissible"><p>%s</p></div>';
+  var warningNotice = '<div class="notice notice-warning is-dismissible"><p>%s</p></div>';
 
   var onClick = function onClick(event) {
     event.preventDefault();
-    sendRequest(data);
+    var action = 'wp-action-network-events-sync-submit-clean' === event.target.id ? data.action + '_clean' : data.action;
+    sendRequest(action);
   };
 
-  var sendRequest = function sendRequest(props) {
+  var sendRequest = function sendRequest(action) {
     var params = {
-      action: data.action,
+      action: action,
       nonce: data.nonce
     };
     var query = new URLSearchParams(params).toString();
@@ -89,11 +96,21 @@ document.addEventListener("DOMContentLoaded", function () {
       return response.json();
     }).then(function (data) {
       console.log(data);
+      var message = successNotice.replace('%s', data.finish);
+      noticeContainer.insertAdjacentHTML('afterbegin', message);
+    }).catch(function (error) {
+      console.error('Error:', error);
+      var message = successNotice.replace('%s', JSON.stringify(error));
+      noticeContainer.insertAdjacentHTML('afterbegin', errorNotice);
     });
   };
 
-  if (buttonEl && data && nonce) {
-    buttonEl.addEventListener('click', onClick);
+  if (syncButton && data && nonce) {
+    syncButton.addEventListener('click', onClick);
+  }
+
+  if (importButton && data && nonce) {
+    importButton.addEventListener('click', onClick);
   }
 });
 })();
