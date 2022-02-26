@@ -34,6 +34,8 @@ class Deactivator {
 	public static function deactivate() {
 		\flush_rewrite_rules();
 
+		\update_option( 'wp_action_network_events_active', false );
+
 		\wp_clear_scheduled_hook( Cron::CRON_HOOK );
 	}
 
