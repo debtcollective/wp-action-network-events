@@ -15,13 +15,6 @@ use WpActionNetworkEvents\Common\Abstracts\Base;
 use WpActionNetworkEvents\App\Admin\Options;
 use WpActionNetworkEvents\App\Integration\Sync;
 
-
-
-// use WpActionNetworkEvents\App\General\PostTypes\Event;
-// use WpActionNetworkEvents\App\Integration\GetEvents;
-// use WpActionNetworkEvents\App\Integration\Parse;
-// use WpActionNetworkEvents\App\Integration\Process;
-
 /**
  * Cron
  *
@@ -30,35 +23,6 @@ use WpActionNetworkEvents\App\Integration\Sync;
  * @author     Debt Collective <pea@misfist.com>
  */
 class Cron extends Base {
-
-	/**
-	 * Status
-	 *
-	 * @since    1.0.0
-	 * @access   public
-	 * @var      string    $status
-	 */
-	public $status;
-
-	protected $start;
-
-	protected $finish;
-
-	/**
-	 * Last Run DateTime
-	 *
-	 * @var string $last_run
-	 */
-	public $last_run;
-
-	/**
-	 * Date Format
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      string    $date_format for storing date
-	 */
-	protected $date_format = 'Y-m-d H:i:s';
 
 	/**
 	 * Sync Frequency
@@ -79,13 +43,20 @@ class Cron extends Base {
 	protected $source = 'cron';
 
 	/**
+	 * Cron Schedule Name
+	 *
+	 * @var string
+	 */
+	const CRON_SCHEDULE = 'wp_action_network_events_interval';
+
+	/**
 	 * Cron Hook Name
-	 * 
+	 *
 	 * wp_action_network_events\cron_hook
 	 *
 	 * @var string
 	 */
-	const CRON_HOOK = 'wp_action_network_events\cron_hook';
+	const CRON_HOOK = 'wp_action_network_events_cron_hook';
 
 	/**
 	 * Constructor.
@@ -109,10 +80,10 @@ class Cron extends Base {
 		 * @see Bootstrap::__construct
 		 */
 		$options              = Options::getOptions();
-		$this->sync_frequency = intval( $options['sync_frequency'] ) * HOUR_IN_SECONDS;
+		$this->sync_frequency = intval( $options['sync_frequency'] );
 
-			
 		\add_action( self::CRON_HOOK, array( $this, 'exec' ) );
+		\add_filter( 'cron_schedules', array( $this, 'add_cron_schedule' ) );
 	}
 
 	/**
@@ -122,7 +93,23 @@ class Cron extends Base {
 	 */
 	public function exec() {
 		$sync = new Sync( $this->version, $this->plugin_name );
+		var_dump( 'I WAS CALLED' );
 		$sync->startSync( $this->source );
+	}
+
+	/**
+	 * Add Cron Schedule
+	 *
+	 * @param array $schedules
+	 * @return void
+	 */
+	public function add_cron_schedule( $schedules ) {
+		$schedules[ self::CRON_SCHEDULE ] = array(
+			'interval' => $this->sync_frequency * HOUR_IN_SECONDS,
+			'display'  => sprintf( esc_attr__( 'Every %s Hours', 'wp-action-network-events' ), $this->sync_frequency ),
+		);
+
+		return $schedules;
 	}
 
 }
