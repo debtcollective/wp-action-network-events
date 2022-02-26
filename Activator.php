@@ -10,6 +10,9 @@
  */
 namespace WpActionNetworkEvents;
 
+use WpActionNetworkEvents\App\Cron\Cron;
+use WpActionNetworkEvents\App\Admin\Options;
+
 /**
  * Fired during plugin activation.
  *
@@ -23,14 +26,18 @@ namespace WpActionNetworkEvents;
 class Activator {
 
 	/**
-	 * Short Description. (use period)
-	 *
-	 * Long Description.
+	 * Activator
 	 *
 	 * @since    1.0.0
 	 */
 	public static function activate() {
 		\flush_rewrite_rules();
+
+		\update_option( 'wp_action_network_events_active', true );
+
+		if ( ! \wp_next_scheduled( Cron::CRON_HOOK ) ) {
+			\wp_schedule_event( time(), Cron::CRON_SCHEDULE, Cron::CRON_HOOK );
+		}
 	}
 
 }

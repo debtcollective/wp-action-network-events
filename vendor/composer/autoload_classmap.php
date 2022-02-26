@@ -7,14 +7,17 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
-    'Elliotchance\\Iterator\\AbstractPagedIterator' => $vendorDir . '/elliotchance/iterator/src/Elliotchance/Iterator/AbstractPagedIterator.php',
-    'Elliotchance\\Iterator\\PagedIteratorTest' => $vendorDir . '/elliotchance/iterator/tests/Elliotchance/Iterator/PagedIteratorTest.php',
+    'WPTRT\\AdminNotices\\Dismiss' => $vendorDir . '/wptrt/admin-notices/src/Dismiss.php',
+    'WPTRT\\AdminNotices\\Notice' => $vendorDir . '/wptrt/admin-notices/src/Notice.php',
+    'WPTRT\\AdminNotices\\Notices' => $vendorDir . '/wptrt/admin-notices/src/Notices.php',
     'WpActionNetworkEvents\\App\\Admin\\Admin' => $baseDir . '/src/App/Admin/Admin.php',
+    'WpActionNetworkEvents\\App\\Admin\\Notices' => $baseDir . '/src/App/Admin/Notices.php',
     'WpActionNetworkEvents\\App\\Admin\\Options' => $baseDir . '/src/App/Admin/Options.php',
     'WpActionNetworkEvents\\App\\Blocks\\Blocks' => $baseDir . '/src/App/Blocks/Blocks.php',
     'WpActionNetworkEvents\\App\\Blocks\\Fields\\Fields' => $baseDir . '/src/App/Blocks/Fields/Fields.php',
     'WpActionNetworkEvents\\App\\Blocks\\Fields\\Meta' => $baseDir . '/src/App/Blocks/Fields/Meta.php',
     'WpActionNetworkEvents\\App\\Blocks\\Patterns' => $baseDir . '/src/App/Blocks/Patterns.php',
+    'WpActionNetworkEvents\\App\\Cron\\Cron' => $baseDir . '/src/App/Cron/Cron.php',
     'WpActionNetworkEvents\\App\\Frontend\\Frontend' => $baseDir . '/src/App/Frontend/Frontend.php',
     'WpActionNetworkEvents\\App\\General\\ContentFilters' => $baseDir . '/src/App/General/ContentFilters.php',
     'WpActionNetworkEvents\\App\\General\\CustomFields' => $baseDir . '/src/App/General/CustomFields.php',
@@ -37,6 +40,5 @@ return array(
     'WpActionNetworkEvents\\Common\\Loader' => $baseDir . '/src/Common/Loader.php',
     'WpActionNetworkEvents\\Common\\Plugin' => $baseDir . '/src/Common/Plugin.php',
     'WpActionNetworkEvents\\Common\\Traits\\Singleton' => $baseDir . '/src/Common/Traits/Singleton.php',
-    'WpActionNetworkEvents\\Common\\Util\\Iterator' => $baseDir . '/src/Common/Util/Iterator.php',
     'WpActionNetworkEvents\\Common\\Util\\TemplateLoader' => $baseDir . '/src/Common/Util/TemplateLoader.php',
 );

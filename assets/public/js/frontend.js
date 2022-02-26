@@ -2,9 +2,9 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./assets/src/sass/frontend.scss":
+/***/ "./assets/src/scss/frontend.scss":
 /*!***************************************!*\
-  !*** ./assets/src/sass/frontend.scss ***!
+  !*** ./assets/src/scss/frontend.scss ***!
   \***************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -60,7 +60,7 @@ var __webpack_exports__ = {};
   !*** ./assets/src/js/frontend.js ***!
   \***********************************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _sass_frontend_scss__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../sass/frontend.scss */ "./assets/src/sass/frontend.scss");
+/* harmony import */ var _scss_frontend_scss__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scss/frontend.scss */ "./assets/src/scss/frontend.scss");
 /**
  * SASS
  */

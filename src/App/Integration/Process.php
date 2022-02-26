@@ -71,7 +71,7 @@ class Process extends Base {
 		parent::__construct( $version, $plugin_name );
 		$this->data           = $data;
 		$this->processed_data = array();
-		$this->status         = array(
+		$this->log         = array(
 			'new'     => array(),
 			'updated' => array(),
 			'skipped' => array(),
@@ -101,7 +101,7 @@ class Process extends Base {
 				$this->processed_data[] = $post_id;
 			}
 		}
-		return $this->status;
+		return $this->log;
 	}
 
 	/**
@@ -113,27 +113,22 @@ class Process extends Base {
 	function evaluatePost( $post ) {
 		$result      = false;
 		$search_post = $this->getPost( $post->an_id );
-
-		error_log( 'Evaluated: ' . $post->an_id );
-
 		if ( \is_wp_error( $search_post ) ) {
-			$this->status['error'][] = $post->an_id;
-			error_log( 'Error: ' . json_encode( $search_post ) );
+			$this->setLog( 'error[]', $post->an_id );
 		} elseif ( empty( $search_post ) ) {
 			$result = $this->addPost( $post );
-			// $this->status['new'][] = $result;
-			$this->status['new'][] = $post->an_id;
-			error_log( 'New: ' . $post->an_id );
+			$this->setLog( 'new[]', $post->an_id );
 		} elseif ( $this->hasChanged( $search_post[0], $post ) ) {
 			$existing_post = $search_post[0];
 			$result        = $this->updatePost( $existing_post, $post );
-			// $this->status['updated'][] = $result;
-			$this->status['updated'][] = $post->an_id;
-
-			error_log( 'Updated: ' . $post->an_id );
+			$this->setLog( 'updated[]', $post->an_id );
 		} else {
-			$this->status['skipped'] = $post->an_id;
-			error_log( 'Skipped: ' . $post->an_id );
+			$this->setLog( 'skipped[]', $post->an_id );
+		}
+		if( ! $result ) {
+			$this->setStatus( 'process', 'error' );
+		} else {
+			$this->setStatus( 'process', 'success' );
 		}
 		return $result;
 	}
@@ -183,7 +178,7 @@ class Process extends Base {
 			),
 		);
 
-		// $post_id = \wp_insert_post( $post_array );
+		$post_id = \wp_insert_post( $post_array );
 
 		if ( is_a( $post_id, '\WP_Error' ) ) {
 			error_log( 'Failed at ' . __FUNCTION__ );
@@ -218,11 +213,9 @@ class Process extends Base {
 		$post_id = false;
 		if ( $differences = $this->getDifferences( $existing, $incoming ) ) {
 			$differences['ID'] = $existing->ID;
-			error_log( 'Differences: ' . json_encode( $differences ) );
-			// $post_id           = \wp_update_post( $differences );
+			$post_id           = \wp_update_post( $differences );
 
 			if ( is_a( $post_id, '\WP_Error' ) ) {
-				error_log( 'Failed at ' . __FUNCTION__ );
 				throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
 			} elseif ( $post_id ) {
 				$this->status['updated'][] = $post_id;
@@ -268,7 +261,6 @@ class Process extends Base {
 			),
 		);
 		$query = new \WP_Query( $args );
-		// return $query->posts;
 		return $query->get_posts();
 	}
 
@@ -386,6 +378,15 @@ class Process extends Base {
 	 */
 	public function isDifferent( $existing, $incoming ) : bool {
 		return $existing != $incoming;
+	}
+
+	/**
+	 * Get the data
+	 *
+	 * @return $this->processed_data
+	 */
+	public function getProcessed() {
+		return $this->processed_data;
 	}
 
 	/**
