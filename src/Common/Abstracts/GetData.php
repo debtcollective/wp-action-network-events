@@ -210,8 +210,6 @@ abstract class GetData {
 			\esc_url( $this->base_url . $this->endpoint )
 		);
 
-		// $url   = \esc_url( $this->base_url . $this->endpoint ) . "?$query";
-
 		try {
 			$request    = $this->request( $url );
 			$response   = $this->handleRequest( $url, $request );
@@ -223,6 +221,8 @@ abstract class GetData {
 					$response = $this->handleRequest( $url, $request );
 					$this->data = array_merge( $this->data, $response->{'_embedded'}->{'osdi:events'} );
 			}
+
+			$this->setLog( 'found', count( $this->data ) );
 		} catch ( \Exception $exception ) {
 			$response = null;
 		}
