@@ -13,6 +13,7 @@ namespace WpActionNetworkEvents\App\Integration;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
 use WpActionNetworkEvents\App\Admin\Options;
+use WpActionNetworkEvents\App\Admin\Notices;
 use WpActionNetworkEvents\App\General\PostTypes\Event;
 use WpActionNetworkEvents\App\Integration\GetEvents;
 use WpActionNetworkEvents\App\Integration\Parse;
@@ -54,20 +55,11 @@ class Sync extends Base {
 	 */
 	protected $processed_data;
 
-	/**
-	 * Status
-	 *
-	 * @since    1.0.0
-	 * @access   public
-	 * @var      string    $status
-	 */
-	public $status;
-
 	protected $start;
 
 	protected $finish;
 
-	protected $log;
+	public $endpoint = 'events';
 
 	/**
 	 * Last Run DateTime
@@ -94,6 +86,26 @@ class Sync extends Base {
 	 */
 	protected $sync_frequency;
 
+
+	/**
+	 * Name of sync action
+	 *
+	 * @var string
+	 */
+	public const SYNC_ACTION_NAME = 'wp_action_network_events_sync';
+
+	/**
+	 * AJAX data key
+	 */
+	const DATA_KEY = 'wpANEData';
+
+	/**
+	 * Last run key
+	 *
+	 * @var string
+	 */
+	public const LAST_RUN_KEY = 'wp_action_network_events_sync_datetime';
+
 	/**
 	 * Transient Name
 	 *
@@ -101,9 +113,7 @@ class Sync extends Base {
 	 * @access   public
 	 * @var      string
 	 */
-	public const TRANSIENT_KEY = 'wp_action_network_events_sync_status';
-
-	public const LAST_RUN_TRANSIENT_KEY = 'wp_action_network_events_sync_datetime';
+	public const LOG_KEY = 'wp_action_network_events_sync_datetime_log';
 
 	/**
 	 * Constructor.
@@ -128,82 +138,92 @@ class Sync extends Base {
 		 */
 		$options              = Options::getOptions();
 		$this->sync_frequency = intval( $options['sync_frequency'] ) * HOUR_IN_SECONDS;
-
-		$this->last_run = \get_option( self::LAST_RUN_TRANSIENT_KEY );
+		$this->last_run = \get_option( self::LAST_RUN_KEY );
 
 		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScripts' ) );
-
-		\add_action( 'wp_ajax_' . Options::SYNC_ACTION_NAME, array( $this, 'ajaxAction' ) );
-		\add_action( 'wp_ajax_nopriv_' . Options::SYNC_ACTION_NAME, array( $this, 'ajaxAction' ) );
+		\add_action( 'wp_ajax_' . Options::SYNC_ACTION_NAME, array( $this, 'ajaxSync' ) );
+		\add_action( 'wp_ajax_' . Options::SYNC_ACTION_NAME . '_clean', array( $this, 'ajaxImport' ) );
 	}
-
-	public function run() {}
 
 	/**
 	 * Respond to Ajax sync request
 	 *
 	 * @return void
 	 */
-	public function ajaxAction() {
+	public function ajaxSync() {
 		$this->startSync();
+	}
+
+	/**
+	 * Respond to Ajax import request
+	 *
+	 * @return void
+	 */
+	public function ajaxImport() {
+		$this->startSync( 'import', true );
 	}
 
 	/**
 	 * Start Sync
 	 *
 	 * @param string $source
+	 * @param bool $ignore_filter
 	 * @return void
 	 */
-	public function startSync( $source = 'manual' ) {
+	public function startSync( $source = 'manual', $ignore_filter = false ) {
 		$this->start = date( $this->date_format );
+		$this->setLog( 'start', $this->start );
+		$this->setLog( 'source', $source );
 
-		$args        = array(
+		$args = array(
 			'per_page' => 25,
 		);
-		if ( $this->last_run ) {
-			$args['filter'] = date( 'Y-m-d', strtotime( $this->last_run ) );
+		if ( $this->last_run && ! $ignore_filter ) {
+			$modified_since = date( 'Y-m-d', strtotime( $this->last_run ) );
+			$this->setLog( 'filter', $modified_since );
+			$args['filter'] = $modified_since;
 		}
-		$this->data = $this->fetchData( $args );
+		$this->data = (array) $this->fetchData( $args );
 
 		if ( $this->data ) {
 			$this->parsed_data = $this->parseData();
 
-			if( $this->parsed_data ) {
-				$process = new Process( $this->version, $this->plugin_name, $this->parsed_data );
-				$this->processed_data = $process->status;
+			if ( $this->parsed_data ) {
+				$this->processed_data = $this->processData();
 			}
 		}
 
-		$this->finishSync( $message );
+		$this->finishSync( \wp_json_encode( $this->status ) );
 	}
 
 	/**
-	 * Finish Sync process
+	 * Finish Sync processs
 	 *
 	 * @param string $status
 	 * @return void
 	 */
 	public function finishSync( $status = '' ) {
-		\wp_send_json( $status );
+		\check_ajax_referer( self::SYNC_ACTION_NAME, 'nonce' );
+		$this->setLastRun();
+		$this->setLog( 'finish', date( $this->date_format ) );
+		$this->log();
+		\wp_send_json( $this->log );
 		\wp_die();
 	}
 
 	/**
-	 * Get Last run datetime
+	 * Send Status
 	 *
-	 * @return mixed null || datetime
-	 */
-	public function getLastRun() {
-		return $this->last_run;
-	}
-
-	/**
-	 * Get status
-	 *
+	 * @param array $data
 	 * @return void
 	 */
-	public function getStatus() {
-		return $this->status;
+	public function sendStatus( $data ) {
+		$status  = array(
+			'status'  => $data['status'],
+			'message' => $data['message'],
+		);
+		$notices = new Notices( $this->version, $this->plugin_name, $status );
+		$notices->sendStatus();
 	}
 
 	/**
@@ -213,9 +233,11 @@ class Sync extends Base {
 	 * @return mixed
 	 */
 	public function fetchData( $args = array() ) {
-		$events = new GetEvents( $this->version, $this->plugin_name, $args );
-		// $this->setData( $events );
-		return $events;
+		$events     = new GetEvents( $this->version, $this->plugin_name, $args );
+		$this->data = $events->getData();
+		$this->setLog( 'get', $events->getLog() );
+		$this->setStatus( 'got', $events->getStatus() );
+		return $this->data;
 	}
 
 	/**
@@ -224,8 +246,10 @@ class Sync extends Base {
 	 * @return mixed
 	 */
 	public function parseData() {
-		$parse             = new Parse( $this->version, $this->plugin_name, $this->data );
-		$this->setParsedData( $parse );
+		$parse = new Parse( $this->version, $this->plugin_name, $this->data );
+		$this->setParsedData( $parse->getParsed() );
+		$this->setLog( 'parse', $parse->getLog() );
+		$this->setStatus( 'parsed', $parse->getStatus() );
 		return $this->parsed_data;
 	}
 
@@ -235,9 +259,20 @@ class Sync extends Base {
 	 * @return mixed
 	 */
 	public function processData() {
-		$process              = new Process( $this->version, $this->plugin_name, $this->parsed_data );
-		$this->setProcessedData( $process );
+		$process = new Process( $this->version, $this->plugin_name, $this->parsed_data );
+		$this->setProcessedData( $process->getProcessed() );
+		$this->setLog( 'processed', $process->getLog() );
+		$this->setStatus( 'processed', $process->getStatus() );
 		return $this->processed_data;
+	}
+
+	/**
+	 * Get Last run datetime
+	 *
+	 * @return mixed null || datetime
+	 */
+	public function getLastRun() {
+		return $this->last_run;
 	}
 
 	/**
@@ -273,7 +308,7 @@ class Sync extends Base {
 	 * @return void
 	 */
 	public function setData( $data ) {
-		$this->data = $data;
+		$this->data = (array) $data;
 	}
 
 	/**
@@ -282,7 +317,7 @@ class Sync extends Base {
 	 * @return void
 	 */
 	public function setParsedData( $parsed_data ) {
-		$this->parsed_data = $parsed_data;
+		$this->parsed_data = (array) $parsed_data;
 	}
 
 	/**
@@ -291,7 +326,7 @@ class Sync extends Base {
 	 * @return void
 	 */
 	public function setProcessedData( $processed_data ) {
-		$this->processed_data = $processed;
+		$this->processed_data = (array) $processed_data;
 	}
 
 	/**
@@ -301,11 +336,16 @@ class Sync extends Base {
 	 */
 	public function setLastRun() {
 		$this->last_run = date( $this->date_format );
+		\update_option( self::LAST_RUN_KEY, $this->last_run );
+
 	}
 
 	public function hasUpdates() {}
 
-	public function log() {}
+	public function log() {
+		$this->setLog( 'last_run', $this->last_run );
+		\update_option( self::LOG_KEY, $this->log );
+	}
 
 	/**
 	 * Enqueue Scripts
@@ -315,17 +355,21 @@ class Sync extends Base {
 	 * @return void
 	 */
 	public function enqueueScripts() {
-		\wp_register_script( $this->plugin_name, esc_url( WPANE_PLUGIN_URL . 'assets/public/js/backend.js' ), array( 'jquery' ), $this->version, false );
+		\wp_register_script( $this->plugin_name . '-admin', esc_url( WPANE_PLUGIN_URL . 'assets/public/js/admin.js' ), array(), $this->version, false );
 
 		$localized = array(
-			'action'   => Options::SYNC_ACTION_NAME,
-			// 'endpoint'		=> $this->endpoint,
-			'endpoint' => 'events',
+			'action'   => self::SYNC_ACTION_NAME,
+			'endpoint' => $this->endpoint,
 			'ajax_url' => \admin_url( 'admin-ajax.php' ),
+			'nonce'    => \wp_create_nonce( self::SYNC_ACTION_NAME ),
 		);
 
-		\wp_localize_script( $this->plugin_name, 'wpANEData', $localized );
+		\wp_localize_script(
+			$this->plugin_name . '-admin',
+			self::DATA_KEY,
+			$localized
+		);
 
-		\wp_enqueue_script( $this->plugin_name );
+		\wp_enqueue_script( $this->plugin_name . '-admin' );
 	}
 }
