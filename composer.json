@@ -25,7 +25,7 @@
         }
     },
     "require": {
-        "elliotchance/iterator": "^1.1"
+        "wptrt/admin-notices": "^1.0"
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",

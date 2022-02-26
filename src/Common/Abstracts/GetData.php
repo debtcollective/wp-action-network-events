@@ -7,7 +7,6 @@
 namespace WpActionNetworkEvents\Common\Abstracts;
 
 use WpActionNetworkEvents\App\Admin\Options;
-use WpActionNetworkEvents\Common\Util\Iterator;
 use WpActionNetworkEvents\Common\Util\log_remote_request;
 
 /**
@@ -72,6 +71,24 @@ abstract class GetData {
 	protected $args;
 
 	/**
+	 * Status.
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      array   $status
+	 */
+	protected $status;
+
+	/**
+	 * Log.
+	 *
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      array   $log
+	 */
+	protected $log;
+
+	/**
 	 * API Data.
 	 *
 	 * @since    1.0.0
@@ -107,7 +124,6 @@ abstract class GetData {
 	 */
 	protected $current_page;
 
-
 	/**
 	 * Total Number of Records
 	 *
@@ -125,6 +141,8 @@ abstract class GetData {
 	 * @var int
 	 */
 	protected $total_pages;
+
+
 
 	/**
 	 * Constructor.
@@ -192,8 +210,6 @@ abstract class GetData {
 			\esc_url( $this->base_url . $this->endpoint )
 		);
 
-		// $url   = \esc_url( $this->base_url . $this->endpoint ) . "?$query";
-
 		try {
 			$request    = $this->request( $url );
 			$response   = $this->handleRequest( $url, $request );
@@ -205,8 +221,9 @@ abstract class GetData {
 					$response = $this->handleRequest( $url, $request );
 					$this->data = array_merge( $this->data, $response->{'_embedded'}->{'osdi:events'} );
 			}
+
+			$this->setLog( 'found', count( $this->data ) );
 		} catch ( \Exception $exception ) {
-			error_log( $exception );
 			$response = null;
 		}
 		return $response;
@@ -230,16 +247,64 @@ abstract class GetData {
 	public function handleRequest( $url, $request ) {
 		$response      = \wp_remote_retrieve_body( $request );
 		$response_code = (int) \wp_remote_retrieve_response_code( $request );
+		$this->setLog( 'response', $response_code );
 		if ( 200 === $response_code ) {
 			$response = json_decode( $response, false );
+			$this->setStatus( 'response', 'success' );
 		} elseif ( 401 === $response_code ) { // 401 Unauthorized
 			$response = false;
 			log_remote_request( $url, $request, $response );
+			$this->setStatus( 'response', 'error' );
 		} else {
 			$response = null;
 			log_remote_request( $url, $request, $response );
+			$this->setStatus( 'response', 'error' );
 		}
 		return $response;
+	}
+
+	/**
+	 * Set log
+	 *
+	 * @param string $prop
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function setLog( $prop, $value ) {
+		$this->log[$prop] = $value;
+	}
+
+	/**
+	 * Get log
+	 *
+	 * @param string $prop
+	 * @param mixed $value
+	 * @return array $this->log
+	 */
+	public function getLog() {
+		return $this->log;
+	}
+
+	/**
+	 * Set status
+	 *
+	 * @param string $prop
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function setStatus( $prop, $value ) {
+		$this->status[$prop] = $value;
+	}
+
+	/**
+	 * Get tatus
+	 *
+	 * @param string $prop
+	 * @param mixed $value
+	 * @return array $this->status
+	 */
+	public function getStatus() {
+		return $this->status;
 	}
 
 	/**
@@ -250,7 +315,7 @@ abstract class GetData {
 	 * @return void
 	 */
 	public function enqueueScripts() {
-		\wp_register_script( $this->plugin_name, esc_url( WPANE_PLUGIN_URL . 'assets/public/js/backend.js' ), array( 'jquery' ), $this->version, false );
+		\wp_register_script( $this->plugin_name, esc_url( WPANE_PLUGIN_URL . 'assets/public/js/admin.js' ), array( 'jquery' ), $this->version, false );
 
 		$localized = array(
 			'action'   => Options::SYNC_ACTION_NAME,

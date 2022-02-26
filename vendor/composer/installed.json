@@ -1,51 +1,53 @@
 {
     "packages": [
         {
-            "name": "elliotchance/iterator",
-            "version": "v1.1.0",
-            "version_normalized": "1.1.0.0",
+            "name": "wptrt/admin-notices",
+            "version": "v1.0.3",
+            "version_normalized": "1.0.3.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/elliotchance/iterator.git",
-                "reference": "1167635743c394721b443fe8f81532c62a211a38"
+                "url": "https://github.com/WPTT/admin-notices.git",
+                "reference": "3904e0dc087b48289056a77eea3d1dab4ef0dde1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/elliotchance/iterator/zipball/1167635743c394721b443fe8f81532c62a211a38",
-                "reference": "1167635743c394721b443fe8f81532c62a211a38",
+                "url": "https://api.github.com/repos/WPTT/admin-notices/zipball/3904e0dc087b48289056a77eea3d1dab4ef0dde1",
+                "reference": "3904e0dc087b48289056a77eea3d1dab4ef0dde1",
                 "shasum": ""
             },
-            "require-dev": {
-                "elliotchance/concise": "~1.7",
-                "phpunit/phpunit": "~4.0"
+            "require": {
+                "php": ">=5.6"
             },
-            "time": "2017-11-09T22:25:19+00:00",
+            "time": "2020-02-15T10:34:51+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
-                "psr-0": {
-                    "": [
-                        "tests/",
-                        "src/"
-                    ]
+                "psr-4": {
+                    "WPTRT\\AdminNotices\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "MIT"
+                "GPL-2.0-or-later"
             ],
             "authors": [
                 {
-                    "name": "Elliot Chance",
-                    "email": "elliotchance@gmail.com"
+                    "name": "WordPress.org Theme Review Team",
+                    "email": "themes@wordpress.org",
+                    "homepage": "https://make.wordpress.org/themes",
+                    "role": "Developer"
                 }
             ],
-            "description": "Iterator builders for PHP",
+            "description": "A class to create admin-notices for the WordPress dashboard.",
+            "homepage": "https://github.com/WPTRT/admin-notices",
+            "keywords": [
+                "wordpress"
+            ],
             "support": {
-                "issues": "https://github.com/elliotchance/iterator/issues",
-                "source": "https://github.com/elliotchance/iterator/tree/v1.1.0"
+                "issues": "https://github.com/WPTRT/admin-notices/issues",
+                "source": "https://github.com/WPTT/admin-notices/tree/v1.0.3"
             },
-            "install-path": "../elliotchance/iterator"
+            "install-path": "../wptrt/admin-notices"
         }
     ],
     "dev": false,

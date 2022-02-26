@@ -46,12 +46,11 @@ class Admin extends Base {
 		 * This general class is always being instantiated as requested in the Bootstrap class
 		 *
 		 * @see Bootstrap::__construct
-		 *
 		 */
 		new Options( $this->version, $this->plugin_name, $this->basename );
 
-		\add_action( 'admin_enqueue_scripts', 		[ $this, 'enqueueStyles' ] );
-		// \add_action( 'admin_enqueue_scripts', 		[ $this, 'enqueueScripts' ] );
+		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueStyles' ) );
+		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScripts' ) );
 	}
 
 	/**
@@ -73,7 +72,7 @@ class Admin extends Base {
 		 * class.
 		 */
 
-		\wp_enqueue_style( $this->plugin_name, \esc_url( WPANE_PLUGIN_URL . 'assets/public/css/backend.css' ), array(), $this->version, 'all' );
+		\wp_enqueue_style( $this->plugin_name, \esc_url( WPANE_PLUGIN_URL . 'assets/public/css/admin.css' ), array(), $this->version, 'all' );
 
 	}
 
@@ -95,7 +94,7 @@ class Admin extends Base {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-		\wp_register_script( $this->plugin_name, \esc_url( WPANE_PLUGIN_URL . 'assets/public/js/backend.js' ), array( 'jquery' ), $this->version, false );
+		\wp_register_script( $this->plugin_name, \esc_url( WPANE_PLUGIN_URL . 'assets/public/js/admin.js' ), array(), $this->version, false );
 
 	}
 

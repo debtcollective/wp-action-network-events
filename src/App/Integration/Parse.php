@@ -89,7 +89,8 @@ class Parse extends Base {
 	 * @since 1.0.0
 	 */
 	public function init() {
-		$this->parsed_data = $this->parseRecords( $this->data );
+		$this->parsed_data = $this->parseRecords();
+		$this->setLog( 'parsed', count( $this->parsed_data ) );
 	}
 
 	/**
@@ -100,13 +101,15 @@ class Parse extends Base {
 	public function parseRecords() : array {
 		$parsed_records = array();
 		if ( is_a( $this->data, '\WP_Error' ) ) {
+			$this->setStatus( 'parsed', 'error' );
 			throw new \Exception( 'Failed at ' . __FUNCTION__ );
 		}
+
 		foreach ( $this->data as $record ) {
 			$parsed_records[] = $this->parseRecord( $record );
 		}
-
-		// error_log( json_encode( $parsed_records ) );
+		$this->setStatus( 'parsed', 'success' );
+		
 		return (array) $parsed_records;
 	}
 
