@@ -13,6 +13,7 @@ namespace WpActionNetworkEvents\App\Admin;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
 use WpActionNetworkEvents\App\Admin\Options;
+use WpActionNetworkEvents\App\Integration\Sync;
 
 /**
  * Admin Notices
@@ -23,10 +24,16 @@ use WpActionNetworkEvents\App\Admin\Options;
  */
 class Notices extends Base {
 
+	protected $data;
+
 	/**
 	 * Notices data key
 	 */
-	const NOTICES_DATA_KEY = 'wpANENoticesData';
+	const DATA_KEY = 'wpANENoticesData';
+
+	const ACTION_NAME = 'sendStatus';
+
+	const NOTICE_ID = 'sync-notice-container';
 
 	/**
 	 * Constructor.
@@ -49,11 +56,13 @@ class Notices extends Base {
 		 *
 		 * @see Bootstrap::__construct
 		 */
+		$this->status = \get_option( Sync::LOG_KEY );
 		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScript' ) );
-		\add_action( 'admin_notices', array( $this, 'renderError' ) );
-		\add_action( 'admin_notices', array( $this, 'renderInfo' ) );
-		\add_action( 'admin_notices', array( $this, 'renderWarning' ) );
-		\add_action( 'admin_notices', array( $this, 'renderSuccess' ) );
+
+		// \add_action( 'wp_ajax_' . self::ACTION_NAME, array( $this, 'sendStatus' ) );
+
+		\add_action( 'admin_notices', array( $this, 'renderAdminNotice' ) );
+
 	}
 
 	/**
@@ -61,17 +70,49 @@ class Notices extends Base {
 	 *
 	 * @return void
 	 */
-	public function renderAdminNotices() {
+	public function renderAdminNotice() {
 		$screen = \get_current_screen();
 		if ( ! $screen || 'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base ) {
 			return;
 		}
 
+		$status = isset( $this->status['get']['response'] ) && 200 === $this->status['get']['response'] ? 'success' : 'warning';
+
+		switch ( $this->status['source'] ) {
+			case 'manual':
+				$source = esc_html__( 'Manually Synced', 'wp-action-network-events' );
+				break;
+			case 'import':
+				$source = esc_html__( 'Manually Synced (Full Import)', 'wp-action-network-events' );
+				break;
+			default:
+				$source = esc_html__( 'Auto-synced', 'wp-action-network-events' );
+		}
+
 		?>
-		<div class="notice notice-info is-dismissible">
-			<p><?php _e( 'Automatic sync coming soon!', 'wp-action-network-events' ); ?></p>
+		<div class="notice notice-<?php echo $status; ?> is-dismissible">
+			<p><?php printf( 'Last %s at %s - Status %s', $source, $this->status['last_run'], $this->status['get']['response'] ); ?></p>
+			<p><?php print_r( $this->status ); ?></p>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Undocumented function
+	 *
+	 * @param array $status_array
+	 * @return void
+	 */
+	public function sendStatus() {
+		\check_ajax_referer( self::ACTION_NAME, 'nonce' );
+		$status = array(
+			'status'  => $this->data['status'],
+			'message' => $this->data['message'],
+		);
+
+		\wp_send_json( $status );
+
+		\wp_die();
 	}
 
 	/**
@@ -80,17 +121,11 @@ class Notices extends Base {
 	 * @param string $message
 	 * @return void
 	 */
-	public function renderError( $message = '' ) {
-		$screen = \get_current_screen();
-		if ( ! $screen ||'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base ) {
-			return;
-		}
-
-		?>
-		<div class="notice notice-error">
-			<p><?php echo esc_attr( $message ); ?></p>
-		</div>
-		<?php
+	public function error( $message = '' ) {
+		return sprintf(
+			'<div class="notice notice-error"><p>%s</p></div>',
+			esc_attr( $message )
+		);
 	}
 
 	/**
@@ -99,17 +134,11 @@ class Notices extends Base {
 	 * @param string $message
 	 * @return void
 	 */
-	public function renderInfo( $message = '' ) {
-		$screen = \get_current_screen();
-		if ( ! $screen ||'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base ) {
-			return;
-		}
-
-		?>
-		<div class="notice notice-info is-dismissible">
-			<p><?php echo esc_attr( $message ); ?></p>
-		</div>
-		<?php
+	public function info( $message = '' ) {
+		return sprintf(
+			'<div class="notice notice-info"><p>%s</p></div>',
+			esc_attr( $message )
+		);
 	}
 
 	/**
@@ -118,17 +147,11 @@ class Notices extends Base {
 	 * @param string $message
 	 * @return void
 	 */
-	public function renderWarning( $message = '' ) {
-		$screen = \get_current_screen();
-		if ( ! $screen ||'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base ) {
-			return;
-		}
-
-		?>
-		<div class="notice notice-warning is-dismissible">
-			<p><?php echo esc_attr( $message ); ?></p>
-		</div>
-		<?php
+	public function warning( $message = '' ) {
+		return sprintf(
+			'<div class="notice notice-warning"><p>%s</p></div>',
+			esc_attr( $message )
+		);
 	}
 
 	/**
@@ -137,18 +160,31 @@ class Notices extends Base {
 	 * @param string $message
 	 * @return void
 	 */
-	public function renderSuccess( $message = '' ) {
-		$screen = \get_current_screen();
-		if ( ! $screen ||'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base ) {
-			return;
-		}
-
-		?>
-		<div class="notice notice-success is-dismissible">
-			<p><?php echo esc_attr( $message ); ?></p>
-		</div>
-		<?php
+	public function success( $message = '' ) {
+		return sprintf(
+			'<div class="notice notice-success"><p>%s</p></div>',
+			esc_attr( $message )
+		);
 	}
+
+	// /**
+	// * Get data var
+	// *
+	// * @return array $data
+	// */
+	// public function getData() {
+	// return $this->data;
+	// }
+
+	// /**
+	// * Set data var
+	// *
+	// * @param array $data
+	// * @return void
+	// */
+	// public function setData( array $data ) {
+	// $this->data = $data;
+	// }
 
 	/**
 	 * Register Script
@@ -160,9 +196,12 @@ class Notices extends Base {
 
 		\wp_localize_script(
 			$this->plugin_name . '-notices',
-			self::NOTICES_DATA_KEY,
+			self::DATA_KEY,
 			array(
-				'ajaxurl' => \get_admin_url() . 'admin-ajax.php',
+				'ajax_url'     => \admin_url( 'admin-ajax.php' ),
+				'action'       => self::ACTION_NAME,
+				'nonce'        => \wp_create_nonce( self::ACTION_NAME ),
+				'container_id' => self::NOTICE_ID,
 			)
 		);
 
