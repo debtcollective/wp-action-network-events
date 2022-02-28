@@ -7,7 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'WpActionNetworkEvents\\' => array($baseDir . '/src'),
-    'Carbon_Fields\\' => array($vendorDir . '/htmlburger/carbon-fields/core'),
-    'Carbon_Field_Rest_Api_Select\\' => array($baseDir . '/core'),
-    'Carbon_Field_Number\\' => array($vendorDir . '/htmlburger/carbon-field-number/core'),
+    'WPTRT\\AdminNotices\\' => array($vendorDir . '/wptrt/admin-notices/src'),
 );

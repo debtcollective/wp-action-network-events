@@ -24,7 +24,7 @@ const projectFiles = {
         port:   3000,
         mode:   'proxy', // proxy | server
         server: { baseDir: [ 'public' ] }, // can be ignored if using proxy
-        proxy:  'http://debtcollective.test',
+        proxy:  'http://localhost:8000',
         // BrowserSync will automatically watch for changes to any files connected to our entry,
         // including both JS and Sass files. We can use this property to tell BrowserSync to watch
         // for other types of files, in this case PHP files, in our project.
@@ -38,7 +38,8 @@ const projectFiles = {
         filename: 'js/[name].js',
         entry:    {
             frontend: projectPaths.projectJsPath + '/frontend.js',
-            backend:  projectPaths.projectJsPath + '/backend.js',
+            admin:  projectPaths.projectJsPath + '/admin.js',
+            notices:  projectPaths.projectJsPath + '/notices.js',
         },
         rules:    {
             test: /\.m?js$/,
@@ -51,8 +52,8 @@ const projectFiles = {
         filename:  'css/[name].css',
         use:       'sass', // sass || postcss
         // ^ If you want to change from Sass to PostCSS or PostCSS to Sass then you need to change the
-        // styling files which are being imported in "assets/src/js/frontend.js" and "assets/src/js/backend.js".
-        // So change "import '../sass/backend.scss'" to "import '../postcss/backend.pcss'" for example
+        // styling files which are being imported in "assets/src/js/frontend.js" and "assets/src/js/admin.js".
+        // So change "import '../sass/admin.scss'" to "import '../postcss/admin.pcss'" for example
         rules:    {
             sass:    {
                 test: /\.s[ac]ss$/i
@@ -64,8 +65,6 @@ const projectFiles = {
         purgeCss: { // PurgeCSS is only being activated in production environment
             paths: [ // Specify content that should be analyzed by PurgeCSS
                 __dirname + '/assets/src/js/**/*',
-                __dirname + '/templates/**/**/*',
-                __dirname + '/template-parts/**/**/*',
                 __dirname + '/blocks/**/**/*',
                 __dirname + '/*.php',
             ]

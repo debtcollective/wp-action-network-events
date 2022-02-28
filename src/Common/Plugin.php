@@ -14,6 +14,7 @@
  */
 namespace WpActionNetworkEvents\Common;
 
+use WpActionNetworkEvents\App\Cron\Cron;
 use WpActionNetworkEvents\App\Admin\Admin;
 use WpActionNetworkEvents\App\Frontend\Frontend;
 use WpActionNetworkEvents\Common\Loader;
@@ -104,7 +105,7 @@ class Plugin {
 
 	/**
 	 * @return self
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public static function instantiate(): self {
 		if ( ! self::$instance ) {
@@ -182,6 +183,8 @@ class Plugin {
 		new Blocks( $this->version, $this->plugin_name, $this->basename );
 
 		new Sync( $this->version, $this->plugin_name );
+
+		new Cron( $this->version, $this->plugin_name );
 	}
 
 	/**

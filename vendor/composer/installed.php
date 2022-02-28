@@ -1,60 +1,32 @@
-<?php return array (
-  'root' => 
-  array (
-    'pretty_version' => 'dev-main',
-    'version' => 'dev-main',
-    'aliases' => 
-    array (
+<?php return array(
+    'root' => array(
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
+        'type' => 'wordpress-plugin',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'reference' => '6cb6f7d86bb57b701b99a60b55f2559b56b4c8b4',
+        'name' => 'debtcollective/wp-action-network-events',
+        'dev' => false,
     ),
-    'reference' => '34d0a5769e18b17acfa483918419e6167f829d90',
-    'name' => 'debtcollective/wp-action-network-events',
-  ),
-  'versions' => 
-  array (
-    'debtcollective/wp-action-network-events' => 
-    array (
-      'pretty_version' => 'dev-main',
-      'version' => 'dev-main',
-      'aliases' => 
-      array (
-      ),
-      'reference' => '34d0a5769e18b17acfa483918419e6167f829d90',
+    'versions' => array(
+        'debtcollective/wp-action-network-events' => array(
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
+            'type' => 'wordpress-plugin',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'reference' => '6cb6f7d86bb57b701b99a60b55f2559b56b4c8b4',
+            'dev_requirement' => false,
+        ),
+        'wptrt/admin-notices' => array(
+            'pretty_version' => 'v1.0.3',
+            'version' => '1.0.3.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../wptrt/admin-notices',
+            'aliases' => array(),
+            'reference' => '3904e0dc087b48289056a77eea3d1dab4ef0dde1',
+            'dev_requirement' => false,
+        ),
     ),
-    'htmlburger/carbon-field-number' => 
-    array (
-      'pretty_version' => 'v3.0.0',
-      'version' => '3.0.0.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => '3bddfaf256472d6071c62e566d011e1f2cdae0c6',
-    ),
-    'htmlburger/carbon-fields' => 
-    array (
-      'pretty_version' => 'v3.3.2',
-      'version' => '3.3.2.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => 'dd5663e14c6db365323b688dbae1cfbeaf14bee7',
-    ),
-    'misfist/carbon-field-rest-api-select' => 
-    array (
-      'pretty_version' => '3.3',
-      'version' => '3.3.0.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => 'main',
-    ),
-    'tgmpa/tgm-plugin-activation' => 
-    array (
-      'pretty_version' => '2.6.1',
-      'version' => '2.6.1.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => 'c626d0d91fc8ef24916e809c7b79eeafab1c1cac',
-    ),
-  ),
 );
