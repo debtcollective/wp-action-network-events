@@ -97,6 +97,7 @@ class CustomFields extends Base {
 		 *
 		 * @see Bootstrap::__construct
 		 */
+		\add_action( 'acf/input/admin_enqueue_scripts', array( $this, 'enqueueScripts' ), 10, 0 );
 		\add_action( 'init', array( $this, 'registerPostMeta' ) );
 		\add_action( 'acf/init', array( $this, 'registerACFFields' ) );
 
@@ -253,5 +254,14 @@ class CustomFields extends Base {
 		}
 
 		return $array;
+	}
+
+	/**
+	 * Load ACF JS
+	 *
+	 * @return void
+	 */
+	public function enqueueScripts() {
+		\wp_enqueue_script( $this->plugin_name . '-acf', \esc_url( WPANE_PLUGIN_URL . 'assets/public/js/acf.js' ), array(), $this->version, false );
 	}
 }

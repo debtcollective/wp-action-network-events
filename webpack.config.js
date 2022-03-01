@@ -39,6 +39,7 @@ const projectFiles = {
         entry:    {
             frontend: projectPaths.projectJsPath + '/frontend.js',
             admin:  projectPaths.projectJsPath + '/admin.js',
+            acf: projectPaths.projectJsPath + '/acf.js',
             notices:  projectPaths.projectJsPath + '/notices.js',
         },
         rules:    {
