@@ -100,13 +100,19 @@ class CustomFields extends Base {
 		\add_action( 'init', array( $this, 'registerPostMeta' ) );
 		\add_action( 'acf/init', array( $this, 'registerACFFields' ) );
 
+		\add_filter( 'acf/load_field/name=is_an_event', array( $this, 'modifyBoolean' ) );
+		\add_filter( 'acf/load_field/name=timezone', array( $this, 'modifyTimezone' ) );
+		\add_filter( 'acf/load_field/name=start_date', array( $this, 'enableField' ) );
+		\add_filter( 'acf/load_field/name=end_date', array( $this, 'enableField' ) );
+		\add_filter( 'acf/load_field/name=browser_url', array( $this, 'enableField' ) );
+		\add_filter( 'acf/load_field/name=location_venue', array( $this, 'enableField' ) );
+
 		/**
 		* Don't hide custom fields meta box
 		*
 		* @see https://www.advancedcustomfields.com/resources/acf-settings/
 		*/
 		// \add_filter( 'acf/settings/remove_wp_meta_box', '__return_false' );
-
 	}
 
 	/**
@@ -118,16 +124,16 @@ class CustomFields extends Base {
 	 * @return void
 	 */
 	public function registerACFFields() {
-		$fields  = array_map(
+		$fields = array_map(
 			function( $field ) {
 				return array(
 					'key'               => 'field_' . $field,
 					'label'             => ucwords( str_replace( '_', ' ', $field ) ),
 					'name'              => $field,
+					'disabled'          => 1,
 					'type'              => 'text',
 					'required'          => 0,
 					'conditional_logic' => 0,
-					'readonly'          => ( 'timezone' === $field ) ? 0 : 1,
 				);
 			},
 			self::FIELDS
@@ -199,6 +205,37 @@ class CustomFields extends Base {
 		$field['default_value'] = 0;
 		return $field;
 	}
+
+	/**
+	 * Modify timezone field
+	 *
+	 * @link https://www.advancedcustomfields.com/resources/acf-load_field/
+	 *
+	 * @param array $field
+	 * @return array $field
+	 */
+	public function modifyTimezone( $field ) {
+		$field['disabled'] = 0;
+		return $field;
+	}
+
+	/**
+	 * Enable fields
+	 * Enable fields is an AN event
+	 *
+	 * @link https://www.advancedcustomfields.com/resources/acf-load_field/
+	 *
+	 * @param array $field
+	 * @return array $field
+	 */
+	public function enableField( $field ) {
+		$is_an_event = get_post_meta( get_the_ID(), 'is_an_event', true );
+		if ( ! $is_an_event ) {
+			$field['disabled'] = 0;
+		}
+		return $field;
+	}
+
 	/**
 	 * Build list of timezones
 	 *
