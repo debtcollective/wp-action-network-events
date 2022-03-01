@@ -29,6 +29,7 @@ class CustomFields extends Base {
 	 * Custom fields
 	 */
 	public const FIELDS = array(
+		'is_an_event',
 		'browser_url',
 		'an_id',
 		'instructions',
@@ -174,12 +175,30 @@ class CustomFields extends Base {
 				array(
 					'show_in_rest' => true,
 					'single'       => true,
-					'type'         => 'string',
+					'type'         => ( 'is_an_event' === $field ) ? 'boolean' : 'string',
 				)
 			);
 		}
 	}
 
+	/**
+	 * Modify boolean field
+	 *
+	 * @link https://www.advancedcustomfields.com/resources/acf-load_field/
+	 *
+	 * @param array $field
+	 * @return array $field
+	 */
+	public function modifyBoolean( $field ) {
+		$field['type']          = 'true_false';
+		$field['label']         = __( 'Action Network Event', 'wp-action-network-events' );
+		$field['ui']            = 1;
+		$field['ui_on_text']    = '';
+		$field['ui_off_text']   = '';
+		$field['message']       = '';
+		$field['default_value'] = 0;
+		return $field;
+	}
 	/**
 	 * Build list of timezones
 	 *
