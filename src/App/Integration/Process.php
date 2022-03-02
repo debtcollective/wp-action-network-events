@@ -160,7 +160,7 @@ class Process extends Base {
 			'post_type'    => Event::POST_TYPE['id'],
 			'import_id'    => \esc_attr( $post->an_id ),
 			'meta_input'   => array(
-				'is_an_event'  => 1,
+				'is_an_event'        => 1,
 				'browser_url'        => \esc_url( $post->browser_url ),
 				'_links_to'          => \esc_url( $post->browser_url ),
 				'_links_to_target'   => \esc_attr( $post->_links_to_target ),
