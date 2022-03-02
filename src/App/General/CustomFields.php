@@ -217,6 +217,7 @@ class CustomFields extends Base {
 	 */
 	public function modifyTimezone( $field ) {
 		$field['disabled'] = 0;
+		$field['required'] = 1;
 		return $field;
 	}
 
