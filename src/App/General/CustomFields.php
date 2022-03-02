@@ -217,6 +217,8 @@ class CustomFields extends Base {
 	 */
 	public function modifyTimezone( $field ) {
 		$field['disabled'] = 0;
+		$field['required'] = 1;
+		$field['default_value'] = \get_option( 'timezone_string' );
 		return $field;
 	}
 

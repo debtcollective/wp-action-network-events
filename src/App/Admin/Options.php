@@ -152,18 +152,38 @@ class Options extends Base {
 			self::OPTIONS_NAME,
 			self::OPTIONS_NAME
 		);
+		\register_setting( 
+			'reading', 
+			self::OPTIONS_NAME
+		);
 
 		\add_settings_section(
 			self::OPTIONS_NAME . '_sync_section',
-			esc_attr__( 'Sync Settings', 'wp-action-network-events' ),
+			esc_attr__( 'Sync', 'wp-action-network-events' ),
 			false,
 			self::OPTIONS_NAME
 		);
 		\add_settings_section(
 			self::OPTIONS_NAME . '_general_section',
-			esc_attr__( 'General Settings', 'wp-action-network-events' ),
+			esc_attr__( 'General', 'wp-action-network-events' ),
 			false,
 			self::OPTIONS_NAME
+		);
+		\add_settings_section(
+			self::OPTIONS_NAME . '_display_section',
+			esc_attr__( 'Display', 'wp-action-network-events' ),
+			false,
+			self::OPTIONS_NAME
+		);
+
+		/**
+		 * Add to Readings Settings
+		 */
+		\add_settings_section(
+			'reading_display_section',
+			esc_attr__( 'Events Display', 'wp-action-network-events' ),
+			false,
+			'reading',
 		);
 
 		\add_settings_field(
@@ -208,7 +228,20 @@ class Options extends Base {
 			self::OPTIONS_NAME,
 			self::OPTIONS_NAME . '_general_section'
 		);
-
+		\add_settings_field(
+			'events_per_page',
+			\__( 'Events show at most', 'wp-action-network-events' ),
+			array( $this, 'renderEventsPerPage' ),
+			self::OPTIONS_NAME,
+			self::OPTIONS_NAME . '_display_section'
+		);
+		\add_settings_field(
+			'events_per_page',
+			\__( 'Events show at most', 'wp-action-network-events' ),
+			array( $this, 'renderEventsPerPage' ),
+			'reading',
+			'reading_display_section'
+		);
 	}
 
 	/**
@@ -340,7 +373,7 @@ class Options extends Base {
 		$value = isset( $this->options['sync_frequency'] ) ? $this->options['sync_frequency'] : (int) 24;
 
 		printf(
-			'<input type="number" name="wp_action_network_events_options[sync_frequency]" class="regular-text sync_frequency_field" placeholder="%s" value="%s"> %s',
+			'<input type="number" name="wp_action_network_events_options[sync_frequency]" class="small-text sync_frequency_field" placeholder="%s" value="%s"> %s',
 			esc_attr__( '', 'wp-action-network-events' ),
 			esc_attr( $value ),
 			esc_attr__( 'hours', 'wp-action-network-events' ),
@@ -379,6 +412,22 @@ class Options extends Base {
 			esc_attr__( 'Hide', 'wp-action-network-events' )
 		);
 		echo '<p class="description">' . __( 'Hide canceled events on site.', 'wp-action-network-events' ) . '</p>';
+	}
+
+	/**
+	 * Render field
+	 *
+	 * @return void
+	 */
+	public function renderEventsPerPage() {
+		$value = isset( $this->options['events_per_page'] ) ? $this->options['events_per_page'] : \get_option( 'posts_per_page' );
+
+		printf(
+			'<input type="number" name="wp_action_network_events_options[events_per_page]" class="small-text events_per_page_field" placeholder="%s" value="%s">',
+			esc_attr__( '', 'wp-action-network-events' ),
+			esc_attr( $value ),
+		);
+		echo '<p class="description">' . __( 'How many events to display per page.', 'wp-action-network-events' ) . '</p>';		
 	}
 
 	/**
