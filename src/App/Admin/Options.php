@@ -159,19 +159,19 @@ class Options extends Base {
 
 		\add_settings_section(
 			self::OPTIONS_NAME . '_sync_section',
-			esc_attr__( 'Sync Settings', 'wp-action-network-events' ),
+			esc_attr__( 'Sync', 'wp-action-network-events' ),
 			false,
 			self::OPTIONS_NAME
 		);
 		\add_settings_section(
 			self::OPTIONS_NAME . '_general_section',
-			esc_attr__( 'General Settings', 'wp-action-network-events' ),
+			esc_attr__( 'General', 'wp-action-network-events' ),
 			false,
 			self::OPTIONS_NAME
 		);
 		\add_settings_section(
 			self::OPTIONS_NAME . '_display_section',
-			esc_attr__( 'Display Settings', 'wp-action-network-events' ),
+			esc_attr__( 'Display', 'wp-action-network-events' ),
 			false,
 			self::OPTIONS_NAME
 		);
@@ -181,7 +181,7 @@ class Options extends Base {
 		 */
 		\add_settings_section(
 			'reading_display_section',
-			esc_attr__( 'Events Display Settings', 'wp-action-network-events' ),
+			esc_attr__( 'Events Display', 'wp-action-network-events' ),
 			false,
 			'reading',
 		);
