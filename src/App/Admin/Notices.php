@@ -26,6 +26,10 @@ class Notices extends Base {
 
 	protected $data;
 
+	protected $api_key;
+
+	protected $base_url;
+
 	/**
 	 * Notices data key
 	 */
@@ -63,6 +67,12 @@ class Notices extends Base {
 
 		\add_action( 'admin_notices', array( $this, 'renderAdminNotice' ) );
 
+		$options        = Options::getOptions();
+		$this->setBaseUrl( isset( $options['base_url'] ) ? $options['base_url'] : null );
+		$this->setApiKey( isset( $options['api_key'] ) ? $options['api_key'] : null );
+
+		\add_action( 'admin_notices', array( $this, 'renderWarnings' ) );
+
 	}
 
 	/**
@@ -95,6 +105,29 @@ class Notices extends Base {
 			<p><?php print_r( $this->status ); ?></p>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Render Notices on Options page
+	 *
+	 * @return void
+	 */
+	public function renderWarnings() {
+		$screen = \get_current_screen();
+		if ( ! $screen || 'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base ) {
+			return;
+		}
+
+		$apiKey = $this->getApiKey();
+		$baseUrl = $this->getBaseUrl();
+
+		if( ! $apiKey ) {
+			printf( $this->warning( esc_html__( 'API Key is Required to Sync Events', 'wp-action-network-events' ) ) );
+		}
+
+		if( ! $baseUrl ) {
+			printf( $this->warning( esc_html__( 'Base URL is Required to Sync Events', 'wp-action-network-events' ) ) );
+		}
 	}
 
 	/**
@@ -167,24 +200,43 @@ class Notices extends Base {
 		);
 	}
 
-	// /**
-	// * Get data var
-	// *
-	// * @return array $data
-	// */
-	// public function getData() {
-	// return $this->data;
-	// }
+	/**
+	 * Set var
+	 *
+	 * @param string $value
+	 * @return void
+	 */
+	public function setApiKey( $value ) {
+		$this->api_key = $value;
+	}
 
-	// /**
-	// * Set data var
-	// *
-	// * @param array $data
-	// * @return void
-	// */
-	// public function setData( array $data ) {
-	// $this->data = $data;
-	// }
+	/**
+	 * Get var
+	 *
+	 * @return string $this->api_key
+	 */
+	public function getApiKey() {
+		return $this->api_key;
+	}
+
+	/**
+	 * Set var
+	 *
+	 * @param string $value
+	 * @return void
+	 */
+	public function setBaseUrl( $value ) {
+		$this->base_url = $value;
+	}
+
+	/**
+	 * Get var
+	 *
+	 * @return string $this->base_url
+	 */
+	public function getBaseUrl() {
+		return $this->base_url;
+	}
 
 	/**
 	 * Register Script
