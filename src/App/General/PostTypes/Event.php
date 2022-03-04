@@ -18,6 +18,13 @@ use WpActionNetworkEvents\App\Admin\Options;
 class Event extends PostType {
 
 	/**
+	 * Plugin options
+	 *
+	 * @var array
+	 */
+	protected $options;
+
+	/**
 	 * Status map to WP post_status
 	 *
 	 * @since 1.0.0
@@ -26,7 +33,7 @@ class Event extends PostType {
 	const STATUSES = array(
 		'confirmed' => 'publish',
 		'tentative' => 'draft',
-		'cancelled' => 'cancelled', // API misspells
+		'cancelled' => 'cancelled',
 	);
 
 	/**
@@ -72,6 +79,8 @@ class Event extends PostType {
 	 */
 	public function __construct( $version, $plugin_name ) {
 		parent::__construct( $version, $plugin_name );
+
+		$this->options = \get_option( Options::OPTIONS_NAME );
 		$this->init();
 
 		\add_filter( 'WpActionNetworkEvents\App\General\PostTypes\Event\Args', array( $this, 'set_event_archive_slug' ) );
@@ -80,7 +89,7 @@ class Event extends PostType {
 		\add_action( 'admin_footer-post.php', array( $this, 'addStatusToPostEdit' ) );
 		\add_action( 'admin_footer-post-new.php', array( $this, 'addStatusToPostEdit' ) );
 		\add_action( 'admin_footer-edit.php', array( $this, 'addStatusToQuickEdit' ) );
-		\add_action( 'pre_get_posts', array( $this, 'hideEvents' ) );
+		\add_action( 'pre_get_posts', array( $this, 'preGetPosts' ) );
 		\add_filter( 'post_class', array( $this, 'addPostClass' ), 10, 3 );
 	}
 
@@ -93,8 +102,7 @@ class Event extends PostType {
 	 * @return array
 	 */
 	function set_event_archive_slug( $args ) {
-		$event_options = \get_option( Options::OPTIONS_NAME );
-		if ( isset( $event_options['archive_slug'] ) && $slug = $event_options['archive_slug'] ) {
+		if ( isset( $this->options['archive_slug'] ) && $slug = $this->options['archive_slug'] ) {
 			$args['has_archive']     = esc_attr( $slug );
 			$args['rewrite']['slug'] = esc_attr( $slug );
 		}
@@ -161,12 +169,11 @@ class Event extends PostType {
 	 * @return void
 	 */
 	public function registerPostStatus() {
-		$event_options = \get_option( Options::OPTIONS_NAME );
 		$args          = array(
 			'label'                     => \_x( self::STATUS['label'], 'Custom Post Status Label', 'wp-action-network-events' ),
-			'public'                    => ( isset( $event_options['hide_canceled'] ) && 'checked' == $event_options['hide_canceled'] ) ? false : true,
-			'protected'                 => ( isset( $event_options['hide_canceled'] ) && 'checked' == $event_options['hide_canceled'] ) ? true : false,
-			'exclude_from_search'       => ( isset( $event_options['hide_canceled'] ) && 'checked' == $event_options['hide_canceled'] ) ? true : false,
+			'public'                    => ( isset( $this->options['hide_canceled'] ) && 'checked' == $this->options['hide_canceled'] ) ? false : true,
+			'protected'                 => ( isset( $this->options['hide_canceled'] ) && 'checked' == $this->options['hide_canceled'] ) ? true : false,
+			'exclude_from_search'       => ( isset( $this->options['hide_canceled'] ) && 'checked' == $this->options['hide_canceled'] ) ? true : false,
 			'show_in_admin_all_list'    => true,
 			'show_in_admin_status_list' => true,
 			'label_count'               => \_n_noop( 'Canceled <span class="count">(%s)</span>', 'Canceled <span class="count">(%s)</span>', 'wp-action-network-events' ),
@@ -278,37 +285,44 @@ class Event extends PostType {
 	 * @param object $query
 	 * @return void
 	 */
-	function hideEvents( $query ) {
-		$event_options = \get_option( Options::OPTIONS_NAME );
+	public function preGetPosts( $query ) {
 		if ( ! is_admin() && $query->is_main_query() && ( is_post_type_archive( self::POST_TYPE['id'] ) || $query->is_search ) ) {
-			$meta_query = array(
-				'relation' => 'AND',
-				array(
-					'relation' => 'OR',
+			if( isset( $this->options['hide_canceled'] ) && 'checked' === $this->options['hide_canceled'] ) {
+				$meta_query = array(
+					'relation' => 'AND',
 					array(
-						'key'     => 'hidden',
-						'compare' => 'NOT EXISTS',
+						'relation' => 'OR',
+						array(
+							'key'     => 'hidden',
+							'compare' => 'NOT EXISTS',
+						),
+						array(
+							'key'     => 'hidden',
+							'value'   => 'true',
+							'compare' => 'NOT LIKE',
+						),
 					),
 					array(
-						'key'     => 'hidden',
-						'value'   => 'true',
-						'compare' => 'NOT LIKE',
+						'relation' => 'OR',
+						array(
+							'key'     => 'visibility',
+							'compare' => 'NOT EXISTS',
+						),
+						array(
+							'key'     => 'visibility',
+							'value'   => 'private',
+							'compare' => 'NOT LIKE',
+						),
 					),
-				),
-				array(
-					'relation' => 'OR',
-					array(
-						'key'     => 'visibility',
-						'compare' => 'NOT EXISTS',
-					),
-					array(
-						'key'     => 'visibility',
-						'value'   => 'private',
-						'compare' => 'NOT LIKE',
-					),
-				),
-			);
-			$query->set( 'meta_query', $meta_query );
+				);
+				$query->set( 'meta_query', $meta_query );
+			}
+
+			$query->set( 'post_status', array( 'publish' ) );
+			$query->set( 'orderby', 'meta_value' );
+			$query->set( 'order', 'DESC' );
+			$query->set( 'meta_key', 'start_date' );
+			$query->set( 'meta_type', 'DATETIME' );
 		}
 	}
 
