@@ -163,6 +163,9 @@ abstract class GetData {
 
 		if ( $this->api_key && $this->base_url ) {
 			$this->getRecords();
+		} else {
+			$this->setStatus( 'request', 'error' );
+			$this->setLog( 'request', __( 'API Key or Base URL not provided', 'wp-action-network-events' ) );
 		}
 	}
 
