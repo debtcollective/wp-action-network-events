@@ -24,10 +24,25 @@ use WpActionNetworkEvents\App\Integration\Sync;
  */
 class Notices extends Base {
 
+	/**
+	 * Data
+	 *
+	 * @var arrat
+	 */
 	protected $data;
 
+	/**
+	 * API Key
+	 *
+	 * @var string
+	 */
 	protected $api_key;
 
+	/**
+	 * Base URL
+	 *
+	 * @var string
+	 */
 	protected $base_url;
 
 	/**
@@ -87,6 +102,7 @@ class Notices extends Base {
 		}
 
 		$status = isset( $this->status['get']['response'] ) && 200 === $this->status['get']['response'] ? 'success' : 'warning';
+		$response = isset( $this->status['get']['response'] ) ? isset( $this->status['get']['response'] ) : \esc_html( 'Request Failed', 'wp-action-network-events' );
 
 		switch ( $this->status['source'] ) {
 			case 'manual':
@@ -101,7 +117,7 @@ class Notices extends Base {
 
 		?>
 		<div class="notice notice-<?php echo $status; ?> is-dismissible">
-			<p><?php printf( 'Last %s at %s - Status %s', $source, $this->status['last_run'], $this->status['get']['response'] ); ?></p>
+			<p><?php printf( 'Last %s at %s - Status %s', $source, $this->status['last_run'], $response ); ?></p>
 			<p><?php print_r( $this->status ); ?></p>
 		</div>
 		<?php
@@ -118,14 +134,11 @@ class Notices extends Base {
 			return;
 		}
 
-		$apiKey = $this->getApiKey();
-		$baseUrl = $this->getBaseUrl();
-
-		if( ! $apiKey ) {
+		if( ! $this->api_key ) {
 			printf( $this->warning( esc_html__( 'API Key is Required to Sync Events', 'wp-action-network-events' ) ) );
 		}
 
-		if( ! $baseUrl ) {
+		if( ! $this->base_url ) {
 			printf( $this->warning( esc_html__( 'Base URL is Required to Sync Events', 'wp-action-network-events' ) ) );
 		}
 	}
