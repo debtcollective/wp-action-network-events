@@ -176,6 +176,7 @@ class Process extends Base {
 				'status'             => \esc_attr( $post->status ),
 				'visibility'         => \esc_attr( $post->visibility ),
 				'an_campaign_id'     => ( ! empty( $post->{'action_network:event_campaign_id'} ) ) ? \esc_attr( $post->{'action_network:event_campaign_id'} ) : '',
+				'hidden'             => $post->hidden,
 			),
 		);
 
