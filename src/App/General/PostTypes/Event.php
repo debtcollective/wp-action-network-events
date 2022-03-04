@@ -287,38 +287,29 @@ class Event extends PostType {
 	 */
 	public function preGetPosts( $query ) {
 		if ( ! is_admin() && $query->is_main_query() && ( is_post_type_archive( self::POST_TYPE['id'] ) || $query->is_search ) ) {
+			$meta_query = array(
+				'relation' => 'AND',
+				array(
+					'key'     => 'hidden',
+					'value'   => '1',
+					'compare' => '!=',
+				),
+				array(
+					'key'     => 'hidden',
+					'value'   => true,
+					'compare' => '!=',
+				),
+				array(
+					'key'     => 'visibility',
+					'value'   => 'private',
+					'compare' => '!=',
+				),
+			);
+			$query->set( 'meta_query', $meta_query );
+			
 			if( isset( $this->options['hide_canceled'] ) && 'checked' === $this->options['hide_canceled'] ) {
-				$meta_query = array(
-					'relation' => 'AND',
-					array(
-						'relation' => 'OR',
-						array(
-							'key'     => 'hidden',
-							'compare' => 'NOT EXISTS',
-						),
-						array(
-							'key'     => 'hidden',
-							'value'   => 'true',
-							'compare' => 'NOT LIKE',
-						),
-					),
-					array(
-						'relation' => 'OR',
-						array(
-							'key'     => 'visibility',
-							'compare' => 'NOT EXISTS',
-						),
-						array(
-							'key'     => 'visibility',
-							'value'   => 'private',
-							'compare' => 'NOT LIKE',
-						),
-					),
-				);
-				$query->set( 'meta_query', $meta_query );
+				$query->set( 'post_status', array( 'publish' ) );
 			}
-
-			$query->set( 'post_status', array( 'publish' ) );
 			$query->set( 'orderby', 'meta_value' );
 			$query->set( 'order', 'DESC' );
 			$query->set( 'meta_key', 'start_date' );

@@ -190,7 +190,7 @@ class CustomFields extends Base {
 				array(
 					'show_in_rest' => true,
 					'single'       => true,
-					'type'         => ( 'is_an_event' === $field ) ? 'boolean' : 'string',
+					'type'         => ( 'is_an_event' === $field || 'hidden' === $field ) ? 'boolean' : 'string',
 				)
 			);
 		}
