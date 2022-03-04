@@ -77,6 +77,14 @@ class CustomFields extends Base {
 	);
 
 	/**
+	 * Timezone Regions
+	 */
+	protected $regions = array(
+        \DateTimeZone::AMERICA,
+        \DateTimeZone::PACIFIC,
+    );
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
@@ -219,6 +227,17 @@ class CustomFields extends Base {
 		$field['disabled'] = 0;
 		$field['required'] = 1;
 		$field['default_value'] = \get_option( 'timezone_string' );
+
+		$is_an_event = \get_post_meta( \get_the_ID(), 'is_an_event', true );
+		if ( ! $is_an_event ) {
+			$field['type'] = 'select';
+			$field['choices'] = $this->get_timezone_selector_array();
+			$field['return_format'] = 'value';
+			$field['multiple'] = false;
+			$field['allow_null'] = false;
+			$field['ui'] = true;
+			$field['ajax'] = false;
+		}
 		return $field;
 	}
 
@@ -276,6 +295,24 @@ class CustomFields extends Base {
 			}
 		}
 
+		return $array;
+	}
+
+	/**
+	 * Get Associative Array of Timezones
+	 *
+	 * @param string $continent
+	 * @return array $array
+	 */
+	function get_timezone_selector_array() {
+		$timezones = array();
+		foreach( $this->regions as $region ) {
+			$timezones = array_merge( $timezones, \DateTimeZone::listIdentifiers( $region ) );
+		}
+		$array = array();
+		foreach( $timezones as $timezone ) {
+			$array[$timezone] = $timezone;
+		}
 		return $array;
 	}
 
