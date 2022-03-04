@@ -77,6 +77,14 @@ class CustomFields extends Base {
 	);
 
 	/**
+	 * Timezone Regions
+	 */
+	protected $regions = array(
+        \DateTimeZone::AMERICA,
+        \DateTimeZone::PACIFIC,
+    );
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
@@ -103,8 +111,8 @@ class CustomFields extends Base {
 
 		\add_filter( 'acf/load_field/name=is_an_event', array( $this, 'modifyBoolean' ) );
 		\add_filter( 'acf/load_field/name=timezone', array( $this, 'modifyTimezone' ) );
-		\add_filter( 'acf/load_field/name=start_date', array( $this, 'enableField' ) );
-		\add_filter( 'acf/load_field/name=end_date', array( $this, 'enableField' ) );
+		\add_filter( 'acf/load_field/name=start_date', array( $this, 'displayDateTimePicker' ) );
+		\add_filter( 'acf/load_field/name=end_date', array( $this, 'displayDateTimePicker' ) );
 		\add_filter( 'acf/load_field/name=browser_url', array( $this, 'enableField' ) );
 		\add_filter( 'acf/load_field/name=location_venue', array( $this, 'enableField' ) );
 
@@ -219,6 +227,17 @@ class CustomFields extends Base {
 		$field['disabled'] = 0;
 		$field['required'] = 1;
 		$field['default_value'] = \get_option( 'timezone_string' );
+
+		$is_an_event = \get_post_meta( \get_the_ID(), 'is_an_event', true );
+		if ( ! $is_an_event ) {
+			$field['type'] = 'select';
+			$field['choices'] = $this->get_timezone_selector_array();
+			$field['return_format'] = 'value';
+			$field['multiple'] = false;
+			$field['allow_null'] = false;
+			$field['ui'] = true;
+			$field['ajax'] = false;
+		}
 		return $field;
 	}
 
@@ -232,9 +251,30 @@ class CustomFields extends Base {
 	 * @return array $field
 	 */
 	public function enableField( $field ) {
-		$is_an_event = get_post_meta( get_the_ID(), 'is_an_event', true );
+		$is_an_event = \get_post_meta( \get_the_ID(), 'is_an_event', true );
 		if ( ! $is_an_event ) {
 			$field['disabled'] = 0;
+		}
+		return $field;
+	}
+
+	/**
+	 * Display as DateTime Picker
+	 * 
+	 *  @link https://www.advancedcustomfields.com/resources/acf-load_field/
+	 *
+	 * @param array $field
+	 * @return array $field
+	 */
+	public function displayDateTimePicker( $field ) {
+		$is_an_event = \get_post_meta( \get_the_ID(), 'is_an_event', true );
+		if ( ! $is_an_event ) {
+			$field['disabled'] = 0;
+			$field['type'] = 'date_time_picker';
+			$field['required'] = 1;
+			$field['display_format'] = 'm/d/Y g:i a';
+			$field['return_format'] = 'Y-m-d H:i:s';
+			$field['first_day'] = 1;
 		}
 		return $field;
 	}
@@ -255,6 +295,24 @@ class CustomFields extends Base {
 			}
 		}
 
+		return $array;
+	}
+
+	/**
+	 * Get Associative Array of Timezones
+	 *
+	 * @param string $continent
+	 * @return array $array
+	 */
+	function get_timezone_selector_array() {
+		$timezones = array();
+		foreach( $this->regions as $region ) {
+			$timezones = array_merge( $timezones, \DateTimeZone::listIdentifiers( $region ) );
+		}
+		$array = array();
+		foreach( $timezones as $timezone ) {
+			$array[$timezone] = $timezone;
+		}
 		return $array;
 	}
 
