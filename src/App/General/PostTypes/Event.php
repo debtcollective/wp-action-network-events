@@ -89,7 +89,7 @@ class Event extends PostType {
 		\add_action( 'admin_footer-post.php', array( $this, 'addStatusToPostEdit' ) );
 		\add_action( 'admin_footer-post-new.php', array( $this, 'addStatusToPostEdit' ) );
 		\add_action( 'admin_footer-edit.php', array( $this, 'addStatusToQuickEdit' ) );
-		\add_action( 'pre_get_posts', array( $this, 'hideEvents' ) );
+		\add_action( 'pre_get_posts', array( $this, 'preGetPosts' ) );
 		\add_filter( 'post_class', array( $this, 'addPostClass' ), 10, 3 );
 	}
 
@@ -285,37 +285,44 @@ class Event extends PostType {
 	 * @param object $query
 	 * @return void
 	 */
-	function hideEvents( $query ) {
-		$event_options = \get_option( Options::OPTIONS_NAME );
+	public function preGetPosts( $query ) {
 		if ( ! is_admin() && $query->is_main_query() && ( is_post_type_archive( self::POST_TYPE['id'] ) || $query->is_search ) ) {
-			$meta_query = array(
-				'relation' => 'AND',
-				array(
-					'relation' => 'OR',
+			if( isset( $this->options['hide_canceled'] ) && 'checked' === $this->options['hide_canceled'] ) {
+				$meta_query = array(
+					'relation' => 'AND',
 					array(
-						'key'     => 'hidden',
-						'compare' => 'NOT EXISTS',
+						'relation' => 'OR',
+						array(
+							'key'     => 'hidden',
+							'compare' => 'NOT EXISTS',
+						),
+						array(
+							'key'     => 'hidden',
+							'value'   => 'true',
+							'compare' => 'NOT LIKE',
+						),
 					),
 					array(
-						'key'     => 'hidden',
-						'value'   => 'true',
-						'compare' => 'NOT LIKE',
+						'relation' => 'OR',
+						array(
+							'key'     => 'visibility',
+							'compare' => 'NOT EXISTS',
+						),
+						array(
+							'key'     => 'visibility',
+							'value'   => 'private',
+							'compare' => 'NOT LIKE',
+						),
 					),
-				),
-				array(
-					'relation' => 'OR',
-					array(
-						'key'     => 'visibility',
-						'compare' => 'NOT EXISTS',
-					),
-					array(
-						'key'     => 'visibility',
-						'value'   => 'private',
-						'compare' => 'NOT LIKE',
-					),
-				),
-			);
-			$query->set( 'meta_query', $meta_query );
+				);
+				$query->set( 'meta_query', $meta_query );
+			}
+
+			$query->set( 'post_status', array( 'publish' ) );
+			$query->set( 'orderby', 'meta_value' );
+			$query->set( 'order', 'DESC' );
+			$query->set( 'meta_key', 'start_date' );
+			$query->set( 'meta_type', 'DATETIME' );
 		}
 	}
 
