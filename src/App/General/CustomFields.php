@@ -111,8 +111,12 @@ class CustomFields extends Base {
 
 		\add_filter( 'acf/load_field/name=is_an_event', array( $this, 'modifyBoolean' ) );
 		\add_filter( 'acf/load_field/name=timezone', array( $this, 'modifyTimezone' ) );
+
 		\add_filter( 'acf/load_field/name=start_date', array( $this, 'displayDateTimePicker' ) );
+		\add_filter( 'acf/load_field/name=start_date', array( $this, 'setRequired' ) );
+		\add_filter( 'acf/load_field/name=start_date', array( $this, 'enableField' ) );
 		\add_filter( 'acf/load_field/name=end_date', array( $this, 'displayDateTimePicker' ) );
+		\add_filter( 'acf/load_field/name=end_date', array( $this, 'enableField' ) );
 		\add_filter( 'acf/load_field/name=browser_url', array( $this, 'enableField' ) );
 		\add_filter( 'acf/load_field/name=location_venue', array( $this, 'enableField' ) );
 
@@ -135,11 +139,16 @@ class CustomFields extends Base {
 	public function registerACFFields() {
 		$fields = array_map(
 			function( $field ) {
+				$enabled = array(
+					'is_an_event',
+					'timezone',
+				);
 				return array(
 					'key'               => 'field_' . $field,
 					'label'             => ucwords( str_replace( '_', ' ', $field ) ),
 					'name'              => $field,
-					'disabled'          => 1,
+					'disabled'          => in_array( $field, $enabled ) ? 0 : 1,
+					'readonly'          => in_array( $field, $enabled ) ? 0 : 1,
 					'type'              => 'text',
 					'required'          => 0,
 					'conditional_logic' => 0,
@@ -224,19 +233,18 @@ class CustomFields extends Base {
 	 * @return array $field
 	 */
 	public function modifyTimezone( $field ) {
-		$field['disabled'] = 0;
-		$field['required'] = 1;
+		$field['required']      = 1;
 		$field['default_value'] = \get_option( 'timezone_string' );
 
 		$is_an_event = \get_post_meta( \get_the_ID(), 'is_an_event', true );
 		if ( ! $is_an_event ) {
-			$field['type'] = 'select';
-			$field['choices'] = $this->get_timezone_selector_array();
+			$field['type']          = 'select';
+			$field['choices']       = $this->get_timezone_selector_array();
 			$field['return_format'] = 'value';
-			$field['multiple'] = false;
-			$field['allow_null'] = false;
-			$field['ui'] = true;
-			$field['ajax'] = false;
+			$field['multiple']      = false;
+			$field['allow_null']    = false;
+			$field['ui']            = true;
+			$field['ajax']          = false;
 		}
 		return $field;
 	}
@@ -254,13 +262,30 @@ class CustomFields extends Base {
 		$is_an_event = \get_post_meta( \get_the_ID(), 'is_an_event', true );
 		if ( ! $is_an_event ) {
 			$field['disabled'] = 0;
+			$field['readonly'] = 0;
+		}
+		return $field;
+	}
+
+	/**
+	 * Make field Required
+	 *
+	 *  @link https://www.advancedcustomfields.com/resources/acf-load_field/
+	 *
+	 * @param array $field
+	 * @return array $field
+	 */
+	public function setRequired( $field ) {
+		$is_an_event = \get_post_meta( \get_the_ID(), 'is_an_event', true );
+		if ( ! $is_an_event ) {
+			$field['required'] = 1;
 		}
 		return $field;
 	}
 
 	/**
 	 * Display as DateTime Picker
-	 * 
+	 *
 	 *  @link https://www.advancedcustomfields.com/resources/acf-load_field/
 	 *
 	 * @param array $field
