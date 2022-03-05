@@ -80,9 +80,9 @@ class CustomFields extends Base {
 	 * Timezone Regions
 	 */
 	protected $regions = array(
-        \DateTimeZone::AMERICA,
-        \DateTimeZone::PACIFIC,
-    );
+		\DateTimeZone::AMERICA,
+		\DateTimeZone::PACIFIC,
+	);
 
 	/**
 	 * Constructor.
@@ -294,12 +294,10 @@ class CustomFields extends Base {
 	public function displayDateTimePicker( $field ) {
 		$is_an_event = \get_post_meta( \get_the_ID(), 'is_an_event', true );
 		if ( ! $is_an_event ) {
-			$field['disabled'] = 0;
-			$field['type'] = 'date_time_picker';
-			$field['required'] = 1;
+			$field['type']           = 'date_time_picker';
 			$field['display_format'] = 'm/d/Y g:i a';
-			$field['return_format'] = 'Y-m-d H:i:s';
-			$field['first_day'] = 1;
+			$field['return_format']  = 'Y-m-d H:i:s';
+			$field['first_day']      = 1;
 		}
 		return $field;
 	}
@@ -331,12 +329,12 @@ class CustomFields extends Base {
 	 */
 	function get_timezone_selector_array() {
 		$timezones = array();
-		foreach( $this->regions as $region ) {
+		foreach ( $this->regions as $region ) {
 			$timezones = array_merge( $timezones, \DateTimeZone::listIdentifiers( $region ) );
 		}
 		$array = array();
-		foreach( $timezones as $timezone ) {
-			$array[$timezone] = $timezone;
+		foreach ( $timezones as $timezone ) {
+			$array[ $timezone ] = $timezone;
 		}
 		return $array;
 	}
