@@ -24,7 +24,26 @@ use WpActionNetworkEvents\App\Integration\Sync;
  */
 class Notices extends Base {
 
+	/**
+	 * Data
+	 *
+	 * @var arrat
+	 */
 	protected $data;
+
+	/**
+	 * API Key
+	 *
+	 * @var string
+	 */
+	protected $api_key;
+
+	/**
+	 * Base URL
+	 *
+	 * @var string
+	 */
+	protected $base_url;
 
 	/**
 	 * Notices data key
@@ -63,6 +82,12 @@ class Notices extends Base {
 
 		\add_action( 'admin_notices', array( $this, 'renderAdminNotice' ) );
 
+		$options        = Options::getOptions();
+		$this->setBaseUrl( isset( $options['base_url'] ) ? $options['base_url'] : null );
+		$this->setApiKey( isset( $options['api_key'] ) ? $options['api_key'] : null );
+
+		\add_action( 'admin_notices', array( $this, 'renderWarnings' ) );
+
 	}
 
 	/**
@@ -77,6 +102,7 @@ class Notices extends Base {
 		}
 
 		$status = isset( $this->status['get']['response'] ) && 200 === $this->status['get']['response'] ? 'success' : 'warning';
+		$response = isset( $this->status['get']['response'] ) ? isset( $this->status['get']['response'] ) : \esc_html( 'Request Failed', 'wp-action-network-events' );
 
 		switch ( $this->status['source'] ) {
 			case 'manual':
@@ -91,10 +117,30 @@ class Notices extends Base {
 
 		?>
 		<div class="notice notice-<?php echo $status; ?> is-dismissible">
-			<p><?php printf( 'Last %s at %s - Status %s', $source, $this->status['last_run'], $this->status['get']['response'] ); ?></p>
+			<p><?php printf( 'Last %s at %s - Status %s', $source, $this->status['last_run'], $response ); ?></p>
 			<p><?php print_r( $this->status ); ?></p>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Render Notices on Options page
+	 *
+	 * @return void
+	 */
+	public function renderWarnings() {
+		$screen = \get_current_screen();
+		if ( ! $screen || 'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base ) {
+			return;
+		}
+
+		if( ! $this->api_key ) {
+			printf( $this->warning( esc_html__( 'API Key is Required to Sync Events', 'wp-action-network-events' ) ) );
+		}
+
+		if( ! $this->base_url ) {
+			printf( $this->warning( esc_html__( 'Base URL is Required to Sync Events', 'wp-action-network-events' ) ) );
+		}
 	}
 
 	/**
@@ -167,24 +213,43 @@ class Notices extends Base {
 		);
 	}
 
-	// /**
-	// * Get data var
-	// *
-	// * @return array $data
-	// */
-	// public function getData() {
-	// return $this->data;
-	// }
+	/**
+	 * Set var
+	 *
+	 * @param string $value
+	 * @return void
+	 */
+	public function setApiKey( $value ) {
+		$this->api_key = $value;
+	}
 
-	// /**
-	// * Set data var
-	// *
-	// * @param array $data
-	// * @return void
-	// */
-	// public function setData( array $data ) {
-	// $this->data = $data;
-	// }
+	/**
+	 * Get var
+	 *
+	 * @return string $this->api_key
+	 */
+	public function getApiKey() {
+		return $this->api_key;
+	}
+
+	/**
+	 * Set var
+	 *
+	 * @param string $value
+	 * @return void
+	 */
+	public function setBaseUrl( $value ) {
+		$this->base_url = $value;
+	}
+
+	/**
+	 * Get var
+	 *
+	 * @return string $this->base_url
+	 */
+	public function getBaseUrl() {
+		return $this->base_url;
+	}
 
 	/**
 	 * Register Script

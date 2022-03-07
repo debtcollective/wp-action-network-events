@@ -76,28 +76,19 @@ function render( $attributes, $content, $block ) {
 	$args['meta_query'] = array(
 		'relation' => 'AND',
 		array(
-			'relation' => 'OR',
-			array(
-				'key'     => 'hidden',
-				'compare' => 'NOT EXISTS',
-			),
-			array(
-				'key'     => 'hidden',
-				'value'   => 'true',
-				'compare' => 'NOT LIKE',
-			),
+			'key'     => 'hidden',
+			'value'   => '1',
+			'compare' => '!=',
 		),
 		array(
-			'relation' => 'OR',
-			array(
-				'key'     => 'visibility',
-				'compare' => 'NOT EXISTS',
-			),
-			array(
-				'key'     => 'visibility',
-				'value'   => 'private',
-				'compare' => 'NOT LIKE',
-			),
+			'key'     => 'hidden',
+			'value'   => true,
+			'compare' => '!=',
+		),
+		array(
+			'key'     => 'visibility',
+			'value'   => 'private',
+			'compare' => '!=',
 		),
 	);
 
@@ -110,7 +101,7 @@ function render( $attributes, $content, $block ) {
 		if ( 'past' === $args['scope'] ) {
 			$compare = '<';
 		}
-		$args['meta_query'][][] = array(
+		$args['meta_query'][] = array(
 			'key'     => 'start_date',
 			'value'   => \date( 'c' ),
 			'compare' => $compare,

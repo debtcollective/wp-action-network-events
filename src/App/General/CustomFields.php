@@ -29,6 +29,7 @@ class CustomFields extends Base {
 	 * Custom fields
 	 */
 	public const FIELDS = array(
+		'is_an_event',
 		'browser_url',
 		'an_id',
 		'instructions',
@@ -76,6 +77,14 @@ class CustomFields extends Base {
 	);
 
 	/**
+	 * Timezone Regions
+	 */
+	protected $regions = array(
+		\DateTimeZone::AMERICA,
+		\DateTimeZone::PACIFIC,
+	);
+
+	/**
 	 * Constructor.
 	 *
 	 * @since 1.0.0
@@ -96,8 +105,20 @@ class CustomFields extends Base {
 		 *
 		 * @see Bootstrap::__construct
 		 */
+		\add_action( 'acf/input/admin_enqueue_scripts', array( $this, 'enqueueScripts' ), 10, 0 );
 		\add_action( 'init', array( $this, 'registerPostMeta' ) );
 		\add_action( 'acf/init', array( $this, 'registerACFFields' ) );
+
+		\add_filter( 'acf/load_field/name=is_an_event', array( $this, 'modifyBoolean' ) );
+		\add_filter( 'acf/load_field/name=timezone', array( $this, 'modifyTimezone' ) );
+
+		\add_filter( 'acf/load_field/name=start_date', array( $this, 'displayDateTimePicker' ) );
+		\add_filter( 'acf/load_field/name=start_date', array( $this, 'setRequired' ) );
+		\add_filter( 'acf/load_field/name=start_date', array( $this, 'enableField' ) );
+		\add_filter( 'acf/load_field/name=end_date', array( $this, 'displayDateTimePicker' ) );
+		\add_filter( 'acf/load_field/name=end_date', array( $this, 'enableField' ) );
+		\add_filter( 'acf/load_field/name=browser_url', array( $this, 'enableField' ) );
+		\add_filter( 'acf/load_field/name=location_venue', array( $this, 'enableField' ) );
 
 		/**
 		* Don't hide custom fields meta box
@@ -105,7 +126,6 @@ class CustomFields extends Base {
 		* @see https://www.advancedcustomfields.com/resources/acf-settings/
 		*/
 		// \add_filter( 'acf/settings/remove_wp_meta_box', '__return_false' );
-
 	}
 
 	/**
@@ -117,16 +137,21 @@ class CustomFields extends Base {
 	 * @return void
 	 */
 	public function registerACFFields() {
-		$fields  = array_map(
+		$fields = array_map(
 			function( $field ) {
+				$enabled = array(
+					'is_an_event',
+					'timezone',
+				);
 				return array(
 					'key'               => 'field_' . $field,
 					'label'             => ucwords( str_replace( '_', ' ', $field ) ),
 					'name'              => $field,
+					'disabled'          => in_array( $field, $enabled ) ? 0 : 1,
+					'readonly'          => in_array( $field, $enabled ) ? 0 : 1,
 					'type'              => 'text',
 					'required'          => 0,
 					'conditional_logic' => 0,
-					'readonly'          => ( 'timezone' === $field ) ? 0 : 1,
 				);
 			},
 			self::FIELDS
@@ -174,10 +199,107 @@ class CustomFields extends Base {
 				array(
 					'show_in_rest' => true,
 					'single'       => true,
-					'type'         => 'string',
+					'type'         => ( 'is_an_event' === $field || 'hidden' === $field ) ? 'boolean' : 'string',
 				)
 			);
 		}
+	}
+
+	/**
+	 * Modify boolean field
+	 *
+	 * @link https://www.advancedcustomfields.com/resources/acf-load_field/
+	 *
+	 * @param array $field
+	 * @return array $field
+	 */
+	public function modifyBoolean( $field ) {
+		$field['type']          = 'true_false';
+		$field['label']         = __( 'Action Network Event', 'wp-action-network-events' );
+		$field['ui']            = 1;
+		$field['ui_on_text']    = '';
+		$field['ui_off_text']   = '';
+		$field['message']       = '';
+		$field['default_value'] = 0;
+		return $field;
+	}
+
+	/**
+	 * Modify timezone field
+	 *
+	 * @link https://www.advancedcustomfields.com/resources/acf-load_field/
+	 *
+	 * @param array $field
+	 * @return array $field
+	 */
+	public function modifyTimezone( $field ) {
+		$field['required']      = 1;
+		$field['default_value'] = \get_option( 'timezone_string' );
+
+		$is_an_event = \get_post_meta( \get_the_ID(), 'is_an_event', true );
+		if ( ! $is_an_event ) {
+			$field['type']          = 'select';
+			$field['choices']       = $this->get_timezone_selector_array();
+			$field['return_format'] = 'value';
+			$field['multiple']      = false;
+			$field['allow_null']    = false;
+			$field['ui']            = true;
+			$field['ajax']          = false;
+		}
+		return $field;
+	}
+
+	/**
+	 * Enable fields
+	 * Enable fields is an AN event
+	 *
+	 * @link https://www.advancedcustomfields.com/resources/acf-load_field/
+	 *
+	 * @param array $field
+	 * @return array $field
+	 */
+	public function enableField( $field ) {
+		$is_an_event = \get_post_meta( \get_the_ID(), 'is_an_event', true );
+		if ( ! $is_an_event ) {
+			$field['disabled'] = 0;
+			$field['readonly'] = 0;
+		}
+		return $field;
+	}
+
+	/**
+	 * Make field Required
+	 *
+	 *  @link https://www.advancedcustomfields.com/resources/acf-load_field/
+	 *
+	 * @param array $field
+	 * @return array $field
+	 */
+	public function setRequired( $field ) {
+		$is_an_event = \get_post_meta( \get_the_ID(), 'is_an_event', true );
+		if ( ! $is_an_event ) {
+			$field['required'] = 1;
+		}
+		return $field;
+	}
+
+	/**
+	 * Display as DateTime Picker
+	 *
+	 *  @link https://www.advancedcustomfields.com/resources/acf-load_field/
+	 *
+	 * @param array $field
+	 * @return array $field
+	 */
+	public function displayDateTimePicker( $field ) {
+		$is_an_event = \get_post_meta( \get_the_ID(), 'is_an_event', true );
+		if ( ! $is_an_event ) {
+			$field['type']           = 'date_time_picker';
+			$field['display_format'] = 'm/d/Y g:i a';
+			$field['return_format']  = 'Y-m-d H:i:s';
+			$field['first_day']      = 1;
+		}
+		return $field;
 	}
 
 	/**
@@ -197,5 +319,32 @@ class CustomFields extends Base {
 		}
 
 		return $array;
+	}
+
+	/**
+	 * Get Associative Array of Timezones
+	 *
+	 * @param string $continent
+	 * @return array $array
+	 */
+	function get_timezone_selector_array() {
+		$timezones = array();
+		foreach ( $this->regions as $region ) {
+			$timezones = array_merge( $timezones, \DateTimeZone::listIdentifiers( $region ) );
+		}
+		$array = array();
+		foreach ( $timezones as $timezone ) {
+			$array[ $timezone ] = $timezone;
+		}
+		return $array;
+	}
+
+	/**
+	 * Load ACF JS
+	 *
+	 * @return void
+	 */
+	public function enqueueScripts() {
+		\wp_enqueue_script( $this->plugin_name . '-acf', \esc_url( WPANE_PLUGIN_URL . 'assets/public/js/acf.js' ), array(), $this->version, false );
 	}
 }

@@ -80,7 +80,7 @@ class Cron extends Base {
 		 * @see Bootstrap::__construct
 		 */
 		$options              = Options::getOptions();
-		$this->sync_frequency = intval( $options['sync_frequency'] );
+		$this->sync_frequency = ( isset( $options['sync_frequency'] ) ) ? intval( $options['sync_frequency'] ) : 24;
 
 		\add_action( self::CRON_HOOK, array( $this, 'exec' ) );
 		\add_filter( 'cron_schedules', array( $this, 'add_cron_schedule' ) );

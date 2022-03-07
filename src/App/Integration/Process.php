@@ -71,7 +71,7 @@ class Process extends Base {
 		parent::__construct( $version, $plugin_name );
 		$this->data           = $data;
 		$this->processed_data = array();
-		$this->log         = array(
+		$this->log            = array(
 			'new'     => array(),
 			'updated' => array(),
 			'skipped' => array(),
@@ -125,7 +125,7 @@ class Process extends Base {
 		} else {
 			$this->setLog( 'skipped[]', $post->an_id );
 		}
-		if( ! $result ) {
+		if ( ! $result ) {
 			$this->setStatus( 'process', 'error' );
 		} else {
 			$this->setStatus( 'process', 'success' );
@@ -160,6 +160,7 @@ class Process extends Base {
 			'post_type'    => Event::POST_TYPE['id'],
 			'import_id'    => \esc_attr( $post->an_id ),
 			'meta_input'   => array(
+				'is_an_event'        => 1,
 				'browser_url'        => \esc_url( $post->browser_url ),
 				'_links_to'          => \esc_url( $post->browser_url ),
 				'_links_to_target'   => \esc_attr( $post->_links_to_target ),
@@ -175,6 +176,7 @@ class Process extends Base {
 				'status'             => \esc_attr( $post->status ),
 				'visibility'         => \esc_attr( $post->visibility ),
 				'an_campaign_id'     => ( ! empty( $post->{'action_network:event_campaign_id'} ) ) ? \esc_attr( $post->{'action_network:event_campaign_id'} ) : '',
+				'hidden'             => $post->hidden,
 			),
 		);
 

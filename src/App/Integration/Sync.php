@@ -137,7 +137,7 @@ class Sync extends Base {
 		 * @see Bootstrap::__construct
 		 */
 		$options              = Options::getOptions();
-		$this->sync_frequency = intval( $options['sync_frequency'] ) * HOUR_IN_SECONDS;
+		$this->sync_frequency = ( isset( $options['sync_frequency'] ) ) ? intval( $options['sync_frequency'] ) * HOUR_IN_SECONDS : 24  * HOUR_IN_SECONDS;
 		$this->last_run = \get_option( self::LAST_RUN_KEY );
 
 		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScripts' ) );
