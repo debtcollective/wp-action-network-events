@@ -177,7 +177,7 @@ const Edit = ( props ) => {
 
 	const TermSelector = () => {
 		const terms = useSelect( ( select ) => {
-			return select( 'core' ).getEntityRecords( 'taxonomy', taxonomy );
+			return select( 'core' ).getEntityRecords( 'taxonomy', taxonomy, { per_page: -1 } );
 		}, [] );
 
 		if( !terms || !terms.length ) {
@@ -561,8 +561,6 @@ const Edit = ( props ) => {
 			scope: scope,
 			"event-tags": eventTags ? [ parseInt( eventTags ) ] : [],
 		}
-
-		// console.log( _query );
 
 		setAttributes( { 
 			query: { 
