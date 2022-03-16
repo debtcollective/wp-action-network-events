@@ -217,6 +217,13 @@ class Options extends Base {
 		\add_settings_field(
 			'archive_slug',
 			\__( 'Events Page Slug', 'wp-action-network-events' ),
+			array( $this, 'renderEventArchiveSlugField' ),
+			self::OPTIONS_NAME,
+			self::OPTIONS_NAME . '_general_section'
+		);
+		\add_settings_field(
+			'event_slug',
+			\__( 'Single Event Path', 'wp-action-network-events' ),
 			array( $this, 'renderEventSlugField' ),
 			self::OPTIONS_NAME,
 			self::OPTIONS_NAME . '_general_section'
@@ -386,12 +393,29 @@ class Options extends Base {
 	 *
 	 * @return void
 	 */
-	public function renderEventSlugField() {
+	public function renderEventArchiveSlugField() {
 		$value = isset( $this->options['archive_slug'] ) ? $this->options['archive_slug'] : 'events';
 
 		printf(
 			'<input type="text" name="wp_action_network_events_options[archive_slug]" class="regular-text archive_slug_field" placeholder="%s" value="%s">',
-			esc_attr__( 'Events Page Slug', 'wp-action-network-events' ),
+			esc_attr__( 'events', 'wp-action-network-events' ),
+			esc_attr( $value )
+		);
+		echo '<p class="description">' . __( 'Select slug for the events archive page.', 'wp-action-network-events' ) . '</p>';
+
+	}
+
+	/**
+	 * Render Field
+	 *
+	 * @return void
+	 */
+	public function renderEventSlugField() {
+		$value = isset( $this->options['event_slug'] ) ? $this->options['event_slug'] : 'event';
+
+		printf(
+			'<input type="text" name="wp_action_network_events_options[event_slug]" class="regular-text event_slug_field" placeholder="%s" value="%s">',
+			esc_attr__( 'event', 'wp-action-network-events' ),
 			esc_attr( $value )
 		);
 		echo '<p class="description">' . __( 'Select slug for the events archive page.', 'wp-action-network-events' ) . '</p>';

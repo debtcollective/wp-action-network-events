@@ -96,7 +96,7 @@ abstract class PostType extends Base {
 			'can_export'            => true,
 			'has_archive'        	=> $this::POST_TYPE['archive'],
 			'rewrite'            => [
-				'slug'       => $this::POST_TYPE['archive'],
+				'slug'       => $this::POST_TYPE['slug'],
 				'with_front' => true,
 			],
 			'exclude_from_search'   => false,
