@@ -41,7 +41,8 @@ class Event extends PostType {
 	 */
 	public const POST_TYPE = array(
 		'id'              => 'an_event',
-		'archive'         => 'event-archive',
+		'archive'         => 'events',
+		'slug'            => 'event',
 		'menu'            => 'Action Network',
 		'title'           => 'Events',
 		'singular'        => 'Event',
@@ -102,9 +103,11 @@ class Event extends PostType {
 	 * @return array
 	 */
 	function set_event_archive_slug( $args ) {
-		if ( isset( $this->options['archive_slug'] ) && $slug = $this->options['archive_slug'] ) {
-			$args['has_archive']     = esc_attr( $slug );
+		if ( isset( $this->options['event_slug'] ) && $slug = $this->options['event_slug'] ) {
 			$args['rewrite']['slug'] = esc_attr( $slug );
+		}
+		if ( isset( $this->options['archive_slug'] ) && $slug = $this->options['archive_slug'] ) {
+			$args['has_archive'] = esc_attr( $slug );
 		}
 		return $args;
 	}
@@ -169,7 +172,7 @@ class Event extends PostType {
 	 * @return void
 	 */
 	public function registerPostStatus() {
-		$args          = array(
+		$args = array(
 			'label'                     => \_x( self::STATUS['label'], 'Custom Post Status Label', 'wp-action-network-events' ),
 			'public'                    => ( isset( $this->options['hide_canceled'] ) && 'checked' == $this->options['hide_canceled'] ) ? false : true,
 			'protected'                 => ( isset( $this->options['hide_canceled'] ) && 'checked' == $this->options['hide_canceled'] ) ? true : false,
@@ -244,7 +247,6 @@ class Event extends PostType {
 	 * Display Custom Status on Post List
 	 * Add Canceled, Draft and/or Private status in post list
 	 * Display only Hidden if hidden field is set to try
-	 * 
 	 *
 	 * @link https://developer.wordpress.org/reference/hooks/display_post_states/
 	 *
@@ -262,10 +264,10 @@ class Event extends PostType {
 				$statuses[] = \esc_attr__( 'Private', 'wp-action-network-events' );
 			}
 			if ( ! class_exists( '\CWS_PageLinksTo' ) && ( $url = \get_post_meta( $post->ID, 'browser_url', true ) ) ) {
-				$output_parts = array(
+				$output_parts         = array(
 					'custom' => '<a title="' . \esc_attr__( 'External Link', 'wp-action-network-events' ) . '" href="' . \esc_url( $url ) . '" class="post-state-link"><span class="dashicons dashicons-admin-links"></span><span class="url"> ' . \esc_url( $url ) . '</span></a>',
 				);
-				$output = '<span class="post-info">' . implode( $output_parts ) . '</span>';
+				$output               = '<span class="post-info">' . implode( $output_parts ) . '</span>';
 				$statuses['external'] = $output;
 			}
 			if ( true == \get_post_meta( $post->ID, 'hidden', true ) ) {
@@ -306,9 +308,12 @@ class Event extends PostType {
 				),
 			);
 			$query->set( 'meta_query', $meta_query );
-			
-			if( isset( $this->options['hide_canceled'] ) && 'checked' === $this->options['hide_canceled'] ) {
+
+			if ( isset( $this->options['hide_canceled'] ) && 'checked' === $this->options['hide_canceled'] ) {
 				$query->set( 'post_status', array( 'publish' ) );
+			}
+			if ( isset( $this->options['events_per_page'] ) ) {
+				$query->set( 'posts_per_page', (int) $this->options['events_per_page'] );
 			}
 			$query->set( 'orderby', 'meta_value' );
 			$query->set( 'order', 'DESC' );
