@@ -312,6 +312,9 @@ class Event extends PostType {
 			if ( isset( $this->options['hide_canceled'] ) && 'checked' === $this->options['hide_canceled'] ) {
 				$query->set( 'post_status', array( 'publish' ) );
 			}
+			if ( isset( $this->options['events_per_page'] ) ) {
+				$query->set( 'posts_per_page', (int) $this->options['events_per_page'] );
+			}
 			$query->set( 'orderby', 'meta_value' );
 			$query->set( 'order', 'DESC' );
 			$query->set( 'meta_key', 'start_date' );
