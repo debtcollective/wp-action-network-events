@@ -5,7 +5,7 @@
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '6cb6f7d86bb57b701b99a60b55f2559b56b4c8b4',
+        'reference' => '76a55c0132b75f90a8221895f6878c68daf0cbf1',
         'name' => 'debtcollective/wp-action-network-events',
         'dev' => false,
     ),
@@ -16,7 +16,7 @@
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '6cb6f7d86bb57b701b99a60b55f2559b56b4c8b4',
+            'reference' => '76a55c0132b75f90a8221895f6878c68daf0cbf1',
             'dev_requirement' => false,
         ),
         'wptrt/admin-notices' => array(
