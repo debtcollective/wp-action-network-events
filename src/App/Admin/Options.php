@@ -13,6 +13,8 @@ namespace WpActionNetworkEvents\App\Admin;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
 use WpActionNetworkEvents\App\Admin\Notices;
+use WpActionNetworkEvents\App\General\PostTypes\Event;
+use WpActionNetworkEvents\App\Integration\Sync;
 
 /**
  * Plugin Options
@@ -22,6 +24,12 @@ use WpActionNetworkEvents\App\Admin\Notices;
  * @author     Debt Collective <pea@misfist.com>
  */
 class Options extends Base {
+	/**
+	 * Cap required to edit settings
+	 *
+	 * @var string
+	 */
+	const OPTIONS_CAP = 'manage_options';
 
 	/**
 	 * Name of options field
@@ -91,7 +99,6 @@ class Options extends Base {
 			)
 		);
 
-		$notices = new Notices( $this->version, $this->plugin_name );
 	}
 
 	/**
@@ -104,16 +111,7 @@ class Options extends Base {
 		\add_options_page(
 			\esc_html__( 'Action Network Events Settings', 'wp-action-network-events' ),
 			\esc_html__( 'Action Network Events', 'wp-action-network-events' ),
-			'activate_plugins',
-			self::OPTIONS_PAGE_NAME,
-			array( $this, 'renderPage' )
-		);
-
-		add_submenu_page(
-			'edit.php?post_type=event',
-			\esc_html__( 'Action Network Events Settings', 'wp-action-network-events' ),
-			\esc_html__( 'Settings', 'wp-action-network-events' ),
-			'activate_plugins',
+			self::OPTIONS_CAP,
 			self::OPTIONS_PAGE_NAME,
 			array( $this, 'renderPage' )
 		);
@@ -152,8 +150,8 @@ class Options extends Base {
 			self::OPTIONS_NAME,
 			self::OPTIONS_NAME
 		);
-		\register_setting( 
-			'reading', 
+		\register_setting(
+			'reading',
 			self::OPTIONS_NAME
 		);
 
@@ -252,64 +250,48 @@ class Options extends Base {
 	}
 
 	/**
-	 * Render Notices on Options page
-	 *
-	 * @return void
-	 */
-	public function renderAdminNotices() {
-		$screen = get_current_screen();
-		// Only render this notice in the post editor.
-		if ( ! $screen || 'settings_page_' . self::OPTIONS_PAGE_NAME !== $screen->base ) {
-			return;
-		}
-
-		?>
-		<div class="notice notice-info is-dismissible">
-			<p><?php _e( 'Automatic sync coming soon!', 'wp-action-network-events' ); ?></p>
-		</div>
-		<?php
-	}
-
-	/**
 	 * Render Settings Page
 	 *
 	 * @return void
 	 */
 	public function renderPage() {
-
-		// Check required user capability
-		if ( ! current_user_can( 'activate_plugins' ) ) {
+		if ( ! current_user_can( self::OPTIONS_CAP ) ) {
 			\wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'wp-action-network-events' ) );
 		}
 
 		echo '<div class="wrap">' . "\n";
 		echo '	<h1>' . \get_admin_page_title() . '</h1>' . "\n";
+
 		$this->renderNotice();
 		$this->renderSyncButton();
 
-		echo '	<form action="options.php" method="post">' . "\n";
+		if ( \current_user_can( self::OPTIONS_CAP ) ) {
+			echo '	<form action="options.php" method="post">' . "\n";
 
-		\settings_fields( self::OPTIONS_NAME );
-		\do_settings_sections( self::OPTIONS_NAME );
-		\submit_button();
+			\settings_fields( self::OPTIONS_NAME );
+			\do_settings_sections( self::OPTIONS_NAME );
+			\submit_button();
 
-		echo '	</form>' . "\n";
+			echo '	</form>' . "\n";
+		}
+
 		echo '</div>' . "\n";
 
 	}
 
 	/**
-	 * Render Manual Sync Button
+	 * Render Sync Buttons
 	 *
 	 * @return void
 	 */
 	public function renderSyncButton() {
 		wp_nonce_field( self::SYNC_ACTION_NAME, self::SYNC_ACTION_NAME . '_nonce' );
+		$is_disabled = ( ! $this->options['base_url'] || ! $this->options['api_key'] ) ? true : false;
 		?>
 
 		<input type="hidden" id="<?php echo esc_attr( $this->plugin_name ); ?>-sync-action" name="action" value="<?php echo esc_attr( self::SYNC_ACTION_NAME ); ?>" />
-		<input type="submit" id="<?php echo esc_attr( $this->plugin_name ); ?>-sync-submit" class="button button-primary" value="<?php _e( 'Manual Sync', 'wp-action-network-events' ); ?>"/>
-		<input type="submit" id="<?php echo esc_attr( $this->plugin_name ); ?>-sync-submit-clean" class="button button-secondary" value="<?php _e( 'Clean Import', 'wp-action-network-events' ); ?>"/>
+		<input type="submit" id="<?php echo esc_attr( $this->plugin_name ); ?>-sync-submit" class="button button-primary" value="<?php _e( 'Manual Sync', 'wp-action-network-events' ); ?>" <?php echo $is_disabled ? 'disabled' : ''; ?> />
+		<input type="submit" id="<?php echo esc_attr( $this->plugin_name ); ?>-sync-submit-clean" class="button button-secondary" value="<?php _e( 'Clean Import', 'wp-action-network-events' ); ?>" <?php echo $is_disabled ? 'disabled' : ''; ?> />
 		<?php
 	}
 
@@ -451,7 +433,7 @@ class Options extends Base {
 			esc_attr__( '', 'wp-action-network-events' ),
 			esc_attr( $value ),
 		);
-		echo '<p class="description">' . __( 'How many events to display per page.', 'wp-action-network-events' ) . '</p>';		
+		echo '<p class="description">' . __( 'How many events to display per page.', 'wp-action-network-events' ) . '</p>';
 	}
 
 	/**
