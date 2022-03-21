@@ -270,7 +270,7 @@ class Event extends PostType {
 				$output               = '<span class="post-info">' . implode( $output_parts ) . '</span>';
 				$statuses['external'] = $output;
 			}
-			if ( true == \get_post_meta( $post->ID, 'hidden', true ) ) {
+			if ( ( true == \get_post_meta( $post->ID, 'hidden', true ) ) || ( true == \get_post_meta( $post->ID, 'is_hidden', true ) ) ) {
 				$statuses = array( \esc_attr__( 'Hidden', 'wp-action-network-events' ) );
 			}
 		}
