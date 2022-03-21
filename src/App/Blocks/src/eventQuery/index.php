@@ -76,6 +76,16 @@ function render( $attributes, $content, $block ) {
 	$args['meta_query'] = array(
 		'relation' => 'AND',
 		array(
+			'key'     => 'is_hidden',
+			'value'   => '1',
+			'compare' => '!=',
+		),
+		array(
+			'key'     => 'is_hidden',
+			'value'   => true,
+			'compare' => '!=',
+		),
+		array(
 			'key'     => 'hidden',
 			'value'   => '1',
 			'compare' => '!=',
