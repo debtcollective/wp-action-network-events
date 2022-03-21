@@ -86,6 +86,19 @@ class Sync extends Base {
 	 */
 	protected $sync_frequency;
 
+	/**
+	 * Name of sync capability
+	 *
+	 * @var string
+	 */
+	public const SYNC_CAP_NAME = 'sync_events';
+
+	/**
+	 * Name of sync capability
+	 *
+	 * @var string
+	 */
+	public const SYNC_PAGE_NAME = 'sync';
 
 	/**
 	 * Name of sync action
@@ -137,12 +150,21 @@ class Sync extends Base {
 		 * @see Bootstrap::__construct
 		 */
 		$options              = Options::getOptions();
-		$this->sync_frequency = ( isset( $options['sync_frequency'] ) ) ? intval( $options['sync_frequency'] ) * HOUR_IN_SECONDS : 24  * HOUR_IN_SECONDS;
-		$this->last_run = \get_option( self::LAST_RUN_KEY );
+		$this->sync_frequency = ( isset( $options['sync_frequency'] ) ) ? intval( $options['sync_frequency'] ) * HOUR_IN_SECONDS : 24 * HOUR_IN_SECONDS;
+		$this->last_run       = \get_option( self::LAST_RUN_KEY );
 
+		\add_action( 'admin_menu', array( $this, 'addAdminMenu' ) );
+		\add_action( 'admin_init', array( $this, 'addCustomCapability' ) );
 		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScripts' ) );
-		\add_action( 'wp_ajax_' . Options::SYNC_ACTION_NAME, array( $this, 'ajaxSync' ) );
-		\add_action( 'wp_ajax_' . Options::SYNC_ACTION_NAME . '_clean', array( $this, 'ajaxImport' ) );
+
+		if ( ! function_exists( 'wp_get_current_user' ) ) {
+			include ABSPATH . 'wp-includes/pluggable.php';
+		}
+
+		if ( \current_user_can( self::SYNC_CAP_NAME ) ) {
+			\add_action( 'wp_ajax_' . Options::SYNC_ACTION_NAME, array( $this, 'ajaxSync' ) );
+			\add_action( 'wp_ajax_' . Options::SYNC_ACTION_NAME . '_clean', array( $this, 'ajaxImport' ) );
+		}
 	}
 
 	/**
@@ -167,7 +189,7 @@ class Sync extends Base {
 	 * Start Sync
 	 *
 	 * @param string $source
-	 * @param bool $ignore_filter
+	 * @param bool   $ignore_filter
 	 * @return void
 	 */
 	public function startSync( $source = 'manual', $ignore_filter = false ) {
@@ -340,11 +362,96 @@ class Sync extends Base {
 
 	}
 
-	public function hasUpdates() {}
-
 	public function log() {
 		$this->setLog( 'last_run', $this->last_run );
 		\update_option( self::LOG_KEY, $this->log );
+	}
+
+	/**
+	 * Add Custom Capability for Sync
+	 *
+	 * @link https://developer.wordpress.org/plugins/users/roles-and-capabilities/
+	 * @link https://wordpress.org/support/article/roles-and-capabilities/
+	 *
+	 * @return void
+	 */
+	public function addCustomCapability() {
+		$custom_cap = self::SYNC_CAP_NAME;
+		$min_cap    = \apply_filters( 'WpActionNetworkEvents\Sync\MinCapArgs', 'edit_others_posts' );
+		$grant      = true;
+
+		foreach ( \wp_roles()->roles as $role => $value ) {
+			if ( $role_object = get_role( $role ) ) {
+				if ( $role_object->has_cap( $min_cap ) && ! $role_object->has_cap( $custom_cap ) ) {
+					$role_object->add_cap( $custom_cap, $grant );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Add Admin Menu
+	 *
+	 * @return void
+	 */
+	public function addAdminMenu() {
+
+		\add_submenu_page(
+			'edit.php?post_type=' . Event::POST_TYPE['id'],
+			\esc_html__( 'Action Network Sync Settings', 'wp-action-network-events' ),
+			\esc_html__( 'Sync', 'wp-action-network-events' ),
+			self::SYNC_CAP_NAME,
+			self::SYNC_PAGE_NAME,
+			array( $this, 'renderPage' )
+		);
+
+	}
+
+	/**
+	 * Render Sync Page
+	 *
+	 * @return void
+	 */
+	public function renderPage() {
+
+		// Check required user capability
+		if ( ! current_user_can( self::SYNC_CAP_NAME ) ) {
+			\wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'wp-action-network-events' ) );
+		}
+
+		echo '<div class="wrap">' . "\n";
+		echo '	<h1>' . \get_admin_page_title() . '</h1>' . "\n";
+
+		$this->renderNotice();
+		$this->renderSyncButton();		
+
+		echo '</div>' . "\n";
+
+	}
+
+
+	/**
+	 * Render Sync Buttons
+	 *
+	 * @return void
+	 */
+	public function renderSyncButton() {
+		wp_nonce_field( self::SYNC_ACTION_NAME, self::SYNC_ACTION_NAME . '_nonce' );
+		?>
+
+		<input type="hidden" id="<?php echo esc_attr( $this->plugin_name ); ?>-sync-action" name="action" value="<?php echo esc_attr( self::SYNC_ACTION_NAME ); ?>" />
+		<input type="submit" id="<?php echo esc_attr( $this->plugin_name ); ?>-sync-submit" class="button button-primary" value="<?php _e( 'Manual Sync', 'wp-action-network-events' ); ?>"/>
+		<input type="submit" id="<?php echo esc_attr( $this->plugin_name ); ?>-sync-submit-clean" class="button button-secondary" value="<?php _e( 'Clean Import', 'wp-action-network-events' ); ?>"/>
+		<?php
+	}
+
+	/**
+	 * Render Sync Notice
+	 *
+	 * @return void
+	 */
+	public function renderNotice() {
+		printf( '<div id="%s"></div>', \esc_attr( Notices::NOTICE_ID ) );
 	}
 
 	/**
