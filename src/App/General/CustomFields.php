@@ -30,6 +30,7 @@ class CustomFields extends Base {
 	 */
 	public const FIELDS = array(
 		'is_an_event',
+		'is_hidden',
 		'browser_url',
 		'an_id',
 		'instructions',
@@ -109,7 +110,8 @@ class CustomFields extends Base {
 		\add_action( 'init', array( $this, 'registerPostMeta' ) );
 		\add_action( 'acf/init', array( $this, 'registerACFFields' ) );
 
-		\add_filter( 'acf/load_field/name=is_an_event', array( $this, 'modifyBoolean' ) );
+		\add_filter( 'acf/load_field/name=is_an_event', array( $this, 'modifyIsAnEvent' ) );
+		\add_filter( 'acf/load_field/name=is_hidden', array( $this, 'modifyIsHidden' ) );
 		\add_filter( 'acf/load_field/name=timezone', array( $this, 'modifyTimezone' ) );
 
 		\add_filter( 'acf/load_field/name=start_date', array( $this, 'displayDateTimePicker' ) );
@@ -141,6 +143,7 @@ class CustomFields extends Base {
 			function( $field ) {
 				$enabled = array(
 					'is_an_event',
+					'is_hidden',
 					'timezone',
 				);
 				return array(
@@ -193,13 +196,18 @@ class CustomFields extends Base {
 	public function registerPostMeta() {
 
 		foreach ( self::FIELDS as $field ) {
+			$boolean = array(
+				'is_an_event',
+				'is_hidden',
+				'hidden'
+			);
 			\register_post_meta(
 				Event::POST_TYPE['id'],
 				$field,
 				array(
 					'show_in_rest' => true,
 					'single'       => true,
-					'type'         => ( 'is_an_event' === $field || 'hidden' === $field ) ? 'boolean' : 'string',
+					'type'         => ( in_array( $field, $boolean ) ) ? 'boolean' : 'string',
 				)
 			);
 		}
@@ -213,9 +221,28 @@ class CustomFields extends Base {
 	 * @param array $field
 	 * @return array $field
 	 */
-	public function modifyBoolean( $field ) {
+	public function modifyIsAnEvent( $field ) {
 		$field['type']          = 'true_false';
 		$field['label']         = __( 'Action Network Event', 'wp-action-network-events' );
+		$field['ui']            = 1;
+		$field['ui_on_text']    = '';
+		$field['ui_off_text']   = '';
+		$field['message']       = '';
+		$field['default_value'] = 0;
+		return $field;
+	}
+
+	/**
+	 * Modify boolean field
+	 *
+	 * @link https://www.advancedcustomfields.com/resources/acf-load_field/
+	 *
+	 * @param array $field
+	 * @return array $field
+	 */
+	public function modifyIsHidden( $field ) {
+		$field['type']          = 'true_false';
+		$field['label']         = __( 'Hide on Site', 'wp-action-network-events' );
 		$field['ui']            = 1;
 		$field['ui_on_text']    = '';
 		$field['ui_off_text']   = '';
