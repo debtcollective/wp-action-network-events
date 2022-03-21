@@ -118,13 +118,13 @@ class Event extends PostType {
 	 * @return void
 	 */
 	public static function add_admin_capabilities() {
-		if ( empty( self::$capabilities ) ) {
+		if ( empty( $this->capabilities ) ) {
 			return;
 		}
 
 		$role = \get_role( 'administrator' );
 
-		foreach ( self::$capabilities as $post_cap => $capability ) {
+		foreach ( $this->capabilities as $post_cap => $capability ) {
 			if ( ! $role->has_cap( $capability ) ) {
 				$role->add_cap( $capability );
 			}
@@ -139,13 +139,13 @@ class Event extends PostType {
 	 * @return void
 	 */
 	public static function remove_admin_capabilities() {
-		if ( empty( self::$capabilities ) ) {
+		if ( empty( $this->capabilities ) ) {
 			return;
 		}
 
 		$role = \get_role( 'administrator' );
 
-		foreach ( self::$capabilities as $post_cap => $capability ) {
+		foreach ( $this->capabilities as $post_cap => $capability ) {
 			if ( $role->has_cap( $capability ) ) {
 				$role->remove_cap( $capability );
 			}
