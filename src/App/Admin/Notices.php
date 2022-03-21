@@ -13,6 +13,7 @@ namespace WpActionNetworkEvents\App\Admin;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
 use WpActionNetworkEvents\App\Admin\Options;
+use WpActionNetworkEvents\App\General\PostTypes\Event;
 use WpActionNetworkEvents\App\Integration\Sync;
 
 /**
@@ -81,12 +82,11 @@ class Notices extends Base {
 		// \add_action( 'wp_ajax_' . self::ACTION_NAME, array( $this, 'sendStatus' ) );
 
 		\add_action( 'admin_notices', array( $this, 'renderAdminNotice' ) );
+		\add_action( 'admin_notices', array( $this, 'renderWarnings' ) );
 
-		$options        = Options::getOptions();
+		$options = Options::getOptions();
 		$this->setBaseUrl( isset( $options['base_url'] ) ? $options['base_url'] : null );
 		$this->setApiKey( isset( $options['api_key'] ) ? $options['api_key'] : null );
-
-		\add_action( 'admin_notices', array( $this, 'renderWarnings' ) );
 
 	}
 
@@ -97,11 +97,11 @@ class Notices extends Base {
 	 */
 	public function renderAdminNotice() {
 		$screen = \get_current_screen();
-		if ( ! $screen || 'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base ) {
+		if ( ! $screen || ( 'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base && Event::POST_TYPE['id'] . '_page_' . Sync::SYNC_PAGE_NAME != $screen->base ) ) {
 			return;
 		}
 
-		$status = isset( $this->status['get']['response'] ) && 200 === $this->status['get']['response'] ? 'success' : 'warning';
+		$status   = isset( $this->status['get']['response'] ) && 200 === $this->status['get']['response'] ? 'success' : 'warning';
 		$response = isset( $this->status['get']['response'] ) ? isset( $this->status['get']['response'] ) : \esc_html( 'Request Failed', 'wp-action-network-events' );
 
 		switch ( $this->status['source'] ) {
@@ -130,15 +130,15 @@ class Notices extends Base {
 	 */
 	public function renderWarnings() {
 		$screen = \get_current_screen();
-		if ( ! $screen || 'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base ) {
+		if ( ! $screen || ( 'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base && Event::POST_TYPE['id'] . '_page_' . Sync::SYNC_PAGE_NAME != $screen->base ) ) {
 			return;
 		}
 
-		if( ! $this->api_key ) {
+		if ( ! $this->api_key ) {
 			printf( $this->warning( esc_html__( 'API Key is Required to Sync Events', 'wp-action-network-events' ) ) );
 		}
 
-		if( ! $this->base_url ) {
+		if ( ! $this->base_url ) {
 			printf( $this->warning( esc_html__( 'Base URL is Required to Sync Events', 'wp-action-network-events' ) ) );
 		}
 	}
