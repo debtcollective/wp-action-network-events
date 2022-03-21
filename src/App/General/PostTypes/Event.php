@@ -292,6 +292,16 @@ class Event extends PostType {
 			$meta_query = array(
 				'relation' => 'AND',
 				array(
+					'key'     => 'is_hidden',
+					'value'   => '1',
+					'compare' => '!=',
+				),
+				array(
+					'key'     => 'is_hidden',
+					'value'   => true,
+					'compare' => '!=',
+				),
+				array(
 					'key'     => 'hidden',
 					'value'   => '1',
 					'compare' => '!=',
