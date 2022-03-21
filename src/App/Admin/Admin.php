@@ -48,6 +48,7 @@ class Admin extends Base {
 		 * @see Bootstrap::__construct
 		 */
 		new Options( $this->version, $this->plugin_name, $this->basename );
+		new Notices( $this->version, $this->plugin_name );
 
 		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueStyles' ) );
 		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScripts' ) );
