@@ -118,13 +118,13 @@ class Event extends PostType {
 	 * @return void
 	 */
 	public static function add_admin_capabilities() {
-		if ( empty( self::$capabilities ) ) {
+		if ( empty( $this->capabilities ) ) {
 			return;
 		}
 
 		$role = \get_role( 'administrator' );
 
-		foreach ( self::$capabilities as $post_cap => $capability ) {
+		foreach ( $this->capabilities as $post_cap => $capability ) {
 			if ( ! $role->has_cap( $capability ) ) {
 				$role->add_cap( $capability );
 			}
@@ -139,13 +139,13 @@ class Event extends PostType {
 	 * @return void
 	 */
 	public static function remove_admin_capabilities() {
-		if ( empty( self::$capabilities ) ) {
+		if ( empty( $this->capabilities ) ) {
 			return;
 		}
 
 		$role = \get_role( 'administrator' );
 
-		foreach ( self::$capabilities as $post_cap => $capability ) {
+		foreach ( $this->capabilities as $post_cap => $capability ) {
 			if ( $role->has_cap( $capability ) ) {
 				$role->remove_cap( $capability );
 			}
@@ -270,7 +270,7 @@ class Event extends PostType {
 				$output               = '<span class="post-info">' . implode( $output_parts ) . '</span>';
 				$statuses['external'] = $output;
 			}
-			if ( true == \get_post_meta( $post->ID, 'hidden', true ) ) {
+			if ( ( true == \get_post_meta( $post->ID, 'hidden', true ) ) || ( true == \get_post_meta( $post->ID, 'is_hidden', true ) ) ) {
 				$statuses = array( \esc_attr__( 'Hidden', 'wp-action-network-events' ) );
 			}
 		}
@@ -292,14 +292,38 @@ class Event extends PostType {
 			$meta_query = array(
 				'relation' => 'AND',
 				array(
-					'key'     => 'hidden',
-					'value'   => '1',
-					'compare' => '!=',
+					'relation' => 'OR',
+					array(
+						'key'     => 'is_hidden',
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => 'is_hidden',
+						'value'   => '1',
+						'compare' => '!=',
+					),
+					array(
+						'key'     => 'is_hidden',
+						'value'   => true,
+						'compare' => '!=',
+					),
 				),
 				array(
-					'key'     => 'hidden',
-					'value'   => true,
-					'compare' => '!=',
+					'relation' => 'OR',
+					array(
+						'key'     => 'hidden',
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => 'hidden',
+						'value'   => '1',
+						'compare' => '!=',
+					),
+					array(
+						'key'     => 'hidden',
+						'value'   => true,
+						'compare' => '!=',
+					),
 				),
 				array(
 					'key'     => 'visibility',
