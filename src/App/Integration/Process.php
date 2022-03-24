@@ -143,7 +143,8 @@ class Process extends Base {
 	 * @return void
 	 */
 	function addPost( $post ) {
-		$post_id  = null;
+		$post_id = null;
+
 		$timezone = $this->getTimezone(
 			array(
 				'venue'     => $post->location_venue,
