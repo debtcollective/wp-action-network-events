@@ -215,7 +215,13 @@ class Process extends Base {
 	 */
 	function updatePost( object $existing, object $incoming ) {
 		$post_id = false;
-		if ( $differences = $this->getDifferences( $existing, $incoming ) ) {
+
+		if ( ! $existing->is_an_event || ! $existing->an_id ) {
+			$this->setLog( 'skipped', $existing->ID );
+			return $post_id;
+		}
+
+		if ( $differences = $this->getDifferences( (object) $existing, $incoming ) ) {
 			$differences['ID'] = $existing->ID;
 			$post_id           = \wp_update_post( $differences );
 
