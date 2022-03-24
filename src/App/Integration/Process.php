@@ -320,6 +320,7 @@ class Process extends Base {
 			'visibility',
 			'an_campaign_id',
 			'hidden',
+			'update_date',
 		);
 
 		foreach ( $post_fields as $field ) {
@@ -335,6 +336,9 @@ class Process extends Base {
 				error_log( sprintf( 'Existing: %s | New %s', $meta, $incoming->{$field} ) );
 
 				switch ( $field ) {
+					case 'update_date':
+						$differences['meta_input']['update_date'] = date( $this->date_format );
+						break;
 					case 'timezone':
 						$differences['meta_input']['timezone'] = $timezone;
 						break;
