@@ -159,7 +159,7 @@ class Process extends Base {
 			'post_content' => \wp_kses_post( $post->post_content ),
 			'post_status'  => \esc_attr( $post->post_status ),
 			'post_type'    => Event::POST_TYPE['id'],
-			'import_id'    => \esc_attr( $post->an_id ),
+			// 'import_id'    => \esc_attr( $post->an_id ),
 			'meta_input'   => array(
 				'is_an_event'        => 1,
 				'browser_url'        => \esc_url( $post->browser_url ),
