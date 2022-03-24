@@ -120,8 +120,11 @@ class Process extends Base {
 			$result = $this->addPost( $post );
 		} elseif ( $this->hasChanged( $search_post[0], $post ) ) {
 			$existing_post = $search_post[0];
-			$result        = $this->updatePost( $existing_post, $post );
-			$this->setLog( 'updated[]', $post->an_id );
+			if ( $this->isAnEvent( $existing_post ) ) {
+				$result = $this->updatePost( $existing_post, $post );
+			} else {
+				$this->setLog( 'skipped', $existing_post->ID );
+			}
 		} else {
 			$this->setLog( 'skipped', $post->an_id );
 		}
