@@ -289,6 +289,10 @@ class Process extends Base {
 	public function getDifferences( object $existing, object $incoming ) : array {
 		$differences = array();
 
+		if ( ! $this->isAnEvent( $existing ) ) {
+			return $differences;
+		}
+
 		$timezone = $this->getTimezone(
 			array(
 				'venue'     => $incoming->location_venue,
