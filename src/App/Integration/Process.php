@@ -387,6 +387,18 @@ class Process extends Base {
 	}
 
 	/**
+	 * Check if is AN event
+	 *
+	 * @since 1.0.1
+	 *
+	 * @param object $post
+	 * @return boolean
+	 */
+	public function isAnEvent( $post ) : bool {
+		return \get_post_meta( $post->ID, 'is_an_event', true );
+	}
+
+	/**
 	 * Check if post has changed
 	 *
 	 * @param object $existing
