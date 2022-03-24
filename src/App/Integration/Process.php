@@ -178,6 +178,7 @@ class Process extends Base {
 				'visibility'         => \esc_attr( $post->visibility ),
 				'an_campaign_id'     => ( ! empty( $post->{'action_network:event_campaign_id'} ) ) ? \esc_attr( $post->{'action_network:event_campaign_id'} ) : '',
 				'hidden'             => $post->hidden,
+				'import_date'        => date( $this->date_format ),
 			),
 		);
 
