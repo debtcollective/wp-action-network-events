@@ -46,6 +46,8 @@ class CustomFields extends Base {
 		'an_campaign_id',
 		'internal_name',
 		'hidden',
+		'import_date',
+		'update_date'
 	);
 
 	/**
