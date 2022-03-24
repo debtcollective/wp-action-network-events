@@ -271,11 +271,6 @@ class Process extends Base {
 			'post_type'      => Event::POST_TYPE['id'],
 			'meta_query'     => array(
 				array(
-					'key'     => 'is_an_event',
-					'value'   => array( '1', true ),
-					'compare' => 'IN',
-				),
-				array(
 					'key'   => 'an_id',
 					'value' => $record_identifier,
 				),
