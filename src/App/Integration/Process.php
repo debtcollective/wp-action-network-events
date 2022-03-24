@@ -330,7 +330,7 @@ class Process extends Base {
 		foreach ( $post_fields as $field ) {
 			if ( ! isset( $existing->{$field} ) || ( isset( $existing->{$field} ) && $this->isDifferent( $existing->{$field}, $incoming->{$field} ) ) ) {
 				error_log( sprintf( 'Existing: %s | New %s | Test: ', $existing->{$field}, $incoming->{$field}, $this->isDifferent( $existing->{$field}, $incoming->{$field} ) ) );
-				$differences[ $field ] = $existing->{$field};
+				$differences[ $field ] = $incoming->{$field};
 			}
 		}
 
@@ -350,7 +350,7 @@ class Process extends Base {
 						$differences['meta_input']['location_venue'] = ( ! empty( $incoming->location_venue ) ) ? \esc_attr( $incoming->location_venue ) : 'Virtual';
 						break;
 					default:
-						$differences['meta_input'][ $field ] = $existing->{$field};
+						$differences['meta_input'][ $field ] = $incoming->{$field};
 						break;
 				}
 			}
