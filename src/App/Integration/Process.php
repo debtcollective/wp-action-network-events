@@ -407,7 +407,19 @@ class Process extends Base {
 	 * @return bool
 	 */
 	public function hasChanged( $existing, $incoming ) : bool {
-		return $existing->post_modified < $incoming->post_modified;
+		$import_date   = ( $imported = \get_post_meta( $existing->ID, 'import_date', true ) ) ? date( $this->date_format, strtotime( $imported ) ) : false;
+		$update_date   = ( $updated = \get_post_meta( $existing->ID, 'update_date', true ) ) ? date( $this->date_format, strtotime( $updated ) ) : false;
+		$updated       = $update_date ? $update_date : $import_date;
+		$incoming_date = date( $this->date_format, strtotime( $incoming->post_modified ) );
+		$existing_date = date( $this->date_format, strtotime( $existing->post_modified ) );
+
+		if ( $updated ) {
+			return $incoming_date > $updated;
+		} elseif ( $existing_date ) {
+			return $incoming_date > $existing_date;
+		}
+
+		return false;
 	}
 
 	/**
