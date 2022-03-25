@@ -369,7 +369,7 @@ class Options extends Base {
 		$value = isset( $this->options['sync_frequency'] ) ? $this->options['sync_frequency'] : (int) 24;
 
 		printf(
-			'<input type="number" name="wp_action_network_events_options[sync_frequency]" class="small-text sync_frequency_field" placeholder="%s" value="%s"> %s',
+			'<input type="number" name="wp_action_network_events_options[sync_frequency]" class="small-text sync_frequency_field" placeholder="%s" min="1" step="1" max="24" value="%s"> %s',
 			esc_attr__( '', 'wp-action-network-events' ),
 			esc_attr( $value ),
 			esc_attr__( 'hours', 'wp-action-network-events' ),
