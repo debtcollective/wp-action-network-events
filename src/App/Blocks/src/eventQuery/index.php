@@ -11,6 +11,7 @@ use WpActionNetworkEvents\App\General\Taxonomies\EventTag;
 use WpActionNetworkEvents\Common\Util\TemplateLoader;
 use WpActionNetworkEvents\App\Blocks\Blocks;
 use WpActionNetworkEvents\App\Admin\Options;
+use WpActionNetworkEvents\App\General\Queries;
 
 /**
  * Renders the `wp-action-network-events/event-query` block on the server.
@@ -26,6 +27,7 @@ function render( $attributes, $content, $block ) {
 	$default_query         = $block_type_attributes['query']['default'];
 	$default_display       = $block_type_attributes['display']['default'];
 	$event_options         = \get_option( Options::OPTIONS_NAME );
+
 
 	$defaults = array_merge(
 		array(
@@ -54,17 +56,24 @@ function render( $attributes, $content, $block ) {
 		)
 	);
 
-	$args = wp_parse_args( $args, $defaults );
+	$args = \wp_parse_args( $args, $defaults );
+
+	$events = Queries::getAnEventIds( $args['scope'] );
 
 	$taxonomy = $args['taxonomy'];
 
-	if ( 'start' === $args['orderby'] ) {
-		$args['orderby']  = 'meta_value';
-		$args['meta_key'] = '_start_date';
-	}
+	$query_args = array(
+		'post_type'      => array( Event::POST_TYPE['id'] ),
+		'posts_per_page' => $args['posts_per_page'],
+		'orderby'        => 'meta_value',
+		'order'          => $args['order'],
+		'meta_key'       => 'start_date',
+		'meta_type'      => 'DATETIME',
+		'post__in'       => $events,
+	);
 
 	if ( ! empty( $args['event-tags'] ) ) {
-		$args['tax_query'] = array(
+		$query_args['tax_query'] = array(
 			array(
 				'taxonomy' => $taxonomy,
 				'field'    => 'id',
@@ -73,67 +82,12 @@ function render( $attributes, $content, $block ) {
 		);
 	}
 
-	$args['meta_query'] = array(
-		'relation' => 'AND',
-		array(
-			'relation' => 'OR',
-			array(
-				'key'     => 'is_hidden',
-				'compare' => 'NOT EXISTS',
-			),
-			array(
-				'key'     => 'is_hidden',
-				'value'   => '1',
-				'compare' => '!=',
-			),
-			array(
-				'key'     => 'is_hidden',
-				'value'   => true,
-				'compare' => '!=',
-			),
-		),
-		array(
-			'relation' => 'OR',
-			array(
-				'key'     => 'hidden',
-				'compare' => 'NOT EXISTS',
-			),
-			array(
-				'key'     => 'hidden',
-				'value'   => '1',
-				'compare' => '!=',
-			),
-			array(
-				'key'     => 'hidden',
-				'value'   => true,
-				'compare' => '!=',
-			),
-		),
-		array(
-			'key'     => 'visibility',
-			'value'   => 'private',
-			'compare' => '!=',
-		),
-	);
+	// echo '<pre>';
+	// var_dump( $args['scope'], $query_args );
+	// echo '</pre>';
 
-	if ( isset( $event_options['hide_canceled'] ) && 'checked' == $event_options['hide_canceled'] ) {
-		$args['post_status'] = array( 'publish' );
-	}
 
-	if ( isset( $args['scope'] ) && 'all' !== $args['scope'] ) {
-		$compare = '>=';
-		if ( 'past' === $args['scope'] ) {
-			$compare = '<';
-		}
-		$args['meta_query'][] = array(
-			'key'     => 'start_date',
-			'value'   => \date( 'c' ),
-			'compare' => $compare,
-			'type'    => 'DATETIME',
-		);
-	}
-
-	$query = new \WP_Query( $args );
+	$query = new \WP_Query( $query_args );
 	$output = '';
 
 	if ( $query->have_posts() ) :

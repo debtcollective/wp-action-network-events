@@ -78,7 +78,7 @@ class Queries extends Base {
 
 			$date_time = new \DateTime();
 			$sort      = ( $sort = \get_post_meta( get_the_ID(), 'event_sort', true ) ) ? strtoupper( \esc_attr( $sort ) ) : 'DESC';
-			$scope     = \get_post_meta( \get_the_ID(), 'event_scope', true );
+			$scope     = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
 
 			$defaults = array(
 				'post_type'      => array( Event::POST_TYPE['id'] ),
@@ -170,7 +170,7 @@ class Queries extends Base {
 		if ( false === ( $query = \get_transient( $transient_id ) ) ) {
 
 			$date_time = new \DateTime();
-			$scope     = \get_post_meta( \get_the_ID(), 'event_scope', true );
+			$scope     = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
 
 			$defaults = array(
 				'post_type'      => array( Event::POST_TYPE['id'] ),
