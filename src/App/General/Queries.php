@@ -37,6 +37,15 @@ class Queries extends Base {
 	public $query_transient_duration = 1;
 
 	/**
+	 * Plugin Options
+	 *
+	 * @since 1.0.1
+	 * 
+	 * @var array
+	 */
+	protected $options;
+
+	/**
 	 * Initialize the class.
 	 *
 	 * @since 1.0.0
@@ -45,9 +54,7 @@ class Queries extends Base {
 		/**
 		 * This general class is always being instantiated as requested in the Bootstrap class
 		 */
-		$options                        = \get_option( Options::OPTIONS_NAME );
-		$this->query_transient_duration = isset( $options['query_cache_duration'] ) ? (int) $options['query_cache_duration'] : (int) 1;
-
+		$this->options                        = \get_option( Options::OPTIONS_NAME );
 	}
 
 	/**
@@ -65,6 +72,7 @@ class Queries extends Base {
 		global $post;
 
 		$transient_id = self::QUERY_TRANSIENT . '_objects_' . $scope;
+		$query_transient_duration = isset( $this->options['query_cache_duration'] ) ? (int) $this->options['query_cache_duration'] : (int) 1;
 
 		if ( false === ( $query = \get_transient( $transient_id ) ) ) {
 
@@ -130,7 +138,7 @@ class Queries extends Base {
 
 			$query = new \WP_Query( $args );
 
-			\set_transient( $transient_id, $query->posts, (int) $this->query_transient_duration * HOUR_IN_SECONDS );
+			\set_transient( $transient_id, $query->posts, (int) $query_transient_duration * HOUR_IN_SECONDS );
 
 			return $query->posts;
 		}
@@ -153,6 +161,7 @@ class Queries extends Base {
 		global $post;
 
 		$transient_id = self::QUERY_TRANSIENT . '_ids_' . $scope;
+		$query_transient_duration = isset( $this->options['query_cache_duration'] ) ? (int) $this->options['query_cache_duration'] : (int) 1;
 
 		if ( false === ( $query = \get_transient( $transient_id ) ) ) {
 
@@ -214,7 +223,7 @@ class Queries extends Base {
 
 			$query = new \WP_Query( $args );
 
-			\set_transient( $transient_id, $query->posts, (int) $this->query_transient_duration * HOUR_IN_SECONDS );
+			\set_transient( $transient_id, $query->posts, (int) $query_transient_duration * HOUR_IN_SECONDS );
 
 			return $query->posts;
 		}
