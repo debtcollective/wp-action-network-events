@@ -213,6 +213,13 @@ class Options extends Base {
 			self::OPTIONS_NAME . '_sync_section'
 		);
 		\add_settings_field(
+			'query_cache_duration',
+			\__( 'Cache Query Duration', 'wp-action-network-events' ),
+			array( $this, 'renderQueryCacheDuration' ),
+			self::OPTIONS_NAME,
+			self::OPTIONS_NAME . '_sync_section'
+		);
+		\add_settings_field(
 			'archive_slug',
 			\__( 'Events Page Slug', 'wp-action-network-events' ),
 			array( $this, 'renderEventArchiveSlugField' ),
@@ -362,13 +369,31 @@ class Options extends Base {
 		$value = isset( $this->options['sync_frequency'] ) ? $this->options['sync_frequency'] : (int) 24;
 
 		printf(
-			'<input type="number" name="wp_action_network_events_options[sync_frequency]" class="small-text sync_frequency_field" placeholder="%s" value="%s"> %s',
+			'<input type="number" name="wp_action_network_events_options[sync_frequency]" class="small-text sync_frequency_field" placeholder="%s" min="1" step="1" max="24" value="%s"> %s',
 			esc_attr__( '', 'wp-action-network-events' ),
 			esc_attr( $value ),
 			esc_attr__( 'hours', 'wp-action-network-events' ),
 		);
 		echo '<p class="description">' . __( 'Select the frequency with which to sync events.', 'wp-action-network-events' ) . '</p>';
 	}
+
+		/**
+	 * Render Field
+	 *
+	 * @return void
+	 */
+	public function renderQueryCacheDuration() {
+		$value = isset( $this->options['query_cache_duration'] ) ? $this->options['query_cache_duration'] : (int) 1;
+
+		printf(
+			'<input type="number" name="wp_action_network_events_options[query_cache_duration]" class="small-text query_cache_duration_field" placeholder="%s" min="1" step="1" max="24" value="%s"> %s',
+			esc_attr__( '', 'wp-action-network-events' ),
+			esc_attr( $value ),
+			esc_attr__( 'hours', 'wp-action-network-events' ),
+		);
+		echo '<p class="description">' . __( 'Select the duration to cache event queries.', 'wp-action-network-events' ) . '</p>';
+	}
+
 
 	/**
 	 * Render Field
