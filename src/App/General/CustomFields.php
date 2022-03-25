@@ -46,6 +46,8 @@ class CustomFields extends Base {
 		'an_campaign_id',
 		'internal_name',
 		'hidden',
+		'import_date',
+		'update_date'
 	);
 
 	/**
@@ -223,7 +225,7 @@ class CustomFields extends Base {
 	 */
 	public function modifyIsAnEvent( $field ) {
 		$field['type']          = 'true_false';
-		$field['label']         = __( 'Action Network Event', 'wp-action-network-events' );
+		$field['label']         = __( 'Sync with Action Network', 'wp-action-network-events' );
 		$field['ui']            = 1;
 		$field['ui_on_text']    = '';
 		$field['ui_off_text']   = '';
