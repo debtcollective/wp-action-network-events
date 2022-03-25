@@ -157,7 +157,7 @@ class Sync extends Base {
 		\add_action( 'admin_init', array( $this, 'addCustomCapability' ) );
 		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScripts' ) );
 
-		if ( ! function_exists( 'wp_get_current_user' ) ) {
+		if ( ! function_exists( '\wp_get_current_user' ) ) {
 			include ABSPATH . 'wp-includes/pluggable.php';
 		}
 
