@@ -122,6 +122,10 @@ class Queries extends Base {
 
 			$args = \wp_parse_args( $args, $defaults );
 
+			if ( isset( $this->options['hide_canceled'] ) && 'checked' == $this->options['hide_canceled'] ) {
+				$args['post_status'] = array( 'publish' );
+			}
+
 			if ( 'future' === $scope ) {
 				$args['meta_query'][] = array(
 					'key'     => 'start_date',
@@ -206,6 +210,10 @@ class Queries extends Base {
 			);
 
 			$args = \wp_parse_args( $args, $defaults );
+
+			if ( isset( $this->options['hide_canceled'] ) && 'checked' == $this->options['hide_canceled'] ) {
+				$args['post_status'] = array( 'publish' );
+			}
 
 			if ( 'future' === $scope ) {
 				$args['meta_query'][] = array(
