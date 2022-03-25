@@ -49,10 +49,6 @@ import { __, sprintf } from '@wordpress/i18n';
 
 import classNames from 'classnames';
 
-//  Import CSS.
-import './editor.scss';
-import './style.scss';
-
 const MAX_ITEMS = 24;
 
 const Edit = ( props ) => {
