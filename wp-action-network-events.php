@@ -15,7 +15,7 @@
  * Plugin Name:       WP Action Network Events
  * Plugin URI:        https://github.com/misfist/wp-action-network-events
  * Description:       Sync and display events from Action Network.
- * Version:           1.0.2
+ * Version:           1.0.0
  * Author:            Debt Collective
  * Author URI:        https://debtcollective.org
  * License:           GPL-3.0
@@ -62,7 +62,7 @@ function autoloader( $class ) {
  * Rename this for your plugin and update it as you release new versions.
  */
 const PLUGIN_NAME = 'wp-action-network-events';
-const PLUGIN_VERSION = '1.0.2';
+const PLUGIN_VERSION = '1.0.0';
 
 define( 'WPANE_PLUGIN_DIR_PATH', \plugin_dir_path( __FILE__ ) );
 define( 'WPANE_PLUGIN_URL', \plugin_dir_url( __FILE__ ) );
