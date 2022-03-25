@@ -113,17 +113,20 @@ class Process extends Base {
 	function evaluatePost( $post ) {
 		$result      = false;
 		$search_post = $this->getPost( $post->an_id );
+
 		if ( \is_wp_error( $search_post ) ) {
-			$this->setLog( 'error[]', $post->an_id );
+			$this->setLog( 'error', $post->an_id );
 		} elseif ( empty( $search_post ) ) {
 			$result = $this->addPost( $post );
-			$this->setLog( 'new[]', $post->an_id );
 		} elseif ( $this->hasChanged( $search_post[0], $post ) ) {
 			$existing_post = $search_post[0];
-			$result        = $this->updatePost( $existing_post, $post );
-			$this->setLog( 'updated[]', $post->an_id );
+			if ( $this->isAnEvent( $existing_post ) ) {
+				$result = $this->updatePost( $existing_post, $post );
+			} else {
+				$this->setLog( 'skipped', $existing_post->ID );
+			}
 		} else {
-			$this->setLog( 'skipped[]', $post->an_id );
+			$this->setLog( 'skipped', $post->an_id );
 		}
 		if ( ! $result ) {
 			$this->setStatus( 'process', 'error' );
@@ -143,7 +146,8 @@ class Process extends Base {
 	 * @return void
 	 */
 	function addPost( $post ) {
-		$post_id  = null;
+		$post_id = null;
+
 		$timezone = $this->getTimezone(
 			array(
 				'venue'     => $post->location_venue,
@@ -158,7 +162,7 @@ class Process extends Base {
 			'post_content' => \wp_kses_post( $post->post_content ),
 			'post_status'  => \esc_attr( $post->post_status ),
 			'post_type'    => Event::POST_TYPE['id'],
-			'import_id'    => \esc_attr( $post->an_id ),
+			// 'import_id'    => \esc_attr( $post->an_id ),
 			'meta_input'   => array(
 				'is_an_event'        => 1,
 				'browser_url'        => \esc_url( $post->browser_url ),
@@ -177,6 +181,7 @@ class Process extends Base {
 				'visibility'         => \esc_attr( $post->visibility ),
 				'an_campaign_id'     => ( ! empty( $post->{'action_network:event_campaign_id'} ) ) ? \esc_attr( $post->{'action_network:event_campaign_id'} ) : '',
 				'hidden'             => $post->hidden,
+				'import_date'        => date( $this->date_format ),
 			),
 		);
 
@@ -184,9 +189,11 @@ class Process extends Base {
 
 		if ( is_a( $post_id, '\WP_Error' ) ) {
 			error_log( 'Failed at ' . __FUNCTION__ );
+			$this->setLog( 'error', $post_id );
 			throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
 		} elseif ( $post_id ) {
-			$this->status['new'][] = $post_id;
+			$this->setStatus( 'new', $post_id );
+			$this->setLog( 'new', $post_id );
 		}
 
 		return $post_id;
@@ -213,14 +220,21 @@ class Process extends Base {
 	 */
 	function updatePost( object $existing, object $incoming ) {
 		$post_id = false;
-		if ( $differences = $this->getDifferences( $existing, $incoming ) ) {
+
+		if ( ! $existing->is_an_event || ! $existing->an_id ) {
+			$this->setLog( 'skipped', $existing->ID );
+			return $post_id;
+		}
+
+		if ( $differences = $this->getDifferences( (object) $existing, $incoming ) ) {
 			$differences['ID'] = $existing->ID;
 			$post_id           = \wp_update_post( $differences );
 
 			if ( is_a( $post_id, '\WP_Error' ) ) {
+				$this->setLog( 'error', $post_id );
 				throw new \Exception( \__( 'Error encountered in ' . __FUNCTION__, 'wp-action-network-events' ) );
 			} elseif ( $post_id ) {
-				$this->status['updated'][] = $post_id;
+				$this->setLog( 'updated:', $post_id );
 			}
 		}
 
@@ -276,6 +290,10 @@ class Process extends Base {
 	public function getDifferences( object $existing, object $incoming ) : array {
 		$differences = array();
 
+		if ( ! $this->isAnEvent( $existing ) ) {
+			return $differences;
+		}
+
 		$timezone = $this->getTimezone(
 			array(
 				'venue'     => $incoming->location_venue,
@@ -307,12 +325,13 @@ class Process extends Base {
 			'visibility',
 			'an_campaign_id',
 			'hidden',
+			'update_date',
 		);
 
 		foreach ( $post_fields as $field ) {
 			if ( ! isset( $existing->{$field} ) || ( isset( $existing->{$field} ) && $this->isDifferent( $existing->{$field}, $incoming->{$field} ) ) ) {
 				error_log( sprintf( 'Existing: %s | New %s | Test: ', $existing->{$field}, $incoming->{$field}, $this->isDifferent( $existing->{$field}, $incoming->{$field} ) ) );
-				$differences[ $field ] = $existing->{$field};
+				$differences[ $field ] = $incoming->{$field};
 			}
 		}
 
@@ -322,6 +341,9 @@ class Process extends Base {
 				error_log( sprintf( 'Existing: %s | New %s', $meta, $incoming->{$field} ) );
 
 				switch ( $field ) {
+					case 'update_date':
+						$differences['meta_input']['update_date'] = date( $this->date_format );
+						break;
 					case 'timezone':
 						$differences['meta_input']['timezone'] = $timezone;
 						break;
@@ -329,7 +351,7 @@ class Process extends Base {
 						$differences['meta_input']['location_venue'] = ( ! empty( $incoming->location_venue ) ) ? \esc_attr( $incoming->location_venue ) : 'Virtual';
 						break;
 					default:
-						$differences['meta_input'][ $field ] = $existing->{$field};
+						$differences['meta_input'][ $field ] = $incoming->{$field};
 						break;
 				}
 			}
@@ -351,6 +373,11 @@ class Process extends Base {
 			'post_type'      => Event::POST_TYPE['id'],
 			'meta_query'     => array(
 				array(
+					'key'     => 'is_an_event',
+					'value'   => array( '1', true ),
+					'compare' => 'IN',
+				),
+				array(
 					'key'   => 'an_id',
 					'value' => $record_identifier,
 				),
@@ -361,6 +388,18 @@ class Process extends Base {
 	}
 
 	/**
+	 * Check if is AN event
+	 *
+	 * @since 1.0.1
+	 *
+	 * @param object $post
+	 * @return boolean
+	 */
+	public function isAnEvent( $post ) : bool {
+		return \get_post_meta( $post->ID, 'is_an_event', true );
+	}
+
+	/**
 	 * Check if post has changed
 	 *
 	 * @param object $existing
@@ -368,7 +407,19 @@ class Process extends Base {
 	 * @return bool
 	 */
 	public function hasChanged( $existing, $incoming ) : bool {
-		return $existing->post_modified < $incoming->post_modified;
+		$import_date   = ( $imported = \get_post_meta( $existing->ID, 'import_date', true ) ) ? date( $this->date_format, strtotime( $imported ) ) : false;
+		$update_date   = ( $updated = \get_post_meta( $existing->ID, 'update_date', true ) ) ? date( $this->date_format, strtotime( $updated ) ) : false;
+		$updated       = $update_date ? $update_date : $import_date;
+		$incoming_date = date( $this->date_format, strtotime( $incoming->post_modified ) );
+		$existing_date = date( $this->date_format, strtotime( $existing->post_modified ) );
+
+		if ( $updated ) {
+			return $incoming_date > $updated;
+		} elseif ( $existing_date ) {
+			return $incoming_date > $existing_date;
+		}
+
+		return false;
 	}
 
 	/**
@@ -455,6 +506,19 @@ class Process extends Base {
 			return $timezone[0];
 		}
 		return $default_timezone;
+	}
+
+	/**
+	 * Set log
+	 *
+	 * @since 1.0.1
+	 *
+	 * @param string $prop
+	 * @param mixed  $value
+	 * @return void
+	 */
+	public function setLog( $prop, $value ) {
+		$this->log[ $prop ][] = $value;
 	}
 
 }

@@ -77,6 +77,7 @@ class Notices extends Base {
 		 * @see Bootstrap::__construct
 		 */
 		$this->status = \get_option( Sync::LOG_KEY );
+
 		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScript' ) );
 
 		// \add_action( 'wp_ajax_' . self::ACTION_NAME, array( $this, 'sendStatus' ) );
@@ -101,23 +102,33 @@ class Notices extends Base {
 			return;
 		}
 
+		if( empty( $this->status ) ) {
+			return;
+		}
+
 		$status   = isset( $this->status['get']['response'] ) && 200 === $this->status['get']['response'] ? 'success' : 'warning';
 		$response = isset( $this->status['get']['response'] ) ? isset( $this->status['get']['response'] ) : \esc_html( 'Request Failed', 'wp-action-network-events' );
+		$source = '';
+		$last_run = isset( $this->status['last_run'] ) ? $this->status['last_run'] : '';
 
-		switch ( $this->status['source'] ) {
-			case 'manual':
-				$source = esc_html__( 'Manually Synced', 'wp-action-network-events' );
-				break;
-			case 'import':
-				$source = esc_html__( 'Manually Synced (Full Import)', 'wp-action-network-events' );
-				break;
-			default:
-				$source = esc_html__( 'Auto-synced', 'wp-action-network-events' );
+		if( isset( $this->status['source'] ) ) {
+			switch ( $this->status['source'] ) {
+				case 'manual':
+					$source = esc_html__( 'Manually Synced', 'wp-action-network-events' );
+					break;
+				case 'import':
+					$source = esc_html__( 'Manually Synced (Full Import)', 'wp-action-network-events' );
+					break;
+				default:
+					$source = esc_html__( 'Auto-synced', 'wp-action-network-events' );
+			}
 		}
+
+
 
 		?>
 		<div class="notice notice-<?php echo $status; ?> is-dismissible">
-			<p><?php printf( 'Last %s at %s - Status %s', $source, $this->status['last_run'], $response ); ?></p>
+			<p><?php printf( 'Last %s at %s - Status %s', $source, $last_run, $response ); ?></p>
 			<p><?php print_r( $this->status ); ?></p>
 		</div>
 		<?php
