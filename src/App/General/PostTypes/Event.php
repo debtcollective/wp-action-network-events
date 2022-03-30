@@ -197,7 +197,7 @@ class Event extends PostType {
 	 */
 	public function addStatusToPostEdit() {
 		global $post;
-		if ( $post->post_type !== self::POST_TYPE['id'] ) {
+		if ( ! is_object( $post ) || $post->post_type !== self::POST_TYPE['id'] ) {
 			return false;
 		}
 
@@ -219,7 +219,7 @@ class Event extends PostType {
 	 */
 	public function addStatusToQuickEdit() {
 		global $post;
-		if ( $post->post_type !== self::POST_TYPE['id'] ) {
+		if (  ! is_object( $post ) || $post->post_type !== self::POST_TYPE['id'] ) {
 			return false;
 		}
 		ob_start();
