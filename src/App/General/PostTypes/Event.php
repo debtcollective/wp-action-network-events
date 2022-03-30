@@ -8,6 +8,7 @@ namespace WpActionNetworkEvents\App\General\PostTypes;
 
 use WpActionNetworkEvents\Common\Abstracts\PostType;
 use WpActionNetworkEvents\App\Admin\Options;
+use WpActionNetworkEvents\App\General\Queries;
 
 /**
  * Class Event
@@ -92,6 +93,7 @@ class Event extends PostType {
 		\add_action( 'admin_footer-edit.php', array( $this, 'addStatusToQuickEdit' ) );
 		\add_action( 'pre_get_posts', array( $this, 'preGetPosts' ) );
 		\add_filter( 'post_class', array( $this, 'addPostClass' ), 10, 3 );
+		\add_action( 'save_post_' . self::POST_TYPE['id'], array( $this, 'clearCache' ), 20, 3 );
 	}
 
 	/**
@@ -368,6 +370,35 @@ class Event extends PostType {
 			$classes[] = 'is-private';
 		}
 		return $classes;
+	}
+
+	/**
+	 * Clear cache
+	 * When new post is created, clear the transient
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/delete_transient/
+	 *
+	 * @param int             $post_id
+	 * @param object \WP_Post $post
+	 * @param boolean         $update
+	 * @return void
+	 */
+	public function clearCache( $post_id, $post, $update ) {
+		if ( $update ) {
+			return;
+		}
+
+		$scopes = array(
+			'all',
+			'future',
+			'past',
+		);
+
+		foreach ( $scopes as $scope ) {
+			\delete_transient( Queries::QUERY_TRANSIENT . '_objects_' . $scope );
+			\delete_transient( Queries::QUERY_TRANSIENT . '_ids_' . $scope );
+		}
+
 	}
 
 }
