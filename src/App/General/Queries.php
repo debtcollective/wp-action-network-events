@@ -40,7 +40,7 @@ class Queries extends Base {
 	 * Plugin Options
 	 *
 	 * @since 1.0.1
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $options;
@@ -54,7 +54,7 @@ class Queries extends Base {
 		/**
 		 * This general class is always being instantiated as requested in the Bootstrap class
 		 */
-		$this->options                        = \get_option( Options::OPTIONS_NAME );
+		$this->options = \get_option( Options::OPTIONS_NAME );
 	}
 
 	/**
@@ -71,7 +71,7 @@ class Queries extends Base {
 	public function getEvents( $scope = 'all', $args = array() ): array {
 		global $post;
 
-		$transient_id = self::QUERY_TRANSIENT . '_objects_' . $scope;
+		$transient_id             = self::QUERY_TRANSIENT . '_objects_' . $scope;
 		$query_transient_duration = isset( $this->options['query_cache_duration'] ) ? (int) $this->options['query_cache_duration'] : (int) 1;
 
 		if ( false === ( $query = \get_transient( $transient_id ) ) ) {
@@ -164,13 +164,17 @@ class Queries extends Base {
 	public function getEventIds( $scope = 'all', $args = array() ): array {
 		global $post;
 
-		$transient_id = self::QUERY_TRANSIENT . '_ids_' . $scope;
+		$transient_id             = self::QUERY_TRANSIENT . '_ids_' . $scope;
 		$query_transient_duration = isset( $this->options['query_cache_duration'] ) ? (int) $this->options['query_cache_duration'] : (int) 1;
 
 		if ( false === ( $query = \get_transient( $transient_id ) ) ) {
 
-			$date_time = new \DateTime();
-			$scope     = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
+			/**
+			 * Keep events current for a few hours
+			 */
+			$date_time = new \DateTime( 'now -6 hours' );
+			$date_time->setTimezone( new \DateTimeZone( \wp_timezone_string() ) );
+			$scope = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
 
 			$defaults = array(
 				'post_type'      => array( Event::POST_TYPE['id'] ),
