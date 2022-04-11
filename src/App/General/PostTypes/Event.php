@@ -8,6 +8,7 @@ namespace WpActionNetworkEvents\App\General\PostTypes;
 
 use WpActionNetworkEvents\Common\Abstracts\PostType;
 use WpActionNetworkEvents\App\Admin\Options;
+use WpActionNetworkEvents\App\General\Queries;
 
 /**
  * Class Event
@@ -92,6 +93,7 @@ class Event extends PostType {
 		\add_action( 'admin_footer-edit.php', array( $this, 'addStatusToQuickEdit' ) );
 		\add_action( 'pre_get_posts', array( $this, 'preGetPosts' ) );
 		\add_filter( 'post_class', array( $this, 'addPostClass' ), 10, 3 );
+		\add_action( 'save_post_' . self::POST_TYPE['id'], array( $this, 'clearCache' ), 20, 3 );
 	}
 
 	/**
@@ -118,13 +120,13 @@ class Event extends PostType {
 	 * @return void
 	 */
 	public static function add_admin_capabilities() {
-		if ( empty( self::$capabilities ) ) {
+		if ( empty( $this->capabilities ) ) {
 			return;
 		}
 
 		$role = \get_role( 'administrator' );
 
-		foreach ( self::$capabilities as $post_cap => $capability ) {
+		foreach ( $this->capabilities as $post_cap => $capability ) {
 			if ( ! $role->has_cap( $capability ) ) {
 				$role->add_cap( $capability );
 			}
@@ -139,13 +141,13 @@ class Event extends PostType {
 	 * @return void
 	 */
 	public static function remove_admin_capabilities() {
-		if ( empty( self::$capabilities ) ) {
+		if ( empty( $this->capabilities ) ) {
 			return;
 		}
 
 		$role = \get_role( 'administrator' );
 
-		foreach ( self::$capabilities as $post_cap => $capability ) {
+		foreach ( $this->capabilities as $post_cap => $capability ) {
 			if ( $role->has_cap( $capability ) ) {
 				$role->remove_cap( $capability );
 			}
@@ -195,7 +197,7 @@ class Event extends PostType {
 	 */
 	public function addStatusToPostEdit() {
 		global $post;
-		if ( $post->post_type !== self::POST_TYPE['id'] ) {
+		if ( ! is_object( $post ) || $post->post_type !== self::POST_TYPE['id'] ) {
 			return false;
 		}
 
@@ -217,7 +219,7 @@ class Event extends PostType {
 	 */
 	public function addStatusToQuickEdit() {
 		global $post;
-		if ( $post->post_type !== self::POST_TYPE['id'] ) {
+		if (  ! is_object( $post ) || $post->post_type !== self::POST_TYPE['id'] ) {
 			return false;
 		}
 		ob_start();
@@ -270,7 +272,7 @@ class Event extends PostType {
 				$output               = '<span class="post-info">' . implode( $output_parts ) . '</span>';
 				$statuses['external'] = $output;
 			}
-			if ( true == \get_post_meta( $post->ID, 'hidden', true ) ) {
+			if ( ( true == \get_post_meta( $post->ID, 'hidden', true ) ) || ( true == \get_post_meta( $post->ID, 'is_hidden', true ) ) ) {
 				$statuses = array( \esc_attr__( 'Hidden', 'wp-action-network-events' ) );
 			}
 		}
@@ -292,14 +294,38 @@ class Event extends PostType {
 			$meta_query = array(
 				'relation' => 'AND',
 				array(
-					'key'     => 'hidden',
-					'value'   => '1',
-					'compare' => '!=',
+					'relation' => 'OR',
+					array(
+						'key'     => 'is_hidden',
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => 'is_hidden',
+						'value'   => '1',
+						'compare' => '!=',
+					),
+					array(
+						'key'     => 'is_hidden',
+						'value'   => true,
+						'compare' => '!=',
+					),
 				),
 				array(
-					'key'     => 'hidden',
-					'value'   => true,
-					'compare' => '!=',
+					'relation' => 'OR',
+					array(
+						'key'     => 'hidden',
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => 'hidden',
+						'value'   => '1',
+						'compare' => '!=',
+					),
+					array(
+						'key'     => 'hidden',
+						'value'   => true,
+						'compare' => '!=',
+					),
 				),
 				array(
 					'key'     => 'visibility',
@@ -344,6 +370,35 @@ class Event extends PostType {
 			$classes[] = 'is-private';
 		}
 		return $classes;
+	}
+
+	/**
+	 * Clear cache
+	 * When new post is created, clear the transient
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/delete_transient/
+	 *
+	 * @param int             $post_id
+	 * @param object \WP_Post $post
+	 * @param boolean         $update
+	 * @return void
+	 */
+	public function clearCache( $post_id, $post, $update ) {
+		if ( $update ) {
+			return;
+		}
+
+		$scopes = array(
+			'all',
+			'future',
+			'past',
+		);
+
+		foreach ( $scopes as $scope ) {
+			\delete_transient( Queries::QUERY_TRANSIENT . '_objects_' . $scope );
+			\delete_transient( Queries::QUERY_TRANSIENT . '_ids_' . $scope );
+		}
+
 	}
 
 }

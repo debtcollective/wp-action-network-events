@@ -13,6 +13,7 @@ namespace WpActionNetworkEvents\App\Admin;
 
 use WpActionNetworkEvents\Common\Abstracts\Base;
 use WpActionNetworkEvents\App\Admin\Options;
+use WpActionNetworkEvents\App\General\PostTypes\Event;
 use WpActionNetworkEvents\App\Integration\Sync;
 
 /**
@@ -76,17 +77,17 @@ class Notices extends Base {
 		 * @see Bootstrap::__construct
 		 */
 		$this->status = \get_option( Sync::LOG_KEY );
+
 		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueueScript' ) );
 
 		// \add_action( 'wp_ajax_' . self::ACTION_NAME, array( $this, 'sendStatus' ) );
 
 		\add_action( 'admin_notices', array( $this, 'renderAdminNotice' ) );
+		\add_action( 'admin_notices', array( $this, 'renderWarnings' ) );
 
-		$options        = Options::getOptions();
+		$options = Options::getOptions();
 		$this->setBaseUrl( isset( $options['base_url'] ) ? $options['base_url'] : null );
 		$this->setApiKey( isset( $options['api_key'] ) ? $options['api_key'] : null );
-
-		\add_action( 'admin_notices', array( $this, 'renderWarnings' ) );
 
 	}
 
@@ -97,27 +98,37 @@ class Notices extends Base {
 	 */
 	public function renderAdminNotice() {
 		$screen = \get_current_screen();
-		if ( ! $screen || 'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base ) {
+		if ( ! $screen || ( 'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base && Event::POST_TYPE['id'] . '_page_' . Sync::SYNC_PAGE_NAME != $screen->base ) ) {
 			return;
 		}
 
-		$status = isset( $this->status['get']['response'] ) && 200 === $this->status['get']['response'] ? 'success' : 'warning';
-		$response = isset( $this->status['get']['response'] ) ? isset( $this->status['get']['response'] ) : \esc_html( 'Request Failed', 'wp-action-network-events' );
-
-		switch ( $this->status['source'] ) {
-			case 'manual':
-				$source = esc_html__( 'Manually Synced', 'wp-action-network-events' );
-				break;
-			case 'import':
-				$source = esc_html__( 'Manually Synced (Full Import)', 'wp-action-network-events' );
-				break;
-			default:
-				$source = esc_html__( 'Auto-synced', 'wp-action-network-events' );
+		if( empty( $this->status ) ) {
+			return;
 		}
+
+		$status   = isset( $this->status['get']['response'] ) && 200 === $this->status['get']['response'] ? 'success' : 'warning';
+		$response = isset( $this->status['get']['response'] ) ? isset( $this->status['get']['response'] ) : \esc_html( 'Request Failed', 'wp-action-network-events' );
+		$source = '';
+		$last_run = isset( $this->status['last_run'] ) ? $this->status['last_run'] : '';
+
+		if( isset( $this->status['source'] ) ) {
+			switch ( $this->status['source'] ) {
+				case 'manual':
+					$source = esc_html__( 'Manually Synced', 'wp-action-network-events' );
+					break;
+				case 'import':
+					$source = esc_html__( 'Manually Synced (Full Import)', 'wp-action-network-events' );
+					break;
+				default:
+					$source = esc_html__( 'Auto-synced', 'wp-action-network-events' );
+			}
+		}
+
+
 
 		?>
 		<div class="notice notice-<?php echo $status; ?> is-dismissible">
-			<p><?php printf( 'Last %s at %s - Status %s', $source, $this->status['last_run'], $response ); ?></p>
+			<p><?php printf( 'Last %s at %s - Status %s', $source, $last_run, $response ); ?></p>
 			<p><?php print_r( $this->status ); ?></p>
 		</div>
 		<?php
@@ -130,15 +141,15 @@ class Notices extends Base {
 	 */
 	public function renderWarnings() {
 		$screen = \get_current_screen();
-		if ( ! $screen || 'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base ) {
+		if ( ! $screen || ( 'settings_page_' . Options::OPTIONS_PAGE_NAME !== $screen->base && Event::POST_TYPE['id'] . '_page_' . Sync::SYNC_PAGE_NAME != $screen->base ) ) {
 			return;
 		}
 
-		if( ! $this->api_key ) {
+		if ( ! $this->api_key ) {
 			printf( $this->warning( esc_html__( 'API Key is Required to Sync Events', 'wp-action-network-events' ) ) );
 		}
 
-		if( ! $this->base_url ) {
+		if ( ! $this->base_url ) {
 			printf( $this->warning( esc_html__( 'Base URL is Required to Sync Events', 'wp-action-network-events' ) ) );
 		}
 	}
