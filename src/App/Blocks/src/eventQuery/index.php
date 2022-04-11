@@ -82,11 +82,6 @@ function render( $attributes, $content, $block ) {
 		);
 	}
 
-	// echo '<pre>';
-	// var_dump( $args['scope'], $query_args );
-	// echo '</pre>';
-
-
 	$query = new \WP_Query( $query_args );
 	$output = '';
 
