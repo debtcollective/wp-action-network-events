@@ -130,7 +130,7 @@ class Queries extends Base {
 				$args['meta_query'][] = array(
 					'key'     => 'start_date',
 					'value'   => $date_time->format( 'c' ),
-					'compare' => '>',
+					'compare' => '>=',
 				);
 			} elseif ( 'past' === $scope ) {
 				$args['meta_query'][] = array(
@@ -219,7 +219,7 @@ class Queries extends Base {
 				$args['meta_query'][] = array(
 					'key'     => 'start_date',
 					'value'   => $date_time->format( 'c' ),
-					'compare' => '>',
+					'compare' => '>=',
 				);
 			} elseif ( 'past' === $scope ) {
 				$args['meta_query'][] = array(
