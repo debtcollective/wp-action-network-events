@@ -71,6 +71,7 @@ class Queries extends Base {
 	public function getEvents( $scope = 'all', $args = array() ): array {
 		global $post;
 
+		$scope                    = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
 		$transient_id             = self::QUERY_TRANSIENT . '_objects_' . $scope;
 		$query_transient_duration = isset( $this->options['query_cache_duration'] ) ? (int) $this->options['query_cache_duration'] : (int) 1;
 
@@ -81,8 +82,7 @@ class Queries extends Base {
 			 */
 			$date_time = new \DateTime( 'now -6 hours' );
 			$date_time->setTimezone( new \DateTimeZone( \wp_timezone_string() ) );
-			$sort      = ( $sort = \get_post_meta( get_the_ID(), 'event_sort', true ) ) ? strtoupper( \esc_attr( $sort ) ) : 'DESC';
-			$scope     = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
+			$sort = ( $sort = \get_post_meta( get_the_ID(), 'event_sort', true ) ) ? strtoupper( \esc_attr( $sort ) ) : 'DESC';
 
 			$defaults = array(
 				'post_type'      => array( Event::POST_TYPE['id'] ),
@@ -168,6 +168,7 @@ class Queries extends Base {
 	public function getEventIds( $scope = 'all', $args = array() ): array {
 		global $post;
 
+		$scope                    = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
 		$transient_id             = self::QUERY_TRANSIENT . '_ids_' . $scope;
 		$query_transient_duration = isset( $this->options['query_cache_duration'] ) ? (int) $this->options['query_cache_duration'] : (int) 1;
 
