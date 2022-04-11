@@ -76,7 +76,11 @@ class Queries extends Base {
 
 		if ( false === ( $query = \get_transient( $transient_id ) ) ) {
 
-			$date_time = new \DateTime();
+			/**
+			 * Keep events current for a few hours
+			 */
+			$date_time = new \DateTime( 'now -6 hours' );
+			$date_time->setTimezone( new \DateTimeZone( \wp_timezone_string() ) );
 			$sort      = ( $sort = \get_post_meta( get_the_ID(), 'event_sort', true ) ) ? strtoupper( \esc_attr( $sort ) ) : 'DESC';
 			$scope     = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
 
