@@ -46,6 +46,13 @@ class Queries extends Base {
 	protected $options;
 
 	/**
+	 * Scope padding
+	 *
+	 * @var string
+	 */
+	protected $time_diff = '-1 days';
+
+	/**
 	 * Initialize the class.
 	 *
 	 * @since 1.0.0
@@ -80,7 +87,7 @@ class Queries extends Base {
 			/**
 			 * Keep events current for a few hours
 			 */
-			$date_time = new \DateTime( 'now -6 hours' );
+			$date_time = new \DateTime( $this->time_diff );
 			$date_time->setTimezone( new \DateTimeZone( \wp_timezone_string() ) );
 			$sort = ( $sort = \get_post_meta( get_the_ID(), 'event_sort', true ) ) ? strtoupper( \esc_attr( $sort ) ) : 'DESC';
 
@@ -177,7 +184,7 @@ class Queries extends Base {
 			/**
 			 * Keep events current for a few hours
 			 */
-			$date_time = new \DateTime( 'now -6 hours' );
+			$date_time = new \DateTime( $this->time_diff );
 			$date_time->setTimezone( new \DateTimeZone( \wp_timezone_string() ) );
 			$scope = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
 
