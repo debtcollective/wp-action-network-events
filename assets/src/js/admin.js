@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const data = wpANEData;
     const syncButton = document.getElementById('wp-action-network-events-sync-submit');
     const importButton = document.getElementById('wp-action-network-events-sync-submit-clean');
+    const clearCacheButton = document.getElementById('wp-action-network-events-clear-cache');
     const nonce = document.getElementById('wp_action_network_events_sync_nonce');
     const noticeContainer = document.getElementById('sync-notice-container');
 
@@ -49,12 +50,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
+    const clearCache = (event) => {
+        event.preventDefault();
+
+        const params = {
+            action: data.actionClearCache,
+        }
+
+        let query = new URLSearchParams(params).toString();
+
+        fetch(data.ajax_url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' }),
+            body: query
+        })
+        .then(response =>
+            response.json()
+        )
+        .then(data => {
+            // console.log(data);
+            clearCacheMessage( data.data, 'success' );
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            clearCacheMessage( 'Cache Not Cleared', 'error' );
+        });
+
+    }
+
+    const clearCacheMessage = ( message, status ) => {
+        const el = document.createElement("span");
+        const className = 'notice-' + status;
+        el.classList.add( 'notice' );
+        el.classList.add( className );
+        const text = document.createTextNode( message );
+        el.appendChild( text );
+        clearCacheButton.replaceWith(el);
+    }
+
     if (syncButton && data && nonce) {
         syncButton.addEventListener('click', onClick);
     }
 
     if (importButton && data && nonce) {
         importButton.addEventListener('click', onClick);
+    }
+
+    if (clearCacheButton) {
+        clearCacheButton.addEventListener('click', clearCache);
     }
 
 });
