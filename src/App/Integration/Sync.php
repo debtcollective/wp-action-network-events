@@ -465,10 +465,11 @@ class Sync extends Base {
 		\wp_register_script( $this->plugin_name . '-admin', esc_url( WPANE_PLUGIN_URL . 'assets/public/js/admin.js' ), array(), $this->version, false );
 
 		$localized = array(
-			'action'   => self::SYNC_ACTION_NAME,
-			'endpoint' => $this->endpoint,
-			'ajax_url' => \admin_url( 'admin-ajax.php' ),
-			'nonce'    => \wp_create_nonce( self::SYNC_ACTION_NAME ),
+			'action'           => self::SYNC_ACTION_NAME,
+			'actionClearCache' => Options::CLEAR_CACHE_ACTION_NAME,
+			'endpoint'         => $this->endpoint,
+			'ajax_url'         => \admin_url( 'admin-ajax.php' ),
+			'nonce'            => \wp_create_nonce( self::SYNC_ACTION_NAME ),
 		);
 
 		\wp_localize_script(
