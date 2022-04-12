@@ -66,6 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var data = wpANEData;
   var syncButton = document.getElementById('wp-action-network-events-sync-submit');
   var importButton = document.getElementById('wp-action-network-events-sync-submit-clean');
+  var clearCacheButton = document.getElementById('wp-action-network-events-clear-cache');
   var nonce = document.getElementById('wp_action_network_events_sync_nonce');
   var noticeContainer = document.getElementById('sync-notice-container');
   var errorNotice = '<div class="notice notice-error"><p>%s</p></div>';
@@ -105,12 +106,50 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   };
 
+  var clearCache = function clearCache(event) {
+    event.preventDefault();
+    var params = {
+      action: data.actionClearCache
+    };
+    var query = new URLSearchParams(params).toString();
+    fetch(data.ajax_url, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: new Headers({
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }),
+      body: query
+    }).then(function (response) {
+      return response.json();
+    }).then(function (data) {
+      // console.log(data);
+      clearCacheMessage(data.data, 'success');
+    }).catch(function (error) {
+      console.error('Error:', error);
+      clearCacheMessage('Cache Not Cleared', 'error');
+    });
+  };
+
+  var clearCacheMessage = function clearCacheMessage(message, status) {
+    var el = document.createElement("span");
+    var className = 'notice-' + status;
+    el.classList.add('notice');
+    el.classList.add(className);
+    var text = document.createTextNode(message);
+    el.appendChild(text);
+    clearCacheButton.replaceWith(el);
+  };
+
   if (syncButton && data && nonce) {
     syncButton.addEventListener('click', onClick);
   }
 
   if (importButton && data && nonce) {
     importButton.addEventListener('click', onClick);
+  }
+
+  if (clearCacheButton) {
+    clearCacheButton.addEventListener('click', clearCache);
   }
 });
 })();

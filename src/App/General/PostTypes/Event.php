@@ -9,6 +9,7 @@ namespace WpActionNetworkEvents\App\General\PostTypes;
 use WpActionNetworkEvents\Common\Abstracts\PostType;
 use WpActionNetworkEvents\App\Admin\Options;
 use WpActionNetworkEvents\App\General\Queries;
+use WpActionNetworkEvents\App\Integration\Sync;
 
 /**
  * Class Event
@@ -93,7 +94,25 @@ class Event extends PostType {
 		\add_action( 'admin_footer-edit.php', array( $this, 'addStatusToQuickEdit' ) );
 		\add_action( 'pre_get_posts', array( $this, 'preGetPosts' ) );
 		\add_filter( 'post_class', array( $this, 'addPostClass' ), 10, 3 );
-		\add_action( 'save_post_' . self::POST_TYPE['id'], array( $this, 'clearCache' ), 20, 3 );
+		\add_action( 'save_post_' . self::POST_TYPE['id'], array( $this, 'clearCacheOnSave' ), 20, 3 );
+
+		/**
+		 * @link https://developer.wordpress.org/reference/hooks/post_updated/
+		 * @link https://developer.wordpress.org/reference/hooks/updated_meta_type_meta/
+		 *
+		 * @since 1.0.3
+		 */
+		\add_action( 'post_updated', array( $this, 'clearCacheOnPostUpdate' ), 10, 3 );
+
+		\add_action( 'added_post_meta', array( $this, 'clearCacheOnMetaUpdate' ), 10, 4 );
+		\add_action( 'updated_post_meta', array( $this, 'clearCacheOnMetaUpdate' ), 10, 4 );
+
+		if ( ! function_exists( '\wp_get_current_user' ) ) {
+			include ABSPATH . 'wp-includes/pluggable.php';
+		}
+		if ( \current_user_can( Sync::SYNC_CAP_NAME ) ) {
+			\add_action( 'wp_ajax_' . Options::CLEAR_CACHE_ACTION_NAME, array( $this, 'ajaxClearCache' ) );
+		}
 	}
 
 	/**
@@ -219,7 +238,7 @@ class Event extends PostType {
 	 */
 	public function addStatusToQuickEdit() {
 		global $post;
-		if (  ! is_object( $post ) || $post->post_type !== self::POST_TYPE['id'] ) {
+		if ( ! is_object( $post ) || $post->post_type !== self::POST_TYPE['id'] ) {
 			return false;
 		}
 		ob_start();
@@ -378,17 +397,87 @@ class Event extends PostType {
 	 *
 	 * @link https://developer.wordpress.org/reference/functions/delete_transient/
 	 *
-	 * @param int             $post_id
+	 * @param integer         $post_id
 	 * @param object \WP_Post $post
 	 * @param boolean         $update
 	 * @return void
 	 */
-	public function clearCache( $post_id, $post, $update ) {
+	public function clearCacheOnSave( $post_id, $post, $update ) {
 		if ( $update ) {
 			return;
 		}
 
-		$scopes = array(
+		$this->clearCache();
+	}
+
+	/**
+	 * Clear cache
+	 * When certain post fields are changed, clear the transient
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/delete_transient/
+	 *
+	 * @param integer         $post_ID
+	 * @param object \WP_Post $post_after
+	 * @param object \WP_Post $post_before
+	 * @return void
+	 */
+	public function clearCacheOnPostUpdate( $post_id, \WP_Post $post_after, \WP_Post $post_before ) {
+		if ( self::POST_TYPE['id'] !== \get_post_type( $post_id ) ) {
+			return;
+		}
+
+		$fields = array(
+			'post_status',
+		);
+
+		foreach ( $post_fields as $field ) {
+			if ( $post_after->{$field} != $post_before->{$field} ) {
+				$this->clearCache();
+			}
+		}
+	}
+
+	/**
+	 * Clear cache
+	 * When certain post meta fields are changed, clear the transient
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/delete_transient/
+	 *
+	 * @param integer $meta_id
+	 * @param integer $object_id
+	 * @param string  $meta_key
+	 * @param mixed   $_meta_value
+	 * @return void
+	 */
+	public function clearCacheOnMetaUpdate( $meta_id, $object_id, $meta_key, $_meta_value ) {
+
+		$fields = array(
+			'is_an_event',
+			'is_hidden',
+			'hidden',
+			'visibility',
+			'status',
+		);
+
+		foreach ( $fields as $field ) {
+			if ( $field === $meta_key ) {
+				$this->clearCache();
+			}
+		}
+	}
+
+
+	/**
+	 * Delete Transients
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/delete_transient/
+	 *
+	 * @return void
+	 */
+	protected function clearCache() {
+		$cache_objects_deleted = false;
+		$cache_ids_deleted = false;
+		$scopes  = array(
 			'all',
 			'future',
 			'past',
@@ -398,7 +487,17 @@ class Event extends PostType {
 			\delete_transient( Queries::QUERY_TRANSIENT . '_objects_' . $scope );
 			\delete_transient( Queries::QUERY_TRANSIENT . '_ids_' . $scope );
 		}
+	}
 
+	/**
+	 * Clear Cache on Click
+	 *
+	 * @return void
+	 */
+	public function ajaxClearCache() {
+		$this->clearCache();
+		\wp_send_json_success( __( 'Cache Cleared', 'wp-action-network-events' ) );
+		\wp_die();
 	}
 
 }
