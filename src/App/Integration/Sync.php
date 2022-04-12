@@ -381,7 +381,7 @@ class Sync extends Base {
 		$grant      = true;
 
 		foreach ( \wp_roles()->roles as $role => $value ) {
-			if ( $role_object = get_role( $role ) ) {
+			if ( $role_object = \get_role( $role ) ) {
 				if ( $role_object->has_cap( $min_cap ) && ! $role_object->has_cap( $custom_cap ) ) {
 					$role_object->add_cap( $custom_cap, $grant );
 				}
@@ -423,7 +423,7 @@ class Sync extends Base {
 		echo '	<h1>' . \get_admin_page_title() . '</h1>' . "\n";
 
 		$this->renderNotice();
-		$this->renderSyncButton();		
+		$this->renderSyncButton();
 
 		echo '</div>' . "\n";
 
