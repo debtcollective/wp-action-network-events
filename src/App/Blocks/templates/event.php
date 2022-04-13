@@ -18,6 +18,8 @@ $end_datetime = $raw_end_date ? new \DateTime( $raw_end_date ) : null;
 $formatted_start_date = $start_datetime->format( $date_format );
 $formatted_start_time = $start_datetime->format( $time_format );
 $formatted_end_time = $end_datetime ? $end_datetime->format( $time_format ) : null;
+$is_past              = $start_datetime->format( 'Y-m-d' ) < date( 'Y-m-d', time() );
+$class                = $is_past ? \esc_attr( 'past' ) : \esc_attr( 'upcoming' );
 
 /** Get timezone abbreviation */
 $generic_date = new \DateTime( $raw_start_date );
@@ -26,6 +28,7 @@ $timezone_abbr = $generic_date->format( 'T' );
 ?>
 
 <<?php echo $args['tagName']; ?> <?php \post_class( 'event' ); ?>>
+<<?php echo $args['tagName']; ?> <?php \post_class( 'event ' . $class ); ?>>
 
     <a href="<?php echo \esc_url( \get_permalink() ); ?>">
         <?php if( $args['showTags'] && \has_term( '', $taxonomy, $post_id ) ) : 
