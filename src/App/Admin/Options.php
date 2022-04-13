@@ -410,14 +410,14 @@ class Options extends Base {
 	 * @return void
 	 */
 	public function renderEventArchiveSlugField() {
-		$value = isset( $this->options['archive_slug'] ) ? $this->options['archive_slug'] : false;
+		$value = isset( $this->options['archive_slug'] ) ? $this->options['archive_slug'] : 'events';
 
 		printf(
 			'<input type="text" name="wp_action_network_events_options[archive_slug]" class="regular-text archive_slug_field" placeholder="%s" value="%s">',
-			esc_attr__( '', 'wp-action-network-events' ),
+			esc_attr__( 'events', 'wp-action-network-events' ),
 			esc_attr( $value )
 		);
-		echo '<p class="description">' . __( 'Select slug for the events archive page. Leave empty to disable event archive.', 'wp-action-network-events' ) . '</p>';
+		echo '<p class="description">' . __( 'Select slug for the events archive page.', 'wp-action-network-events' ) . '</p>';
 
 	}
 
@@ -427,14 +427,14 @@ class Options extends Base {
 	 * @return void
 	 */
 	public function renderEventSlugField() {
-		$value = isset( $this->options['event_slug'] ) ? $this->options['event_slug'] : Event::POST_TYPE['slug'];
+		$value = isset( $this->options['event_slug'] ) ? $this->options['event_slug'] : 'event';
 
 		printf(
 			'<input type="text" name="wp_action_network_events_options[event_slug]" class="regular-text event_slug_field" placeholder="%s" value="%s">',
-			esc_attr__( '', 'wp-action-network-events' ),
+			esc_attr__( 'event', 'wp-action-network-events' ),
 			esc_attr( $value )
 		);
-		echo '<p class="description">' . __( 'Select slug for individual events (e.g. /events/{event-name}).', 'wp-action-network-events' ) . '</p>';
+		echo '<p class="description">' . __( 'Select slug for the events archive page.', 'wp-action-network-events' ) . '</p>';
 
 	}
 

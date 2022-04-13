@@ -53,14 +53,6 @@ class Queries extends Base {
 	protected $time_diff = '-1 days';
 
 	/**
-	 * Date format
-	 * Used for comparison query
-	 *
-	 * @var string
-	 */
-	protected $date_format = 'Y-m-d';
-
-	/**
 	 * Initialize the class.
 	 *
 	 * @since 1.0.0
@@ -86,7 +78,7 @@ class Queries extends Base {
 	public function getEvents( $scope = 'all', $args = array() ): array {
 		global $post;
 
-		// $scope                    = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
+		$scope                    = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
 		$transient_id             = self::QUERY_TRANSIENT . '_objects_' . $scope;
 		$query_transient_duration = isset( $this->options['query_cache_duration'] ) ? (int) $this->options['query_cache_duration'] : (int) 1;
 
@@ -97,12 +89,13 @@ class Queries extends Base {
 			 */
 			$date_time = new \DateTime( $this->time_diff );
 			$date_time->setTimezone( new \DateTimeZone( \wp_timezone_string() ) );
+			$sort = ( $sort = \get_post_meta( get_the_ID(), 'event_sort', true ) ) ? strtoupper( \esc_attr( $sort ) ) : 'DESC';
 
 			$defaults = array(
 				'post_type'      => array( Event::POST_TYPE['id'] ),
 				'posts_per_page' => 500,
 				'orderby'        => 'meta_value',
-				'order'          => 'DESC',
+				'order'          => $sort,
 				'meta_key'       => 'start_date',
 				'meta_type'      => 'DATETIME',
 				'meta_query'     => array(
@@ -147,13 +140,13 @@ class Queries extends Base {
 			if ( 'future' === $scope ) {
 				$args['meta_query'][] = array(
 					'key'     => 'start_date',
-					'value'   => $date_time->format( $this->date_format ),
+					'value'   => $date_time->format( 'c' ),
 					'compare' => '>=',
 				);
 			} elseif ( 'past' === $scope ) {
 				$args['meta_query'][] = array(
 					'key'     => 'start_date',
-					'value'   => $date_time->format( $this->date_format ),
+					'value'   => $date_time->format( 'c' ),
 					'compare' => '<',
 				);
 			}
@@ -182,7 +175,7 @@ class Queries extends Base {
 	public function getEventIds( $scope = 'all', $args = array() ): array {
 		global $post;
 
-		// $scope                    = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
+		$scope                    = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
 		$transient_id             = self::QUERY_TRANSIENT . '_ids_' . $scope;
 		$query_transient_duration = isset( $this->options['query_cache_duration'] ) ? (int) $this->options['query_cache_duration'] : (int) 1;
 
@@ -193,7 +186,7 @@ class Queries extends Base {
 			 */
 			$date_time = new \DateTime( $this->time_diff );
 			$date_time->setTimezone( new \DateTimeZone( \wp_timezone_string() ) );
-			// $scope = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
+			$scope = ( $event_scope = \get_post_meta( \get_the_ID(), 'event_scope', true ) ) ? $event_scope : $scope;
 
 			$defaults = array(
 				'post_type'      => array( Event::POST_TYPE['id'] ),
@@ -241,13 +234,13 @@ class Queries extends Base {
 			if ( 'future' === $scope ) {
 				$args['meta_query'][] = array(
 					'key'     => 'start_date',
-					'value'   => $date_time->format( $this->date_format ),
+					'value'   => $date_time->format( 'c' ),
 					'compare' => '>=',
 				);
 			} elseif ( 'past' === $scope ) {
 				$args['meta_query'][] = array(
 					'key'     => 'start_date',
-					'value'   => $date_time->format( $this->date_format ),
+					'value'   => $date_time->format( 'c' ),
 					'compare' => '<',
 				);
 			}
