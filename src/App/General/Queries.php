@@ -53,6 +53,14 @@ class Queries extends Base {
 	protected $time_diff = 'now';
 
 	/**
+	 * Date format
+	 * Used for comparison query
+	 *
+	 * @var string
+	 */
+	protected $date_format = 'Y-m-d';
+
+	/**
 	 * Initialize the class.
 	 *
 	 * @since 1.0.0
@@ -140,13 +148,13 @@ class Queries extends Base {
 			if ( 'future' === $scope ) {
 				$args['meta_query'][] = array(
 					'key'     => 'start_date',
-					'value'   => $date_time->format( 'c' ),
+					'value'   => $date_time->format( $this->date_format ),
 					'compare' => '>=',
 				);
 			} elseif ( 'past' === $scope ) {
 				$args['meta_query'][] = array(
 					'key'     => 'start_date',
-					'value'   => $date_time->format( 'c' ),
+					'value'   => $date_time->format( $this->date_format ),
 					'compare' => '<',
 				);
 			}
@@ -234,13 +242,13 @@ class Queries extends Base {
 			if ( 'future' === $scope ) {
 				$args['meta_query'][] = array(
 					'key'     => 'start_date',
-					'value'   => $date_time->format( 'c' ),
+					'value'   => $date_time->format( $this->date_format ),
 					'compare' => '>=',
 				);
 			} elseif ( 'past' === $scope ) {
 				$args['meta_query'][] = array(
 					'key'     => 'start_date',
-					'value'   => $date_time->format( 'c' ),
+					'value'   => $date_time->format( $this->date_format ),
 					'compare' => '<',
 				);
 			}
