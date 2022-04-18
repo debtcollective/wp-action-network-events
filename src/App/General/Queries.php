@@ -50,7 +50,7 @@ class Queries extends Base {
 	 *
 	 * @var string
 	 */
-	protected $time_diff = '-1 days';
+	protected $time_diff = 'now';
 
 	/**
 	 * Initialize the class.
@@ -85,7 +85,7 @@ class Queries extends Base {
 		if ( false === ( $query = \get_transient( $transient_id ) ) ) {
 
 			/**
-			 * Keep events current for a few hours
+			 * Maybe pad date
 			 */
 			$date_time = new \DateTime( $this->time_diff );
 			$date_time->setTimezone( new \DateTimeZone( \wp_timezone_string() ) );
