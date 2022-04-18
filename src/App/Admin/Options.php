@@ -46,6 +46,13 @@ class Options extends Base {
 	const SYNC_ACTION_NAME = 'wp_action_network_events_sync';
 
 	/**
+	 * Name of clear cache action
+	 *
+	 * @var string
+	 */
+	const CLEAR_CACHE_ACTION_NAME = 'wp_action_network_events_clear_cache';
+
+	/**
 	 * ID of Options page
 	 *
 	 * @var string
@@ -386,10 +393,12 @@ class Options extends Base {
 		$value = isset( $this->options['query_cache_duration'] ) ? $this->options['query_cache_duration'] : (int) 1;
 
 		printf(
-			'<input type="number" name="wp_action_network_events_options[query_cache_duration]" class="small-text query_cache_duration_field" placeholder="%s" min="1" step="1" max="24" value="%s"> %s',
-			esc_attr__( '', 'wp-action-network-events' ),
-			esc_attr( $value ),
-			esc_attr__( 'hours', 'wp-action-network-events' ),
+			'<input type="number" name="wp_action_network_events_options[query_cache_duration]" class="small-text query_cache_duration_field" placeholder="%s" min="1" step="1" max="24" value="%s"> %s <a href="#" id="%s-clear-cache" class="button button-small button-secondary">%s</a>',
+			\esc_attr__( '', 'wp-action-network-events' ),
+			\esc_attr( $value ),
+			\esc_attr__( 'hours', 'wp-action-network-events' ),
+			\esc_attr( $this->plugin_name ),
+			\esc_attr__( 'Clear Cache Now.', 'wp-action-network-events' )
 		);
 		echo '<p class="description">' . __( 'Select the duration to cache event queries.', 'wp-action-network-events' ) . '</p>';
 	}
