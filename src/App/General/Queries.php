@@ -97,13 +97,12 @@ class Queries extends Base {
 			 */
 			$date_time = new \DateTime( $this->time_diff );
 			$date_time->setTimezone( new \DateTimeZone( \wp_timezone_string() ) );
-			$sort = ( $sort = \get_post_meta( get_the_ID(), 'event_sort', true ) ) ? strtoupper( \esc_attr( $sort ) ) : 'DESC';
 
 			$defaults = array(
 				'post_type'      => array( Event::POST_TYPE['id'] ),
 				'posts_per_page' => 500,
 				'orderby'        => 'meta_value',
-				'order'          => $sort,
+				'order'          => 'DESC',
 				'meta_key'       => 'start_date',
 				'meta_type'      => 'DATETIME',
 				'meta_query'     => array(
